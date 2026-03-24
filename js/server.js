@@ -314,15 +314,45 @@ app.use((err, _req, res, _next) => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-initDb().then(() => {
-  app.listen(PORT, () => {
+
+/**
+ * Try to listen on `port`. If EADDRINUSE, recurse with port+1.
+ * Gives up after MAX_PORT_TRIES attempts.
+ */
+function listenWithFallback(port, attempt = 0) {
+  const MAX_PORT_TRIES = 10;
+
+  const server = app.listen(port);
+
+  server.once('listening', () => {
+    const addr = server.address();
+    const bound = addr ? addr.port : port;
     console.log(`
   ┌─────────────────────────────────────────────┐
-  │   Emphora API  →  http://localhost:${PORT}      │
-  │   Database     →  ${DB_PATH}
-  │   Open         →  http://localhost:${PORT}/emphora.html
+  │   Emphora API  →  http://localhost:${bound}      │
+  │   Database     →  ${DB_PATH}                │
+  │   Open         →  http://localhost:${bound}/emphora.html
   └─────────────────────────────────────────────┘`);
   });
+
+  server.once('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      if (attempt >= MAX_PORT_TRIES) {
+        console.error(`[Emphora] Could not find a free port after ${MAX_PORT_TRIES} tries. Giving up.`);
+        process.exit(1);
+      }
+      const next = port + 1;
+      console.warn(`[Emphora] Port ${port} in use — trying ${next}…`);
+      listenWithFallback(next, attempt + 1);
+    } else {
+      console.error('[Emphora] Server error:', err);
+      process.exit(1);
+    }
+  });
+}
+
+initDb().then(() => {
+  listenWithFallback(PORT);
 }).catch((err) => {
   console.error('[Emphora] Failed to initialise database:', err);
   process.exit(1);
