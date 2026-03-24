@@ -1,353 +1,321 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Emphora — Your Professional Intelligence Platform" />
-  <title>Emphora</title>
-
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-    crossorigin="anonymous"
-  />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" />
-  <link rel="stylesheet" href="css/emphora.css" />
-
-  <style>
-    html, body { margin: 0; padding: 0; min-height: 100vh; }
-  </style>
-</head>
-<body>
-
-  <!--
-    ════════════════════════════════════════════════
-    <emphora> HOST ELEMENT
-    Root class: .emphora
-    All markup scoped within.
-    JS class waits for this element via MutationObserver
-    before initialising (supports <wc-include> lazy load).
-    ════════════════════════════════════════════════
-  -->
-  <emphora class="emphora" data-emphora-theme="light" role="main" aria-label="Emphora authentication">
+<emphora class="emphora" data-emphora-theme="light" role="main" aria-label="Emphora authentication">
 
     <!-- A11y live region -->
     <div
-      id="emphora-live-region"
-      class="em-live-region"
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
+	id="emphora-live-region"
+	class="em-live-region"
+	role="status"
+	aria-live="polite"
+	aria-atomic="true"
     ></div>
 
     <!-- ── OUTER WRAPPER ──────────────────────── -->
     <div class="em-wrapper">
 
-      <!-- ── AUTH CARD ──────────────────────────── -->
-      <div class="em-card" role="region" aria-labelledby="em-heading">
+	<!-- ── AUTH CARD ──────────────────────────── -->
+	<div class="em-card" role="region" aria-labelledby="em-heading">
 
-        <!-- Loading overlay -->
-        <div class="em-loader" id="em-loader" aria-hidden="true">
-          <div class="em-spinner-lg" role="status" aria-label="Loading"></div>
-        </div>
-
-        <!-- ── CARD HEADER ── -->
-        <div class="em-card-header">
-          <a href="#" class="em-logo" aria-label="Emphora home" tabindex="0">
-            Emph<span>ora</span>
-          </a>
-
-          <!-- Account type tag: updates live as chips change on register;
-               shown after login with the user's stored account type -->
-          <span
-            class="em-account-tag em-tag--employee"
-            id="em-account-tag"
-            role="status"
-            aria-label="Account type: Employee"
-            aria-hidden="true"
-          >
-            <span class="material-icons-round em-account-tag__icon" aria-hidden="true">badge</span>
-            <span class="em-account-tag__label">Employee</span>
-          </span>
-
-          <button
-            class="em-theme-toggle"
-            id="em-theme-toggle"
-            type="button"
-            aria-label="Toggle dark mode"
-            aria-pressed="false"
-            title="Toggle theme"
-          >
-            <span class="material-icons-round" aria-hidden="true">light_mode</span>
-          </button>
-        </div>
-
-        <!-- ══ VIEW: LOGIN ═══════════════════════ -->
-        <div class="em-view em-view--active" id="em-view-login" role="region" aria-label="Sign in">
-          <h1 class="em-heading" id="em-heading">Welcome back</h1>
-          <p class="em-subheading">Sign in to your account</p>
-
-          <!-- ── DEV QUICK-LOGIN BAR (hidden in production via config) ── -->
-          <div class="em-dev-bar" id="em-dev-bar" aria-label="Quick login for testing" role="group">
-            <span class="em-dev-bar__label">
-              <span class="material-icons-round" aria-hidden="true">science</span>
-              Quick login
-            </span>
-            <div class="em-dev-bar__btns">
-              <button
-                class="em-dev-btn em-dev-btn--employee"
-                type="button"
-                id="em-dev-employee"
-                data-dev-account="dev-employee"
-                aria-label="Quick login as Employee test account"
-              >
-                <span class="material-icons-round" aria-hidden="true">badge</span>
-                Employee
-              </button>
-              <button
-                class="em-dev-btn em-dev-btn--employer"
-                type="button"
-                id="em-dev-employer"
-                data-dev-account="dev-employer"
-                aria-label="Quick login as Employer test account"
-              >
-                <span class="material-icons-round" aria-hidden="true">business</span>
-                Employer
-              </button>
-              <button
-                class="em-dev-btn em-dev-btn--researcher"
-                type="button"
-                id="em-dev-researcher"
-                data-dev-account="dev-researcher"
-                aria-label="Quick login as Researcher test account"
-              >
-                <span class="material-icons-round" aria-hidden="true">science</span>
-                Researcher
-              </button>
-              <button
-                class="em-dev-btn em-dev-btn--admin"
-                type="button"
-                id="em-dev-admin"
-                aria-label="Open admin panel"
-              >
-                <span class="material-icons-round" aria-hidden="true">admin_panel_settings</span>
-                Admin
-              </button>
-            </div>
-          </div>
-
-          <form class="em-form" id="em-form-login" novalidate aria-label="Login form">
-
-            <div class="em-field">
-              <label class="em-label em-label--required" for="login-email">Email address</label>
-              <div class="em-input-wrap">
-                <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">mail</span></span>
-                <input
-                  class="em-input" type="email" id="login-email" name="email"
-                  placeholder="you@example.com" autocomplete="email"
-                  required aria-required="true" aria-describedby="login-email-error"
-                />
-              </div>
-              <span class="em-field-error" id="login-email-error" role="alert" aria-live="polite"></span>
+            <!-- Loading overlay -->
+            <div class="em-loader" id="em-loader" aria-hidden="true">
+		<div class="em-spinner-lg" role="status" aria-label="Loading"></div>
             </div>
 
-            <div class="em-field">
-              <label class="em-label em-label--required" for="login-password">Password</label>
-              <div class="em-input-wrap">
-                <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">lock</span></span>
-                <input
-                  class="em-input em-input--has-toggle" type="password" id="login-password" name="password"
-                  placeholder="Enter your password" autocomplete="current-password"
-                  required aria-required="true" aria-describedby="login-password-error"
-                />
-                <button class="em-pwd-toggle" type="button" aria-label="Show password" data-target="login-password">
-                  <span class="material-icons-round" aria-hidden="true">visibility</span>
-                </button>
-              </div>
-              <span class="em-field-error" id="login-password-error" role="alert" aria-live="polite"></span>
+            <!-- ── CARD HEADER ── -->
+            <div class="em-card-header">
+		<a href="#" class="em-logo" aria-label="Emphora home" tabindex="0">
+		    Emph<span>ora</span>
+		</a>
+
+		<!-- Account type tag: updates live as chips change on register;
+		     shown after login with the user's stored account type -->
+		<span
+		    class="em-account-tag em-tag--employee"
+		    id="em-account-tag"
+		    role="status"
+		    aria-label="Account type: Employee"
+		    aria-hidden="true"
+		>
+		    <span class="material-icons-round em-account-tag__icon" aria-hidden="true">badge</span>
+		    <span class="em-account-tag__label">Employee</span>
+		</span>
+
+		<button
+		    class="em-theme-toggle"
+		    id="em-theme-toggle"
+		    type="button"
+		    aria-label="Toggle dark mode"
+		    aria-pressed="false"
+		    title="Toggle theme"
+		>
+		    <span class="material-icons-round" aria-hidden="true">light_mode</span>
+		</button>
             </div>
 
-            <div class="em-forgot">
-              <a href="#" aria-label="Forgot your password? Reset it here">Forgot password?</a>
+            <!-- ══ VIEW: LOGIN ═══════════════════════ -->
+            <div class="em-view em-view--active" id="em-view-login" role="region" aria-label="Sign in">
+		<h1 class="em-heading" id="em-heading">Welcome back</h1>
+		<p class="em-subheading">Sign in to your account</p>
+
+		<!-- ── DEV QUICK-LOGIN BAR (hidden in production via config) ── -->
+		<div class="em-dev-bar" id="em-dev-bar" aria-label="Quick login for testing" role="group">
+		    <span class="em-dev-bar__label">
+			<span class="material-icons-round" aria-hidden="true">science</span>
+			Quick login
+		    </span>
+		    <div class="em-dev-bar__btns">
+			<button
+			    class="em-dev-btn em-dev-btn--employee"
+			    type="button"
+			    id="em-dev-employee"
+			    data-dev-account="dev-employee"
+			    aria-label="Quick login as Employee test account"
+			>
+			    <span class="material-icons-round" aria-hidden="true">badge</span>
+			    Employee
+			</button>
+			<button
+			    class="em-dev-btn em-dev-btn--employer"
+			    type="button"
+			    id="em-dev-employer"
+			    data-dev-account="dev-employer"
+			    aria-label="Quick login as Employer test account"
+			>
+			    <span class="material-icons-round" aria-hidden="true">business</span>
+			    Employer
+			</button>
+			<button
+			    class="em-dev-btn em-dev-btn--researcher"
+			    type="button"
+			    id="em-dev-researcher"
+			    data-dev-account="dev-researcher"
+			    aria-label="Quick login as Researcher test account"
+			>
+			    <span class="material-icons-round" aria-hidden="true">science</span>
+			    Researcher
+			</button>
+			<button
+			    class="em-dev-btn em-dev-btn--admin"
+			    type="button"
+			    id="em-dev-admin"
+			    aria-label="Open admin panel"
+			>
+			    <span class="material-icons-round" aria-hidden="true">admin_panel_settings</span>
+			    Admin
+			</button>
+		    </div>
+		</div>
+
+		<form class="em-form" id="em-form-login" novalidate aria-label="Login form">
+
+		    <div class="em-field">
+			<label class="em-label em-label--required" for="login-email">Email address</label>
+			<div class="em-input-wrap">
+			    <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">mail</span></span>
+			    <input
+				class="em-input" type="email" id="login-email" name="email"
+				placeholder="you@example.com" autocomplete="email"
+				required aria-required="true" aria-describedby="login-email-error"
+			    />
+			</div>
+			<span class="em-field-error" id="login-email-error" role="alert" aria-live="polite"></span>
+		    </div>
+
+		    <div class="em-field">
+			<label class="em-label em-label--required" for="login-password">Password</label>
+			<div class="em-input-wrap">
+			    <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">lock</span></span>
+			    <input
+				class="em-input em-input--has-toggle" type="password" id="login-password" name="password"
+				placeholder="Enter your password" autocomplete="current-password"
+				required aria-required="true" aria-describedby="login-password-error"
+			    />
+			    <button class="em-pwd-toggle" type="button" aria-label="Show password" data-target="login-password">
+				<span class="material-icons-round" aria-hidden="true">visibility</span>
+			    </button>
+			</div>
+			<span class="em-field-error" id="login-password-error" role="alert" aria-live="polite"></span>
+		    </div>
+
+		    <div class="em-forgot">
+			<a href="#" aria-label="Forgot your password? Reset it here">Forgot password?</a>
+		    </div>
+
+		    <button class="em-btn-submit" type="submit" id="em-btn-login" aria-label="Sign in to your Emphora account">
+			<span class="em-btn-label">Sign In</span>
+			<span class="material-icons-round" aria-hidden="true">arrow_forward</span>
+		    </button>
+		</form>
+
+		<div class="em-divider" role="separator"></div>
+
+		<p class="em-switch-prompt">
+		    Don't have an account?
+		    <button type="button" data-em-goto="register" aria-label="Create a new Emphora account">Create one</button>
+		</p>
             </div>
-
-            <button class="em-btn-submit" type="submit" id="em-btn-login" aria-label="Sign in to your Emphora account">
-              <span class="em-btn-label">Sign In</span>
-              <span class="material-icons-round" aria-hidden="true">arrow_forward</span>
-            </button>
-          </form>
-
-          <div class="em-divider" role="separator"></div>
-
-          <p class="em-switch-prompt">
-            Don't have an account?
-            <button type="button" data-em-goto="register" aria-label="Create a new Emphora account">Create one</button>
-          </p>
-        </div>
-        <!-- /em-view-login -->
+            <!-- /em-view-login -->
 
 
-        <!-- ══ VIEW: REGISTER ════════════════════ -->
-        <div class="em-view" id="em-view-register" role="region" aria-label="Create account">
-          <h1 class="em-heading" id="em-register-heading">Create account</h1>
-          <p class="em-subheading">Join Emphora — your eLifeBook™ awaits</p>
+            <!-- ══ VIEW: REGISTER ════════════════════ -->
+            <div class="em-view" id="em-view-register" role="region" aria-label="Create account">
+		<h1 class="em-heading" id="em-register-heading">Create account</h1>
+		<p class="em-subheading">Join Emphora — your eLifeBook™ awaits</p>
 
-          <form class="em-form" id="em-form-register" novalidate aria-label="Registration form">
+		<form class="em-form" id="em-form-register" novalidate aria-label="Registration form">
 
-            <!-- First / Last name row -->
-            <div class="em-field-row">
-              <div class="em-field">
-                <label class="em-label em-label--required" for="reg-firstname">First name</label>
-                <div class="em-input-wrap">
-                  <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">person</span></span>
-                  <input
-                    class="em-input" type="text" id="reg-firstname" name="firstName"
-                    placeholder="First name" autocomplete="given-name"
-                    required aria-required="true" aria-describedby="reg-firstname-error"
-                  />
-                </div>
-                <span class="em-field-error" id="reg-firstname-error" role="alert" aria-live="polite"></span>
-              </div>
+		    <!-- First / Last name row -->
+		    <div class="em-field-row">
+			<div class="em-field">
+			    <label class="em-label em-label--required" for="reg-firstname">First name</label>
+			    <div class="em-input-wrap">
+				<span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">person</span></span>
+				<input
+				    class="em-input" type="text" id="reg-firstname" name="firstName"
+				    placeholder="First name" autocomplete="given-name"
+				    required aria-required="true" aria-describedby="reg-firstname-error"
+				/>
+			    </div>
+			    <span class="em-field-error" id="reg-firstname-error" role="alert" aria-live="polite"></span>
+			</div>
 
-              <div class="em-field">
-                <label class="em-label em-label--required" for="reg-lastname">Last name</label>
-                <div class="em-input-wrap">
-                  <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">person</span></span>
-                  <input
-                    class="em-input" type="text" id="reg-lastname" name="lastName"
-                    placeholder="Last name" autocomplete="family-name"
-                    required aria-required="true" aria-describedby="reg-lastname-error"
-                  />
-                </div>
-                <span class="em-field-error" id="reg-lastname-error" role="alert" aria-live="polite"></span>
-              </div>
+			<div class="em-field">
+			    <label class="em-label em-label--required" for="reg-lastname">Last name</label>
+			    <div class="em-input-wrap">
+				<span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">person</span></span>
+				<input
+				    class="em-input" type="text" id="reg-lastname" name="lastName"
+				    placeholder="Last name" autocomplete="family-name"
+				    required aria-required="true" aria-describedby="reg-lastname-error"
+				/>
+			    </div>
+			    <span class="em-field-error" id="reg-lastname-error" role="alert" aria-live="polite"></span>
+			</div>
+		    </div>
+
+		    <!-- Email -->
+		    <div class="em-field">
+			<label class="em-label em-label--required" for="reg-email">Email address</label>
+			<div class="em-input-wrap">
+			    <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">mail</span></span>
+			    <input
+				class="em-input" type="email" id="reg-email" name="email"
+				placeholder="you@example.com" autocomplete="email"
+				required aria-required="true" aria-describedby="reg-email-error"
+			    />
+			</div>
+			<span class="em-field-error" id="reg-email-error" role="alert" aria-live="polite"></span>
+		    </div>
+
+		    <!-- Password -->
+		    <div class="em-field">
+			<label class="em-label em-label--required" for="reg-password">Password</label>
+			<div class="em-input-wrap">
+			    <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">lock</span></span>
+			    <input
+				class="em-input em-input--has-toggle" type="password" id="reg-password" name="password"
+				placeholder="Create a password (min 8 chars)" autocomplete="new-password"
+				required aria-required="true" aria-describedby="reg-password-error reg-pwd-strength-label"
+			    />
+			    <button class="em-pwd-toggle" type="button" aria-label="Show password" data-target="reg-password">
+				<span class="material-icons-round" aria-hidden="true">visibility</span>
+			    </button>
+			</div>
+			<div class="em-pwd-strength" id="reg-pwd-strength" aria-hidden="true">
+			    <div class="em-pwd-strength-bar" id="em-psb-1"></div>
+			    <div class="em-pwd-strength-bar" id="em-psb-2"></div>
+			    <div class="em-pwd-strength-bar" id="em-psb-3"></div>
+			    <div class="em-pwd-strength-bar" id="em-psb-4"></div>
+			</div>
+			<span class="em-pwd-strength-label" id="reg-pwd-strength-label" aria-live="polite"></span>
+			<span class="em-field-error" id="reg-password-error" role="alert" aria-live="polite"></span>
+		    </div>
+
+		    <!-- Confirm Password -->
+		    <div class="em-field">
+			<label class="em-label em-label--required" for="reg-confirm">Confirm password</label>
+			<div class="em-input-wrap">
+			    <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">lock_reset</span></span>
+			    <input
+				class="em-input em-input--has-toggle" type="password" id="reg-confirm" name="confirmPassword"
+				placeholder="Repeat your password" autocomplete="new-password"
+				required aria-required="true" aria-describedby="reg-confirm-error"
+			    />
+			    <button class="em-pwd-toggle" type="button" aria-label="Show confirm password" data-target="reg-confirm">
+				<span class="material-icons-round" aria-hidden="true">visibility</span>
+			    </button>
+			</div>
+			<span class="em-field-error" id="reg-confirm-error" role="alert" aria-live="polite"></span>
+		    </div>
+
+		    <!-- Account Type Chips -->
+		    <div class="em-field">
+			<span class="em-label" id="em-acct-type-label">I am joining as a</span>
+			<div class="em-chip-group" role="radiogroup" aria-labelledby="em-acct-type-label" id="em-chip-group">
+			    <button class="em-chip em-chip--active" type="button" role="radio" aria-checked="true"
+				    data-value="employee" aria-label="Professional or Job Seeker" tabindex="0">
+				<span class="material-icons-round" aria-hidden="true">badge</span>Professional
+			    </button>
+			    <button class="em-chip" type="button" role="radio" aria-checked="false"
+				    data-value="employer" aria-label="Employer or Recruiter" tabindex="-1">
+				<span class="material-icons-round" aria-hidden="true">business</span>Employer
+			    </button>
+			    <button class="em-chip" type="button" role="radio" aria-checked="false"
+				    data-value="researcher" aria-label="Researcher or Analyst" tabindex="-1">
+				<span class="material-icons-round" aria-hidden="true">science</span>Researcher
+			    </button>
+			</div>
+			<input type="hidden" id="reg-account-type" name="accountType" value="employee" />
+		    </div>
+
+		    <!-- Terms -->
+		    <div class="em-field">
+			<div class="em-checkbox-wrap" role="checkbox" aria-checked="false" aria-required="true"
+			     id="em-terms-checkbox" tabindex="0" aria-describedby="reg-terms-error">
+			    <div class="em-checkbox" aria-hidden="true">
+				<span class="em-check-icon"><span class="material-icons-round">check</span></span>
+			    </div>
+			    <span class="em-checkbox-label">
+				I agree to the
+				<a href="#terms" target="_blank" rel="noopener">Terms of Service &amp; Privacy Policy</a>
+			    </span>
+			</div>
+			<span class="em-field-error" id="reg-terms-error" role="alert" aria-live="polite"></span>
+		    </div>
+
+		    <button class="em-btn-submit" type="submit" id="em-btn-register" aria-label="Create your Emphora account">
+			<span class="em-btn-label">Create Account</span>
+			<span class="material-icons-round" aria-hidden="true">person_add</span>
+		    </button>
+		</form>
+
+		<div class="em-divider" role="separator"></div>
+
+		<p class="em-switch-prompt">
+		    Already have an account?
+		    <button type="button" data-em-goto="login" aria-label="Sign in to your existing Emphora account">Sign in</button>
+		</p>
             </div>
+            <!-- /em-view-register -->
 
-            <!-- Email -->
-            <div class="em-field">
-              <label class="em-label em-label--required" for="reg-email">Email address</label>
-              <div class="em-input-wrap">
-                <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">mail</span></span>
-                <input
-                  class="em-input" type="email" id="reg-email" name="email"
-                  placeholder="you@example.com" autocomplete="email"
-                  required aria-required="true" aria-describedby="reg-email-error"
-                />
-              </div>
-              <span class="em-field-error" id="reg-email-error" role="alert" aria-live="polite"></span>
+
+            <!-- ══ VIEW: SUCCESS ═════════════════════ -->
+            <div class="em-view" id="em-view-success" role="region" aria-label="Registration successful" aria-live="polite">
+		<div class="em-success-state">
+		    <div class="em-success-icon" aria-hidden="true">
+			<span class="material-icons-round">check_circle</span>
+		    </div>
+		    <h3>You're in!</h3>
+		    <p>Your Emphora account has been created. Your eLifeBook™ journey starts now.</p>
+		</div>
+		<div class="em-divider" role="separator"></div>
+		<p class="em-switch-prompt">
+		    <button type="button" data-em-goto="login" aria-label="Go to sign in">Sign in to your account</button>
+		</p>
             </div>
+            <!-- /em-view-success -->
 
-            <!-- Password -->
-            <div class="em-field">
-              <label class="em-label em-label--required" for="reg-password">Password</label>
-              <div class="em-input-wrap">
-                <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">lock</span></span>
-                <input
-                  class="em-input em-input--has-toggle" type="password" id="reg-password" name="password"
-                  placeholder="Create a password (min 8 chars)" autocomplete="new-password"
-                  required aria-required="true" aria-describedby="reg-password-error reg-pwd-strength-label"
-                />
-                <button class="em-pwd-toggle" type="button" aria-label="Show password" data-target="reg-password">
-                  <span class="material-icons-round" aria-hidden="true">visibility</span>
-                </button>
-              </div>
-              <div class="em-pwd-strength" id="reg-pwd-strength" aria-hidden="true">
-                <div class="em-pwd-strength-bar" id="em-psb-1"></div>
-                <div class="em-pwd-strength-bar" id="em-psb-2"></div>
-                <div class="em-pwd-strength-bar" id="em-psb-3"></div>
-                <div class="em-pwd-strength-bar" id="em-psb-4"></div>
-              </div>
-              <span class="em-pwd-strength-label" id="reg-pwd-strength-label" aria-live="polite"></span>
-              <span class="em-field-error" id="reg-password-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="em-field">
-              <label class="em-label em-label--required" for="reg-confirm">Confirm password</label>
-              <div class="em-input-wrap">
-                <span class="em-input-icon" aria-hidden="true"><span class="material-icons-round">lock_reset</span></span>
-                <input
-                  class="em-input em-input--has-toggle" type="password" id="reg-confirm" name="confirmPassword"
-                  placeholder="Repeat your password" autocomplete="new-password"
-                  required aria-required="true" aria-describedby="reg-confirm-error"
-                />
-                <button class="em-pwd-toggle" type="button" aria-label="Show confirm password" data-target="reg-confirm">
-                  <span class="material-icons-round" aria-hidden="true">visibility</span>
-                </button>
-              </div>
-              <span class="em-field-error" id="reg-confirm-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Account Type Chips -->
-            <div class="em-field">
-              <span class="em-label" id="em-acct-type-label">I am joining as a</span>
-              <div class="em-chip-group" role="radiogroup" aria-labelledby="em-acct-type-label" id="em-chip-group">
-                <button class="em-chip em-chip--active" type="button" role="radio" aria-checked="true"
-                  data-value="employee" aria-label="Professional or Job Seeker" tabindex="0">
-                  <span class="material-icons-round" aria-hidden="true">badge</span>Professional
-                </button>
-                <button class="em-chip" type="button" role="radio" aria-checked="false"
-                  data-value="employer" aria-label="Employer or Recruiter" tabindex="-1">
-                  <span class="material-icons-round" aria-hidden="true">business</span>Employer
-                </button>
-                <button class="em-chip" type="button" role="radio" aria-checked="false"
-                  data-value="researcher" aria-label="Researcher or Analyst" tabindex="-1">
-                  <span class="material-icons-round" aria-hidden="true">science</span>Researcher
-                </button>
-              </div>
-              <input type="hidden" id="reg-account-type" name="accountType" value="employee" />
-            </div>
-
-            <!-- Terms -->
-            <div class="em-field">
-              <div class="em-checkbox-wrap" role="checkbox" aria-checked="false" aria-required="true"
-                id="em-terms-checkbox" tabindex="0" aria-describedby="reg-terms-error">
-                <div class="em-checkbox" aria-hidden="true">
-                  <span class="em-check-icon"><span class="material-icons-round">check</span></span>
-                </div>
-                <span class="em-checkbox-label">
-                  I agree to the
-                  <a href="#terms" target="_blank" rel="noopener">Terms of Service &amp; Privacy Policy</a>
-                </span>
-              </div>
-              <span class="em-field-error" id="reg-terms-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <button class="em-btn-submit" type="submit" id="em-btn-register" aria-label="Create your Emphora account">
-              <span class="em-btn-label">Create Account</span>
-              <span class="material-icons-round" aria-hidden="true">person_add</span>
-            </button>
-          </form>
-
-          <div class="em-divider" role="separator"></div>
-
-          <p class="em-switch-prompt">
-            Already have an account?
-            <button type="button" data-em-goto="login" aria-label="Sign in to your existing Emphora account">Sign in</button>
-          </p>
-        </div>
-        <!-- /em-view-register -->
-
-
-        <!-- ══ VIEW: SUCCESS ═════════════════════ -->
-        <div class="em-view" id="em-view-success" role="region" aria-label="Registration successful" aria-live="polite">
-          <div class="em-success-state">
-            <div class="em-success-icon" aria-hidden="true">
-              <span class="material-icons-round">check_circle</span>
-            </div>
-            <h3>You're in!</h3>
-            <p>Your Emphora account has been created. Your eLifeBook™ journey starts now.</p>
-          </div>
-          <div class="em-divider" role="separator"></div>
-          <p class="em-switch-prompt">
-            <button type="button" data-em-goto="login" aria-label="Go to sign in">Sign in to your account</button>
-          </p>
-        </div>
-        <!-- /em-view-success -->
-
-      </div>
-      <!-- /em-card -->
+	</div>
+	<!-- /em-card -->
 
     </div>
     <!-- /em-wrapper -->
@@ -357,144 +325,132 @@
 
     <!-- ══ ADMIN PANEL ════════════════════════════════════════════════════════ -->
     <div
-      class="em-admin-overlay"
-      id="em-admin-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="em-admin-title"
-      aria-hidden="true"
+	class="em-admin-overlay"
+	id="em-admin-overlay"
+	role="dialog"
+	aria-modal="true"
+	aria-labelledby="em-admin-title"
+	aria-hidden="true"
     >
-      <div class="em-admin-panel" id="em-admin-panel">
+	<div class="em-admin-panel" id="em-admin-panel">
 
-        <!-- Panel header -->
-        <div class="em-admin-header">
-          <div class="em-admin-header__left">
-            <span class="material-icons-round em-admin-header__icon" aria-hidden="true">admin_panel_settings</span>
-            <div>
-              <h2 class="em-admin-title" id="em-admin-title">Admin Panel</h2>
-              <p class="em-admin-sub">Manage users — <span id="em-admin-count">…</span></p>
+            <!-- Panel header -->
+            <div class="em-admin-header">
+		<div class="em-admin-header__left">
+		    <span class="material-icons-round em-admin-header__icon" aria-hidden="true">admin_panel_settings</span>
+		    <div>
+			<h2 class="em-admin-title" id="em-admin-title">Admin Panel</h2>
+			<p class="em-admin-sub">Manage users — <span id="em-admin-count">…</span></p>
+		    </div>
+		</div>
+		<div class="em-admin-header__actions">
+		    <button class="em-admin-icon-btn" id="em-admin-refresh" aria-label="Refresh users" title="Refresh">
+			<span class="material-icons-round">refresh</span>
+		    </button>
+		    <button class="em-admin-icon-btn" id="em-admin-add" aria-label="Add new user" title="Add user">
+			<span class="material-icons-round">person_add</span>
+		    </button>
+		    <button class="em-admin-icon-btn em-admin-icon-btn--close" id="em-admin-close" aria-label="Close admin panel">
+			<span class="material-icons-round">close</span>
+		    </button>
+		</div>
             </div>
-          </div>
-          <div class="em-admin-header__actions">
-            <button class="em-admin-icon-btn" id="em-admin-refresh" aria-label="Refresh users" title="Refresh">
-              <span class="material-icons-round">refresh</span>
-            </button>
-            <button class="em-admin-icon-btn" id="em-admin-add" aria-label="Add new user" title="Add user">
-              <span class="material-icons-round">person_add</span>
-            </button>
-            <button class="em-admin-icon-btn em-admin-icon-btn--close" id="em-admin-close" aria-label="Close admin panel">
-              <span class="material-icons-round">close</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- Search + filter toolbar -->
-        <div class="em-admin-toolbar">
-          <div class="em-admin-search-wrap">
-            <span class="material-icons-round em-admin-search-icon" aria-hidden="true">search</span>
-            <input
-              class="em-admin-search"
-              id="em-admin-search"
-              type="search"
-              placeholder="Search name or email…"
-              aria-label="Search users"
-            />
-          </div>
-          <select class="em-admin-select" id="em-admin-filter-type" aria-label="Filter by account type">
-            <option value="">All types</option>
-            <option value="employee">Employee</option>
-            <option value="employer">Employer</option>
-            <option value="researcher">Researcher</option>
-          </select>
-          <select class="em-admin-select" id="em-admin-filter-status" aria-label="Filter by status">
-            <option value="">All status</option>
-            <option value="active">Active</option>
-            <option value="disabled">Disabled</option>
-          </select>
-        </div>
+            <!-- Search + filter toolbar -->
+            <div class="em-admin-toolbar">
+		<div class="em-admin-search-wrap">
+		    <span class="material-icons-round em-admin-search-icon" aria-hidden="true">search</span>
+		    <input
+			class="em-admin-search"
+			id="em-admin-search"
+			type="search"
+			placeholder="Search name or email…"
+			aria-label="Search users"
+		    />
+		</div>
+		<select class="em-admin-select" id="em-admin-filter-type" aria-label="Filter by account type">
+		    <option value="">All types</option>
+		    <option value="employee">Employee</option>
+		    <option value="employer">Employer</option>
+		    <option value="researcher">Researcher</option>
+		</select>
+		<select class="em-admin-select" id="em-admin-filter-status" aria-label="Filter by status">
+		    <option value="">All status</option>
+		    <option value="active">Active</option>
+		    <option value="disabled">Disabled</option>
+		</select>
+            </div>
 
-        <!-- User list -->
-        <div class="em-admin-body" id="em-admin-body" role="region" aria-live="polite" aria-label="Users list">
-          <div class="em-admin-empty" id="em-admin-loading">
-            <span class="em-admin-spinner"></span>
-            <span>Loading users…</span>
-          </div>
-        </div>
+            <!-- User list -->
+            <div class="em-admin-body" id="em-admin-body" role="region" aria-live="polite" aria-label="Users list">
+		<div class="em-admin-empty" id="em-admin-loading">
+		    <span class="em-admin-spinner"></span>
+		    <span>Loading users…</span>
+		</div>
+            </div>
 
-        <!-- Add / Edit user form (hidden by default) -->
-        <div class="em-admin-form-drawer" id="em-admin-form-drawer" aria-hidden="true">
-          <div class="em-admin-form-header">
-            <h3 class="em-admin-form-title" id="em-admin-form-title">Add user</h3>
-            <button class="em-admin-icon-btn em-admin-icon-btn--close" id="em-admin-form-close" aria-label="Close form">
-              <span class="material-icons-round">close</span>
-            </button>
-          </div>
-          <form class="em-admin-form" id="em-admin-form" novalidate>
-            <input type="hidden" id="em-admin-form-id" value="" />
-            <div class="em-admin-field-row">
-              <div class="em-admin-field">
-                <label class="em-admin-label" for="em-admin-fname">First name</label>
-                <input class="em-admin-input" type="text" id="em-admin-fname" name="firstName" placeholder="First name" required />
-              </div>
-              <div class="em-admin-field">
-                <label class="em-admin-label" for="em-admin-lname">Last name</label>
-                <input class="em-admin-input" type="text" id="em-admin-lname" name="lastName" placeholder="Last name" required />
-              </div>
+            <!-- Add / Edit user form (hidden by default) -->
+            <div class="em-admin-form-drawer" id="em-admin-form-drawer" aria-hidden="true">
+		<div class="em-admin-form-header">
+		    <h3 class="em-admin-form-title" id="em-admin-form-title">Add user</h3>
+		    <button class="em-admin-icon-btn em-admin-icon-btn--close" id="em-admin-form-close" aria-label="Close form">
+			<span class="material-icons-round">close</span>
+		    </button>
+		</div>
+		<form class="em-admin-form" id="em-admin-form" novalidate>
+		    <input type="hidden" id="em-admin-form-id" value="" />
+		    <div class="em-admin-field-row">
+			<div class="em-admin-field">
+			    <label class="em-admin-label" for="em-admin-fname">First name</label>
+			    <input class="em-admin-input" type="text" id="em-admin-fname" name="firstName" placeholder="First name" required />
+			</div>
+			<div class="em-admin-field">
+			    <label class="em-admin-label" for="em-admin-lname">Last name</label>
+			    <input class="em-admin-input" type="text" id="em-admin-lname" name="lastName" placeholder="Last name" required />
+			</div>
+		    </div>
+		    <div class="em-admin-field">
+			<label class="em-admin-label" for="em-admin-email">Email</label>
+			<input class="em-admin-input" type="email" id="em-admin-email" name="email" placeholder="user@example.com" required />
+		    </div>
+		    <div class="em-admin-field" id="em-admin-pw-field">
+			<label class="em-admin-label" for="em-admin-password">Password <span id="em-admin-pw-hint">(min 8 chars)</span></label>
+			<input class="em-admin-input" type="password" id="em-admin-password" name="password" placeholder="Set password" />
+		    </div>
+		    <div class="em-admin-field-row">
+			<div class="em-admin-field">
+			    <label class="em-admin-label" for="em-admin-type">Account type</label>
+			    <select class="em-admin-input" id="em-admin-type" name="accountType">
+				<option value="employee">Employee</option>
+				<option value="employer">Employer</option>
+				<option value="researcher">Researcher</option>
+			    </select>
+			</div>
+			<div class="em-admin-field">
+			    <label class="em-admin-label">Flags</label>
+			    <div class="em-admin-toggles">
+				<label class="em-admin-toggle-label">
+				    <input type="checkbox" id="em-admin-verified" name="isVerified" />
+				    <span>Verified</span>
+				</label>
+				<label class="em-admin-toggle-label">
+				    <input type="checkbox" id="em-admin-active" name="isActive" checked />
+				    <span>Active</span>
+				</label>
+			    </div>
+			</div>
+		    </div>
+		    <div class="em-admin-form-actions">
+			<button class="em-admin-btn em-admin-btn--ghost" type="button" id="em-admin-form-cancel">Cancel</button>
+			<button class="em-admin-btn em-admin-btn--primary" type="submit" id="em-admin-form-submit">
+			    <span class="em-admin-btn-label">Save user</span>
+			</button>
+		    </div>
+		</form>
             </div>
-            <div class="em-admin-field">
-              <label class="em-admin-label" for="em-admin-email">Email</label>
-              <input class="em-admin-input" type="email" id="em-admin-email" name="email" placeholder="user@example.com" required />
-            </div>
-            <div class="em-admin-field" id="em-admin-pw-field">
-              <label class="em-admin-label" for="em-admin-password">Password <span id="em-admin-pw-hint">(min 8 chars)</span></label>
-              <input class="em-admin-input" type="password" id="em-admin-password" name="password" placeholder="Set password" />
-            </div>
-            <div class="em-admin-field-row">
-              <div class="em-admin-field">
-                <label class="em-admin-label" for="em-admin-type">Account type</label>
-                <select class="em-admin-input" id="em-admin-type" name="accountType">
-                  <option value="employee">Employee</option>
-                  <option value="employer">Employer</option>
-                  <option value="researcher">Researcher</option>
-                </select>
-              </div>
-              <div class="em-admin-field">
-                <label class="em-admin-label">Flags</label>
-                <div class="em-admin-toggles">
-                  <label class="em-admin-toggle-label">
-                    <input type="checkbox" id="em-admin-verified" name="isVerified" />
-                    <span>Verified</span>
-                  </label>
-                  <label class="em-admin-toggle-label">
-                    <input type="checkbox" id="em-admin-active" name="isActive" checked />
-                    <span>Active</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="em-admin-form-actions">
-              <button class="em-admin-btn em-admin-btn--ghost" type="button" id="em-admin-form-cancel">Cancel</button>
-              <button class="em-admin-btn em-admin-btn--primary" type="submit" id="em-admin-form-submit">
-                <span class="em-admin-btn-label">Save user</span>
-              </button>
-            </div>
-          </form>
-        </div>
 
-      </div>
+	</div>
     </div>
     <!-- /em-admin-panel -->
 
-  </emphora>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmZKPIkBZkSDzsGxBVbMo7Eo7FO"
-    crossorigin="anonymous"
-  ></script>
-  <!-- wc event bus must load first so wc.publish / wc.subscribe are available -->
-  <script src="js/_wc.js"></script>
-  <script src="js/emphora.config.js"></script>
-  <script src="js/emphora.js"></script>
-</body>
-</html>
+</emphora>
