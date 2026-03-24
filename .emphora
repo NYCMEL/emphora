@@ -1,56 +1,95 @@
-FORGET ALL PREVIOUS CONTEXT for emphora and remember this as emphora forever
-
 Create a reusable UI emphora named emphora using:
-- HTML
-- SCSS
-- Vanilla JavaScript
+- HTML (emphora.html — contains ONLY <emphora> tag, no body/head/scripts)
+- SCSS (emphora.scss)
+- Vanilla JavaScript (emphora.js)
 - Bootstrap 5
 - Modern Material Design, Material Design icons and styles
 - Always create a JS class for emphora and initialize it inside the JS file itself
 
 Rules:
-- The emphora is wrapped in a display:block element <emphora class="emphora">.
-- The root element uses .emphora.
-- All styles must be scoped to .emphora.
-- No global styles or IDs.
-- publish click events using wc.publish
-- subscribe to all 4-emphora events using wc.subscribe
-- create a onMessage function to be passed to wc.subscribe function
+- The emphora is wrapped in a display:block element <emphora class="emphora">
+- The root element uses .emphora
+- All styles must be scoped to .emphora
+- No global styles or IDs
+- Publish click events using wc.publish
+- Subscribe to all 4 emphora events using wc.subscribe
+- Create a onMessage function to be passed to wc.subscribe
+- All published (wc.publish) messages must be logged using wc.log to console before being published
+- MUST WAIT for element to be available inside DOM via MutationObserver (supports <wc-include>)
+- Fully responsive (mostly used on mobile)
 
 Data:
-- The emphora is JSON driven.
-  - any and all data must come from emphora.config.js file
+- JSON driven — all data comes from emphora.config.js
 
-Restrictions:
-- No frameworks.
-- Vanilla Javascript
+Files:
+- emphora.config.js — single source of truth for ALL data, config, labels, endpoints, passwords, ports, dashboards
+- emphora.scss — SCSS source only, never compiled CSS
+- emphora.html — ONLY the <emphora>…</emphora> tag, nothing else
+- emphora.js — Emphora class + EmAdmin class + wc bus
+- server.js — Node.js + sql.js backend
+- admin.html — Admin dashboard (accountType: admin)
+- employee.html — Employee/Professional dashboard
+- employer.html — Employer dashboard
+- researcher.html — Researcher dashboard
+- users.html — Full user management table
+
+Backend:
+- Node.js + sql.js (pure WASM SQLite, no native compilation)
+- Port: 3001 (auto-increments if busy, defined in config)
+- Apache reverse proxy at emphora.melify.com → localhost:3001
+
+Auth:
+- JWT + bcrypt sessions stored in SQLite
+- Login, register, logout, profile endpoints
+- is_active flag blocks login when disabled
+
+Seed accounts (all password: test-1234):
+- admin@emphora.dev      — accountType: admin
+- employee@emphora.dev   — accountType: employee
+- employer@emphora.dev   — accountType: employer
+- researcher@emphora.dev — accountType: researcher
+- Seed re-syncs passwords on every server restart
+
+Account types: employee | employer | researcher | admin
+
+On login → redirect to role dashboard:
+- admin      → admin.html
+- employee   → employee.html
+- employer   → employer.html
+- researcher → researcher.html
+- User saved to sessionStorage as 'emphora_user'
+- Logout → redirect to /
+
+Components:
+- Registration form (firstName, lastName, email, password, confirmPassword, accountType chips, terms)
+- Login form
+- Light/dark mode toggle (persisted to localStorage)
+- Account type tag in card header (updates live on chip select)
+- Password strength meter
+- Dev tools bar REMOVED — login now via users.html one-click login
+- Admin panel (EmAdmin class) — inline modal with user list, add/edit/enable/disable/delete
+
+users.html:
+- Full CRUD user table (search, filter by type/status/verified, sortable columns)
+- One-click "Login as" per row (uses test-1234 for seed accounts, prompts for others)
+- ← Admin back button (visible only to admin accountType users)
+- Add user modal, Edit modal, Enable/Disable, Delete with confirm
+
+admin.html:
+- Purple admin theme
+- Live stats: total users, employees, employers, disabled, active sessions
+- Recent users table
+- Account breakdown bars
+- "View Users" button → users.html
+- Sign Out → /
 
 Accessibility:
-- Use semantic HTML.
-- Keyboard accessible.
-- Visible focus states.
-- ADA compliant
+- Semantic HTML, keyboard accessible, visible focus states, ADA compliant
+- aria-live regions, aria-label, aria-required, aria-invalid throughout
 
-Output! Create exactly these files:
-- emphora.config.js (JSON FILE)
-- emphora.scss
-- emphora.html
-- emphora.js
-- backend uses sqlite database and node
-
-Behavior:
-- MUST WAIT for element to be available inside DOM, since i will be using <wc-include> for dynamic inclusion
-- all published (wc.publish) messages should be logged using wc.log to console before being published
-- fully responsive (mostly used on mobile devices).
-
-emphora must have the following components:
-  - registeration
-  - user login
-  - light and dark mode with toggle selection
-
-create a separate users in sqlite db and add 
-  - a user employee "demo" with "demo" password.
-  - an admin user "admin" and "admin" passwords
-  - an employer user "employer" and "employer" passwords
-  - add a "Employee" or "Employer" tag to the top bar
-  - add port 5000 to config file
+Restrictions:
+- No frameworks in frontend
+- Vanilla JavaScript only
+- No compiled CSS output — SCSS source files only
+- Always remember mtk- prefix convention
+- Always show updated code in FULL
