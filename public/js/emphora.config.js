@@ -9,7 +9,7 @@ const EmophoraConfig = {
   },
 
   server: {
-    port: 5001,          // preferred port; server auto-increments if already in use
+    port: 3001,          // preferred port; server auto-increments if already in use
     portFallbackTries: 10  // how many ports to try before giving up
   },
 
