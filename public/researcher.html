@@ -64,6 +64,18 @@
     .progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px;}
     .progress-fill{height:100%;border-radius:3px;background:var(--primary);transition:width .6s ease;}
     @media(max-width:600px){.page-hero{flex-wrap:wrap;}.hero-actions{width:100%;}.stats{grid-template-columns:1fr 1fr;}}
+
+    /* ── Avatar upload ── */
+    .em-avatar-upload { position:relative; cursor:pointer; transition:filter .2s; overflow:hidden; }
+    .em-avatar-upload:hover { filter:brightness(.75); }
+    .em-avatar-overlay {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:opacity .2s; pointer-events:none; border-radius:50%;
+      background:rgba(0,0,0,.35);
+    }
+    .em-avatar-overlay .material-icons-round { font-size:1.4rem; color:#fff; }
+    .em-avatar-upload:hover .em-avatar-overlay { opacity:1; }
+    .em-avatar-upload:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
   </style>
 </head>
 <body>
@@ -234,5 +246,19 @@ async function loadStats() {
 loadStats();
 
 </script>
+
+  <!-- Avatar upload -->
+  <script src="js/avatar-upload.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!user) return;
+      const heroEl    = document.getElementById('hero-avatar');
+      const topbarEl  = document.getElementById('topbar-initials');
+      const fn  = user.firstName || '';
+      const ln  = user.lastName  || '';
+      const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+      initAvatar(user.email, heroEl, topbarEl, ini);
+    });
+  </script>
 </body>
 </html>
