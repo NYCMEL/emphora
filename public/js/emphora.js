@@ -479,9 +479,29 @@ class Emphora {
       return;
     }
 
+    // Boot admin panel
+    this._admin = new EmAdmin(this._root, this._config);
+    const adminBtn = this._qs('#em-dev-admin');
+    if (adminBtn) {
+      if (!cfg.admin || !cfg.admin.enabled) {
+        adminBtn.style.display = 'none';
+      } else {
+        adminBtn.addEventListener('click', () => this._admin.open());
+      }
+    }
+
     // Build a lookup map: button id -> account config
     const accountMap = {};
     (cfg.accounts || []).forEach(a => { accountMap[a.id] = a; });
+
+    // Admin panel button — opens users.html in a new tab
+    const adminBtn = this._qs('#em-dev-admin');
+    if (adminBtn) {
+      adminBtn.addEventListener('click', (e) => {
+        this._addRipple(adminBtn, e);
+        window.open('users.html', '_blank', 'noopener');
+      });
+    }
 
     bar.addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-dev-account]');
@@ -785,6 +805,361 @@ class Emphora {
   }
 }
 
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EmAdmin — inline admin panel (users list, add, edit, enable/disable, delete)
+// ─────────────────────────────────────────────────────────────────────────────
+class EmAdmin {
+  constructor(rootEl, config) {
+    this._root    = rootEl;
+    this._config  = config;
+    this._users   = [];
+    this._editId  = null;   // null = add mode, number = edit mode
+    this._overlay = rootEl.querySelector('#em-admin-overlay');
+    this._panel   = rootEl.querySelector('#em-admin-panel');
+    this._body    = rootEl.querySelector('#em-admin-body');
+    this._drawer  = rootEl.querySelector('#em-admin-form-drawer');
+    this._form    = rootEl.querySelector('#em-admin-form');
+    this._search  = rootEl.querySelector('#em-admin-search');
+    this._fType   = rootEl.querySelector('#em-admin-filter-type');
+    this._fStatus = rootEl.querySelector('#em-admin-filter-status');
+    this._count   = rootEl.querySelector('#em-admin-count');
+
+    this._bindEvents();
+  }
+
+  // ── Public ──────────────────────────────────────────────────────────────────
+  open() {
+    this._overlay.setAttribute('aria-hidden', 'false');
+    this._overlay.classList.add('em-admin-overlay--open');
+    document.body.style.overflow = 'hidden';
+    this._fetchUsers();
+    requestAnimationFrame(() => {
+      this._root.querySelector('#em-admin-search')?.focus({ preventScroll: true });
+    });
+  }
+
+  close() {
+    this._overlay.classList.remove('em-admin-overlay--open');
+    this._overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    this._closeDrawer();
+  }
+
+  // ── Events ──────────────────────────────────────────────────────────────────
+  _bindEvents() {
+    // Close on overlay click / close button / Escape
+    this._overlay.addEventListener('click', (e) => {
+      if (e.target === this._overlay) this.close();
+    });
+    this._root.querySelector('#em-admin-close')
+      ?.addEventListener('click', () => this.close());
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this._overlay.classList.contains('em-admin-overlay--open')) {
+        this.close();
+      }
+    });
+
+    // Refresh
+    this._root.querySelector('#em-admin-refresh')
+      ?.addEventListener('click', () => this._fetchUsers());
+
+    // Add user
+    this._root.querySelector('#em-admin-add')
+      ?.addEventListener('click', () => this._openDrawer(null));
+
+    // Form cancel / close
+    this._root.querySelector('#em-admin-form-cancel')
+      ?.addEventListener('click', () => this._closeDrawer());
+    this._root.querySelector('#em-admin-form-close')
+      ?.addEventListener('click', () => this._closeDrawer());
+
+    // Form submit
+    this._form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this._submitForm();
+    });
+
+    // Live filter
+    this._search?.addEventListener('input',  () => this._renderList());
+    this._fType?.addEventListener('change',  () => this._renderList());
+    this._fStatus?.addEventListener('change', () => this._renderList());
+  }
+
+  // ── Fetch ────────────────────────────────────────────────────────────────────
+  async _fetchUsers() {
+    const btn = this._root.querySelector('#em-admin-refresh');
+    btn?.classList.add('spinning');
+    this._showLoading();
+
+    try {
+      const res  = await fetch('/api/admin/users');
+      const data = await res.json();
+      if (data.ok) {
+        this._users = data.users;
+        if (this._count) {
+          this._count.textContent = `${data.total} user${data.total !== 1 ? 's' : ''}`;
+        }
+        this._renderList();
+      } else {
+        this._showEmpty('Failed to load users.');
+      }
+    } catch {
+      this._showEmpty('Network error — is the server running?');
+    } finally {
+      btn?.classList.remove('spinning');
+    }
+  }
+
+  // ── Render list ──────────────────────────────────────────────────────────────
+  _filtered() {
+    const q      = (this._search?.value || '').toLowerCase().trim();
+    const type   = this._fType?.value   || '';
+    const status = this._fStatus?.value || '';
+
+    return this._users.filter(u => {
+      const name = `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase();
+      if (q      && !name.includes(q))               return false;
+      if (type   && u.accountType !== type)           return false;
+      if (status === 'active'   && !u.isActive)       return false;
+      if (status === 'disabled' &&  u.isActive)       return false;
+      return true;
+    });
+  }
+
+  _renderList() {
+    const users = this._filtered();
+
+    if (users.length === 0) {
+      this._showEmpty(
+        this._users.length === 0 ? 'No users registered yet.' : 'No users match your filters.'
+      );
+      return;
+    }
+
+    const ICONS = { employee: 'badge', employer: 'business', researcher: 'science' };
+    const TYPE_LABELS = { employee: 'Employee', employer: 'Employer', researcher: 'Researcher' };
+
+    this._body.innerHTML = users.map(u => {
+      const initials = `${u.firstName[0] || ''}${u.lastName[0] || ''}`.toUpperCase();
+      const avatarCls = `em-admin-avatar em-admin-avatar--${u.accountType}`;
+      const rowCls    = `em-admin-user-row${u.isActive ? '' : ' em-admin-user-row--disabled'}`;
+      const pipCls    = `em-admin-status-pip em-admin-status-pip--${u.isActive ? 'active' : 'disabled'}`;
+      const typeLabel = TYPE_LABELS[u.accountType] || u.accountType;
+      const verBadge  = u.isVerified
+        ? '<span style="color:var(--em-success);font-size:0.65rem;font-weight:700">✓ Verified</span>'
+        : '';
+
+      const enableBtn = !u.isActive
+        ? `<button class="em-admin-action-btn em-admin-action-btn--enable"
+             data-action="enable" data-id="${u.id}"
+             aria-label="Enable ${escHtml(u.firstName)}" title="Enable">
+             <span class="material-icons-round">check_circle</span></button>`
+        : `<button class="em-admin-action-btn em-admin-action-btn--disable"
+             data-action="disable" data-id="${u.id}"
+             aria-label="Disable ${escHtml(u.firstName)}" title="Disable">
+             <span class="material-icons-round">block</span></button>`;
+
+      return `
+        <div class="${rowCls}" data-user-id="${u.id}">
+          <div class="${avatarCls}" aria-hidden="true">${escHtml(initials)}</div>
+          <div class="em-admin-user-info">
+            <div class="em-admin-user-name">${escHtml(u.firstName)} ${escHtml(u.lastName)} ${verBadge}</div>
+            <div class="em-admin-user-meta">${escHtml(u.email)} · ${escHtml(typeLabel)}</div>
+          </div>
+          <span class="${pipCls}" title="${u.isActive ? 'Active' : 'Disabled'}"></span>
+          <div class="em-admin-user-actions">
+            <button class="em-admin-action-btn em-admin-action-btn--edit"
+              data-action="edit" data-id="${u.id}"
+              aria-label="Edit ${escHtml(u.firstName)}" title="Edit">
+              <span class="material-icons-round">edit</span></button>
+            ${enableBtn}
+            <button class="em-admin-action-btn em-admin-action-btn--delete"
+              data-action="delete" data-id="${u.id}"
+              aria-label="Delete ${escHtml(u.firstName)}" title="Delete">
+              <span class="material-icons-round">delete_outline</span></button>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Delegate action button clicks
+    this._body.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const { action, id } = btn.dataset;
+      const uid = Number(id);
+      if (action === 'edit')    this._openDrawer(uid);
+      if (action === 'enable')  this._setActive(uid, true);
+      if (action === 'disable') this._setActive(uid, false);
+      if (action === 'delete')  this._deleteUser(uid);
+    }, { once: true });
+  }
+
+  _showLoading() {
+    this._body.innerHTML = `
+      <div class="em-admin-empty" id="em-admin-loading">
+        <span class="em-admin-spinner"></span>
+        <span>Loading users…</span>
+      </div>`;
+  }
+
+  _showEmpty(msg) {
+    this._body.innerHTML = `
+      <div class="em-admin-empty">
+        <span class="material-icons-round">group_off</span>
+        <span>${escHtml(msg)}</span>
+      </div>`;
+  }
+
+  // ── Add / Edit drawer ────────────────────────────────────────────────────────
+  _openDrawer(userId) {
+    this._editId = userId;
+    const isEdit = userId !== null;
+    const titleEl = this._root.querySelector('#em-admin-form-title');
+    const pwHint  = this._root.querySelector('#em-admin-pw-hint');
+    const pwInput = this._root.querySelector('#em-admin-password');
+
+    if (titleEl) titleEl.textContent = isEdit ? 'Edit user' : 'Add user';
+    if (pwHint)  pwHint.textContent  = isEdit ? '(leave blank to keep current)' : '(min 8 chars)';
+    if (pwInput) pwInput.required    = !isEdit;
+
+    if (isEdit) {
+      const u = this._users.find(x => x.id === userId);
+      if (!u) return;
+      this._root.querySelector('#em-admin-form-id').value   = u.id;
+      this._root.querySelector('#em-admin-fname').value     = u.firstName;
+      this._root.querySelector('#em-admin-lname').value     = u.lastName;
+      this._root.querySelector('#em-admin-email').value     = u.email;
+      this._root.querySelector('#em-admin-password').value  = '';
+      this._root.querySelector('#em-admin-type').value      = u.accountType;
+      this._root.querySelector('#em-admin-verified').checked = Boolean(u.isVerified);
+      this._root.querySelector('#em-admin-active').checked   = u.isActive !== false;
+    } else {
+      this._form?.reset();
+      this._root.querySelector('#em-admin-form-id').value = '';
+      this._root.querySelector('#em-admin-active').checked = true;
+    }
+
+    this._drawer?.classList.add('em-admin-form-drawer--open');
+    this._drawer?.setAttribute('aria-hidden', 'false');
+    setTimeout(() => this._root.querySelector('#em-admin-fname')?.focus(), 50);
+  }
+
+  _closeDrawer() {
+    this._drawer?.classList.remove('em-admin-form-drawer--open');
+    this._drawer?.setAttribute('aria-hidden', 'true');
+    this._form?.reset();
+    this._editId = null;
+  }
+
+  // ── Form submit ──────────────────────────────────────────────────────────────
+  async _submitForm() {
+    const submitBtn  = this._root.querySelector('#em-admin-form-submit');
+    const labelEl    = submitBtn?.querySelector('.em-admin-btn-label');
+    const isEdit     = this._editId !== null;
+
+    const body = {
+      firstName:   this._root.querySelector('#em-admin-fname').value.trim(),
+      lastName:    this._root.querySelector('#em-admin-lname').value.trim(),
+      email:       this._root.querySelector('#em-admin-email').value.trim(),
+      accountType: this._root.querySelector('#em-admin-type').value,
+      isVerified:  this._root.querySelector('#em-admin-verified').checked,
+      isActive:    this._root.querySelector('#em-admin-active').checked,
+    };
+
+    const pw = this._root.querySelector('#em-admin-password').value;
+    if (pw) body.password = pw;
+    else if (!isEdit) {
+      alert('Password is required for new users.');
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (labelEl)   labelEl.textContent = isEdit ? 'Saving…' : 'Creating…';
+
+    try {
+      let res, data;
+
+      if (isEdit) {
+        res  = await fetch(`/api/admin/users/${this._editId}`, {
+          method:  'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(body),
+        });
+        data = await res.json();
+      } else {
+        // Create via public register endpoint
+        res  = await fetch(`${this._config.api.baseUrl}${this._config.api.endpoints.register}`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(body),
+        });
+        data = await res.json();
+      }
+
+      if (data.ok) {
+        this._closeDrawer();
+        await this._fetchUsers();
+        wc.log('emphora:admin:userSaved', { isEdit, id: this._editId });
+        wc.publish('emphora:admin:userSaved', { isEdit, id: this._editId });
+      } else {
+        alert(data.message || 'Save failed.');
+      }
+    } catch {
+      alert('Network error. Please try again.');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+      if (labelEl)   labelEl.textContent = 'Save user';
+    }
+  }
+
+  // ── Enable / Disable ─────────────────────────────────────────────────────────
+  async _setActive(userId, active) {
+    const action = active ? 'activate' : 'deactivate';
+    try {
+      const res  = await fetch(`/api/admin/users/${userId}/${action}`, { method: 'PATCH' });
+      const data = await res.json();
+      if (data.ok) {
+        wc.log(`emphora:admin:user${active ? 'Enabled' : 'Disabled'}`, { userId });
+        wc.publish(`emphora:admin:user${active ? 'Enabled' : 'Disabled'}`, { userId });
+        await this._fetchUsers();
+      } else {
+        alert(data.message || 'Action failed.');
+      }
+    } catch {
+      alert('Network error.');
+    }
+  }
+
+  // ── Delete ───────────────────────────────────────────────────────────────────
+  async _deleteUser(userId) {
+    const u = this._users.find(x => x.id === userId);
+    if (!u) return;
+    if (!confirm(`Permanently delete ${u.firstName} ${u.lastName}? This cannot be undone.`)) return;
+
+    try {
+      const res  = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.ok) {
+        wc.log('emphora:admin:userDeleted', { userId });
+        wc.publish('emphora:admin:userDeleted', { userId });
+        await this._fetchUsers();
+      } else {
+        alert(data.message || 'Delete failed.');
+      }
+    } catch {
+      alert('Network error.');
+    }
+  }
+}
+
+// ── Shared HTML escape util (used by EmAdmin) ─────────────────────────────────
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BOOT — wait for <emphora class="emphora"> to exist in the DOM.

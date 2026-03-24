@@ -18,6 +18,11 @@ const EmophoraConfig = {
     // Set enabled: false to hide them in production.
     enabled: true,
     label: "Quick login for testing",
+    admin: {
+      enabled: true,
+      label:   "Admin",
+      icon:    "admin_panel_settings"
+    },
     accounts: [
       {
         id:       "dev-employee",

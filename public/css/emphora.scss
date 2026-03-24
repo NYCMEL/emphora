@@ -281,6 +281,488 @@ $dark: (
   }
 
   // ─────────────────────────────────────────────
+  // ADMIN PANEL (overlay + slide-in drawer)
+  // ─────────────────────────────────────────────
+
+  // ── Overlay backdrop ──────────────────────────
+  .em-admin-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--em-overlay);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    @include transition(opacity, 0.28s);
+    backdrop-filter: blur(3px);
+
+    @media (min-width: 600px) {
+      align-items: center;
+    }
+
+    &.em-admin-overlay--open {
+      opacity: 1;
+      pointer-events: all;
+
+      .em-admin-panel {
+        transform: translateY(0);
+        opacity: 1;
+
+        @media (min-width: 600px) {
+          transform: scale(1);
+        }
+      }
+    }
+  }
+
+  // ── Panel ─────────────────────────────────────
+  .em-admin-panel {
+    background: var(--em-bg-surface);
+    width: 100%;
+    max-width: 680px;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(60px);
+    opacity: 0;
+    @include transition(transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s ease);
+    @include elevation(4);
+
+    @media (min-width: 600px) {
+      border-radius: 20px;
+      transform: scale(0.94);
+      margin: 0 1rem;
+    }
+  }
+
+  // ── Panel header ──────────────────────────────
+  .em-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.1rem 0.85rem;
+    border-bottom: 1px solid var(--em-border);
+    flex-shrink: 0;
+    gap: 10px;
+
+    &__left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    &__icon {
+      font-size: 1.5rem !important;
+      color: var(--em-primary);
+      opacity: 0.85;
+    }
+
+    &__actions {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+  }
+
+  .em-admin-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--em-text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .em-admin-sub {
+    font-size: 0.72rem;
+    color: var(--em-text-muted);
+    margin: 0;
+  }
+
+  // ── Icon buttons (header) ────────────────────
+  .em-admin-icon-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--em-border);
+    background: var(--em-bg-surface-2);
+    color: var(--em-text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    @include transition(all);
+    flex-shrink: 0;
+
+    .material-icons-round { font-size: 1rem; }
+
+    &:hover {
+      background: var(--em-primary-light);
+      border-color: var(--em-primary);
+      color: var(--em-primary);
+    }
+
+    &--close:hover {
+      background: var(--em-error-bg);
+      border-color: var(--em-error);
+      color: var(--em-error);
+    }
+
+    &:focus-visible { @include focus-ring; }
+
+    &.spinning .material-icons-round {
+      animation: em-spin 0.7s linear infinite;
+    }
+  }
+
+  // ── Toolbar ───────────────────────────────────
+  .em-admin-toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 0.75rem 1.1rem;
+    border-bottom: 1px solid var(--em-border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .em-admin-search-wrap {
+    flex: 1;
+    min-width: 160px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .em-admin-search-icon {
+    position: absolute;
+    left: 9px;
+    color: var(--em-text-muted);
+    pointer-events: none;
+    .material-icons-round { font-size: 0.95rem; }
+  }
+
+  .em-admin-search {
+    width: 100%;
+    padding: 6px 10px 6px 30px;
+    border: 1.5px solid var(--em-border);
+    border-radius: 8px;
+    background: var(--em-input-fill);
+    color: var(--em-text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.8rem;
+    outline: none;
+    @include transition(border-color);
+
+    &:focus { border-color: var(--em-border-focus); }
+  }
+
+  .em-admin-select {
+    padding: 6px 10px;
+    border: 1.5px solid var(--em-border);
+    border-radius: 8px;
+    background: var(--em-input-fill);
+    color: var(--em-text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.78rem;
+    outline: none;
+    cursor: pointer;
+    @include transition(border-color);
+
+    &:focus { border-color: var(--em-border-focus); }
+
+    option { background: var(--em-bg-surface); }
+  }
+
+  // ── Body (scrollable user list) ───────────────
+  .em-admin-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  // ── Empty / loading states ────────────────────
+  .em-admin-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 3rem 1rem;
+    color: var(--em-text-muted);
+    font-size: 0.82rem;
+
+    .material-icons-round { font-size: 2rem; opacity: 0.35; }
+  }
+
+  .em-admin-spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--em-border);
+    border-top-color: var(--em-primary);
+    border-radius: 50%;
+    animation: em-spin 0.75s linear infinite;
+  }
+
+  // ── User row ──────────────────────────────────
+  .em-admin-user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 1.1rem;
+    border-bottom: 1px solid var(--em-border);
+    @include transition(background, 0.12s);
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: var(--em-bg-surface-2); }
+
+    &--disabled {
+      opacity: 0.5;
+    }
+  }
+
+  .em-admin-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700;
+    flex-shrink: 0;
+    color: #fff;
+
+    &--employee   { background: var(--em-primary); }
+    &--employer   { background: var(--em-secondary); }
+    &--researcher { background: var(--em-accent); }
+  }
+
+  .em-admin-user-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .em-admin-user-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--em-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .em-admin-user-meta {
+    font-size: 0.7rem;
+    color: var(--em-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .em-admin-user-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .em-admin-action-btn {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    border: 1px solid var(--em-border);
+    background: transparent;
+    color: var(--em-text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    @include transition(all, 0.15s);
+
+    .material-icons-round { font-size: 0.85rem; }
+
+    &:hover { background: var(--em-bg-surface-3); color: var(--em-text-primary); }
+
+    &--enable:hover  { background: var(--em-success-bg); color: var(--em-success); border-color: var(--em-success); }
+    &--disable:hover { background: var(--em-warning-bg); color: var(--em-warning); border-color: var(--em-warning); }
+    &--delete:hover  { background: var(--em-error-bg);   color: var(--em-error);   border-color: var(--em-error);   }
+    &--edit:hover    { background: var(--em-primary-light); color: var(--em-primary); border-color: var(--em-primary); }
+
+    &:focus-visible { @include focus-ring; }
+  }
+
+  // status pip on user row
+  .em-admin-status-pip {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--active   { background: var(--em-success); }
+    &--disabled { background: var(--em-text-muted); }
+  }
+
+  // ── Add/Edit form drawer ──────────────────────
+  .em-admin-form-drawer {
+    border-top: 1px solid var(--em-border);
+    background: var(--em-bg-surface-2);
+    flex-shrink: 0;
+    overflow: hidden;
+    max-height: 0;
+    @include transition(max-height, 0.32s, cubic-bezier(0.4,0,0.2,1));
+
+    &.em-admin-form-drawer--open {
+      max-height: 420px;
+    }
+  }
+
+  .em-admin-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.1rem 0.5rem;
+  }
+
+  .em-admin-form-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--em-text-primary);
+    margin: 0;
+  }
+
+  .em-admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0 1.1rem 1rem;
+    overflow-y: auto;
+    max-height: 340px;
+  }
+
+  .em-admin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .em-admin-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+
+    @media (max-width: 420px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .em-admin-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--em-text-secondary);
+  }
+
+  .em-admin-input {
+    padding: 6px 10px;
+    border: 1.5px solid var(--em-border);
+    border-radius: 8px;
+    background: var(--em-input-bg);
+    color: var(--em-text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.82rem;
+    outline: none;
+    @include transition(border-color);
+
+    &:focus { border-color: var(--em-border-focus); }
+    &[aria-invalid="true"] { border-color: var(--em-error); }
+
+    option { background: var(--em-bg-surface); }
+  }
+
+  .em-admin-toggles {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .em-admin-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--em-text-secondary);
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+      width: 14px; height: 14px;
+      accent-color: var(--em-primary);
+      cursor: pointer;
+    }
+  }
+
+  .em-admin-form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    padding-top: 0.4rem;
+  }
+
+  .em-admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    @include transition(all);
+    border: 1.5px solid transparent;
+
+    &:focus-visible { @include focus-ring; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    &--primary {
+      background: var(--em-primary);
+      color: #fff;
+      border-color: var(--em-primary);
+      &:hover:not(:disabled) { background: var(--em-primary-dark); }
+    }
+
+    &--ghost {
+      background: transparent;
+      color: var(--em-text-muted);
+      border-color: var(--em-border);
+      &:hover { background: var(--em-bg-surface-3); color: var(--em-text-primary); }
+    }
+
+    .em-admin-btn-spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: em-spin 0.65s linear infinite;
+    }
+  }
+
+  // ── Dev bar admin button colour ───────────────
+  .em-dev-btn--admin {
+    background: rgba(103, 58, 183, 0.1);
+    border-color: rgba(103, 58, 183, 0.3);
+    color: #673AB7;
+
+    &:hover {
+      background: rgba(103, 58, 183, 0.18);
+      border-color: #673AB7;
+    }
+
+    [data-emphora-theme="dark"] & {
+      background: rgba(179, 136, 255, 0.12);
+      border-color: rgba(179, 136, 255, 0.3);
+      color: #B388FF;
+
+      &:hover {
+        background: rgba(179, 136, 255, 0.2);
+        border-color: #B388FF;
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────
   // DEV QUICK-LOGIN BAR
   // ─────────────────────────────────────────────
   .em-dev-bar {
@@ -409,6 +891,30 @@ $dark: (
         &:hover {
           background: rgba(38, 166, 154, 0.2);
           border-color: #26A69A;
+        }
+      }
+    }
+
+    // Admin — amber/orange
+    &--admin {
+      background: rgba(180, 100, 10, 0.1);
+      border-color: rgba(180, 100, 10, 0.32);
+      color: #B46A0A;
+      font-weight: 700;
+
+      &:hover {
+        background: rgba(180, 100, 10, 0.18);
+        border-color: #B46A0A;
+      }
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(245, 166, 35, 0.12);
+        border-color: rgba(245, 166, 35, 0.32);
+        color: #F5A623;
+
+        &:hover {
+          background: rgba(245, 166, 35, 0.2);
+          border-color: #F5A623;
         }
       }
     }

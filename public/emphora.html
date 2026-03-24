@@ -115,6 +115,15 @@
                 <span class="material-icons-round" aria-hidden="true">business</span>
                 Employer
               </button>
+              <button
+                class="em-dev-btn em-dev-btn--admin"
+                type="button"
+                id="em-dev-admin"
+                aria-label="Open admin panel"
+              >
+                <span class="material-icons-round" aria-hidden="true">admin_panel_settings</span>
+                Admin
+              </button>
             </div>
           </div>
 
@@ -335,6 +344,136 @@
 
     <!-- Toast region -->
     <div class="em-toast-area" id="em-toast-area" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+    <!-- ══ ADMIN PANEL ════════════════════════════════════════════════════════ -->
+    <div
+      class="em-admin-overlay"
+      id="em-admin-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="em-admin-title"
+      aria-hidden="true"
+    >
+      <div class="em-admin-panel" id="em-admin-panel">
+
+        <!-- Panel header -->
+        <div class="em-admin-header">
+          <div class="em-admin-header__left">
+            <span class="material-icons-round em-admin-header__icon" aria-hidden="true">admin_panel_settings</span>
+            <div>
+              <h2 class="em-admin-title" id="em-admin-title">Admin Panel</h2>
+              <p class="em-admin-sub">Manage users — <span id="em-admin-count">…</span></p>
+            </div>
+          </div>
+          <div class="em-admin-header__actions">
+            <button class="em-admin-icon-btn" id="em-admin-refresh" aria-label="Refresh users" title="Refresh">
+              <span class="material-icons-round">refresh</span>
+            </button>
+            <button class="em-admin-icon-btn" id="em-admin-add" aria-label="Add new user" title="Add user">
+              <span class="material-icons-round">person_add</span>
+            </button>
+            <button class="em-admin-icon-btn em-admin-icon-btn--close" id="em-admin-close" aria-label="Close admin panel">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search + filter toolbar -->
+        <div class="em-admin-toolbar">
+          <div class="em-admin-search-wrap">
+            <span class="material-icons-round em-admin-search-icon" aria-hidden="true">search</span>
+            <input
+              class="em-admin-search"
+              id="em-admin-search"
+              type="search"
+              placeholder="Search name or email…"
+              aria-label="Search users"
+            />
+          </div>
+          <select class="em-admin-select" id="em-admin-filter-type" aria-label="Filter by account type">
+            <option value="">All types</option>
+            <option value="employee">Employee</option>
+            <option value="employer">Employer</option>
+            <option value="researcher">Researcher</option>
+          </select>
+          <select class="em-admin-select" id="em-admin-filter-status" aria-label="Filter by status">
+            <option value="">All status</option>
+            <option value="active">Active</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </div>
+
+        <!-- User list -->
+        <div class="em-admin-body" id="em-admin-body" role="region" aria-live="polite" aria-label="Users list">
+          <div class="em-admin-empty" id="em-admin-loading">
+            <span class="em-admin-spinner"></span>
+            <span>Loading users…</span>
+          </div>
+        </div>
+
+        <!-- Add / Edit user form (hidden by default) -->
+        <div class="em-admin-form-drawer" id="em-admin-form-drawer" aria-hidden="true">
+          <div class="em-admin-form-header">
+            <h3 class="em-admin-form-title" id="em-admin-form-title">Add user</h3>
+            <button class="em-admin-icon-btn em-admin-icon-btn--close" id="em-admin-form-close" aria-label="Close form">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <form class="em-admin-form" id="em-admin-form" novalidate>
+            <input type="hidden" id="em-admin-form-id" value="" />
+            <div class="em-admin-field-row">
+              <div class="em-admin-field">
+                <label class="em-admin-label" for="em-admin-fname">First name</label>
+                <input class="em-admin-input" type="text" id="em-admin-fname" name="firstName" placeholder="First name" required />
+              </div>
+              <div class="em-admin-field">
+                <label class="em-admin-label" for="em-admin-lname">Last name</label>
+                <input class="em-admin-input" type="text" id="em-admin-lname" name="lastName" placeholder="Last name" required />
+              </div>
+            </div>
+            <div class="em-admin-field">
+              <label class="em-admin-label" for="em-admin-email">Email</label>
+              <input class="em-admin-input" type="email" id="em-admin-email" name="email" placeholder="user@example.com" required />
+            </div>
+            <div class="em-admin-field" id="em-admin-pw-field">
+              <label class="em-admin-label" for="em-admin-password">Password <span id="em-admin-pw-hint">(min 8 chars)</span></label>
+              <input class="em-admin-input" type="password" id="em-admin-password" name="password" placeholder="Set password" />
+            </div>
+            <div class="em-admin-field-row">
+              <div class="em-admin-field">
+                <label class="em-admin-label" for="em-admin-type">Account type</label>
+                <select class="em-admin-input" id="em-admin-type" name="accountType">
+                  <option value="employee">Employee</option>
+                  <option value="employer">Employer</option>
+                  <option value="researcher">Researcher</option>
+                </select>
+              </div>
+              <div class="em-admin-field">
+                <label class="em-admin-label">Flags</label>
+                <div class="em-admin-toggles">
+                  <label class="em-admin-toggle-label">
+                    <input type="checkbox" id="em-admin-verified" name="isVerified" />
+                    <span>Verified</span>
+                  </label>
+                  <label class="em-admin-toggle-label">
+                    <input type="checkbox" id="em-admin-active" name="isActive" checked />
+                    <span>Active</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="em-admin-form-actions">
+              <button class="em-admin-btn em-admin-btn--ghost" type="button" id="em-admin-form-cancel">Cancel</button>
+              <button class="em-admin-btn em-admin-btn--primary" type="submit" id="em-admin-form-submit">
+                <span class="em-admin-btn-label">Save user</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+    <!-- /em-admin-panel -->
 
   </emphora>
 
