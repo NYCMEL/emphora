@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emphora — Users</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous" />
+  <style>
+    :root {
+      --em-primary:   #1A6BCC;
+      --em-secondary: #00897B;
+      --em-bg:        #F0F4F8;
+      --em-surface:   #FFFFFF;
+      --em-border:    #D0DCE8;
+      --em-text:      #0D1B2A;
+      --em-muted:     #7A8FA6;
+      --em-employee:  #1A6BCC;
+      --em-employer:  #00897B;
+      --em-researcher:#C2185B;
+      --em-verified:  #2E7D32;
+      --em-unverified:#B0BEC5;
+    }
+    [data-theme="dark"] {
+      --em-primary:   #4D9EFF;
+      --em-secondary: #26A69A;
+      --em-bg:        #0A0F1A;
+      --em-surface:   #111827;
+      --em-border:    rgba(255,255,255,0.10);
+      --em-text:      #E8F1FF;
+      --em-muted:     #5C7389;
+      --em-employee:  #4D9EFF;
+      --em-employer:  #26A69A;
+      --em-researcher:#F06292;
+      --em-verified:  #66BB6A;
+      --em-unverified:#455A64;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--em-bg);
+      color: var(--em-text);
+      font-size: 14px;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* ── TOP BAR ── */
+    .em-topbar {
+      background: var(--em-surface);
+      border-bottom: 1px solid var(--em-border);
+      padding: 0 1.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .em-logo {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      color: var(--em-primary);
+      text-decoration: none;
+    }
+    .em-logo span { color: var(--em-secondary); }
+    .em-topbar-right { display: flex; align-items: center; gap: 10px; }
+    .em-badge-total {
+      background: rgba(26,107,204,0.12);
+      color: var(--em-primary);
+      border: 1px solid rgba(26,107,204,0.25);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* ── THEME TOGGLE ── */
+    .em-theme-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--em-border);
+      background: var(--em-bg);
+      color: var(--em-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+    }
+    .em-theme-btn:hover { color: var(--em-primary); border-color: var(--em-primary); }
+    .em-theme-btn .material-icons-round { font-size: 1rem; }
+
+    /* ── CONTENT ── */
+    .em-content { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+    .em-page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .em-page-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .em-page-sub { font-size: 0.78rem; color: var(--em-muted); margin: 2px 0 0; }
+
+    /* ── SEARCH / FILTER BAR ── */
+    .em-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .em-search {
+      flex: 1;
+      min-width: 200px;
+      padding: 7px 12px 7px 36px;
+      border: 1px solid var(--em-border);
+      border-radius: 8px;
+      background: var(--em-surface);
+      color: var(--em-text);
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.18s;
+      position: relative;
+    }
+    .em-search:focus { border-color: var(--em-primary); }
+    .em-search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .em-search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--em-muted);
+      pointer-events: none;
+    }
+    .em-search-icon .material-icons-round { font-size: 1rem; }
+
+    .em-filter-select {
+      padding: 7px 12px;
+      border: 1px solid var(--em-border);
+      border-radius: 8px;
+      background: var(--em-surface);
+      color: var(--em-text);
+      font-size: 0.82rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.18s;
+    }
+    .em-filter-select:focus { border-color: var(--em-primary); }
+
+    .em-btn-refresh {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px;
+      border: 1px solid var(--em-border);
+      border-radius: 8px;
+      background: var(--em-surface);
+      color: var(--em-muted);
+      font-size: 0.78rem; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .em-btn-refresh:hover { border-color: var(--em-primary); color: var(--em-primary); }
+    .em-btn-refresh .material-icons-round { font-size: 0.9rem; }
+    .em-btn-refresh.spinning .material-icons-round {
+      animation: em-spin 0.7s linear infinite;
+    }
+
+    /* ── TABLE CARD ── */
+    .em-table-card {
+      background: var(--em-surface);
+      border: 1px solid var(--em-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(13,27,42,0.06);
+    }
+
+    .em-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .em-table thead tr {
+      border-bottom: 1px solid var(--em-border);
+    }
+    .em-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--em-muted);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .em-table th:hover { color: var(--em-primary); }
+    .em-table th .sort-icon {
+      font-size: 0.75rem;
+      vertical-align: middle;
+      opacity: 0.4;
+    }
+    .em-table th.sorted .sort-icon { opacity: 1; color: var(--em-primary); }
+
+    .em-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--em-border);
+      color: var(--em-text);
+      vertical-align: middle;
+    }
+    .em-table tr:last-child td { border-bottom: none; }
+    .em-table tbody tr {
+      transition: background 0.12s;
+    }
+    .em-table tbody tr:hover td { background: rgba(26,107,204,0.04); }
+
+    /* cell types */
+    .em-cell-id { color: var(--em-muted); font-size: 0.72rem; font-family: monospace; }
+    .em-cell-name { font-weight: 600; }
+    .em-cell-email { color: var(--em-muted); }
+    .em-cell-date { color: var(--em-muted); font-size: 0.75rem; white-space: nowrap; }
+
+    /* account type pill */
+    .em-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .em-pill .material-icons-round { font-size: 0.75rem; }
+    .em-pill--employee   { background: rgba(26,107,204,0.1);  color: var(--em-employee);   border: 1px solid rgba(26,107,204,0.22);  }
+    .em-pill--employer   { background: rgba(0,137,123,0.1);   color: var(--em-employer);   border: 1px solid rgba(0,137,123,0.22);   }
+    .em-pill--researcher { background: rgba(194,24,91,0.08);  color: var(--em-researcher); border: 1px solid rgba(194,24,91,0.2);    }
+
+    /* verified badge */
+    .em-verified {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .em-verified--yes { color: var(--em-verified); }
+    .em-verified--no  { color: var(--em-unverified); }
+    .em-verified .material-icons-round { font-size: 0.85rem; }
+
+    /* sessions dot */
+    .em-sessions {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      font-size: 0.7rem; font-weight: 700;
+      background: rgba(26,107,204,0.1);
+      color: var(--em-primary);
+    }
+    .em-sessions--zero { background: var(--em-bg); color: var(--em-muted); }
+
+    /* ── STATES ── */
+    .em-state {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 3rem 1rem;
+      color: var(--em-muted);
+      gap: 10px;
+      text-align: center;
+    }
+    .em-state .material-icons-round { font-size: 2.5rem; opacity: 0.4; }
+
+    /* ── TABLE FOOTER ── */
+    .em-table-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      border-top: 1px solid var(--em-border);
+      font-size: 0.75rem;
+      color: var(--em-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes em-spin { to { transform: rotate(360deg); } }
+    @keyframes em-fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .em-table tbody tr { animation: em-fadeIn 0.18s ease both; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .em-table th:nth-child(5),
+      .em-table td:nth-child(5),
+      .em-table th:nth-child(7),
+      .em-table td:nth-child(7) { display: none; }
+    }
+    @media (max-width: 500px) {
+      .em-table th:nth-child(1),
+      .em-table td:nth-child(1) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <nav class="em-topbar">
+    <a href="emphora.html" class="em-logo">Emph<span>ora</span></a>
+    <div class="em-topbar-right">
+      <span class="em-badge-total" id="em-total-badge">— users</span>
+      <button class="em-theme-btn" id="em-theme-btn" aria-label="Toggle dark mode" title="Toggle theme">
+        <span class="material-icons-round">light_mode</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="em-content">
+
+    <div class="em-page-header">
+      <div>
+        <h1 class="em-page-title">User Table</h1>
+        <p class="em-page-sub">All registered Emphora accounts · live from SQLite</p>
+      </div>
+      <button class="em-btn-refresh" id="em-refresh-btn" aria-label="Refresh users">
+        <span class="material-icons-round">refresh</span> Refresh
+      </button>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="em-toolbar">
+      <div class="em-search-wrap">
+        <span class="em-search-icon"><span class="material-icons-round">search</span></span>
+        <input
+          class="em-search"
+          id="em-search"
+          type="search"
+          placeholder="Search by name or email…"
+          aria-label="Search users"
+        />
+      </div>
+      <select class="em-filter-select" id="em-filter-type" aria-label="Filter by account type">
+        <option value="">All types</option>
+        <option value="employee">Employee</option>
+        <option value="employer">Employer</option>
+        <option value="researcher">Researcher</option>
+      </select>
+      <select class="em-filter-select" id="em-filter-verified" aria-label="Filter by verified status">
+        <option value="">All</option>
+        <option value="1">Verified</option>
+        <option value="0">Unverified</option>
+      </select>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="em-table-card">
+      <div id="em-table-wrap" role="region" aria-label="Users table" aria-live="polite">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="em-table-footer">
+        <span id="em-footer-count">Loading…</span>
+        <span id="em-footer-time"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    let allUsers   = [];
+    let sortCol    = 'id';
+    let sortAsc    = false;
+    let theme      = localStorage.getItem('em-admin-theme') || 'light';
+
+    // ── Theme ──────────────────────────────────────────────────────────────────
+    function applyTheme(t) {
+      theme = t;
+      document.body.setAttribute('data-theme', t);
+      const icon = document.querySelector('#em-theme-btn .material-icons-round');
+      if (icon) icon.textContent = t === 'dark' ? 'dark_mode' : 'light_mode';
+      localStorage.setItem('em-admin-theme', t);
+    }
+    applyTheme(theme);
+
+    document.getElementById('em-theme-btn').addEventListener('click', () => {
+      applyTheme(theme === 'light' ? 'dark' : 'light');
+    });
+
+    // ── Fetch ──────────────────────────────────────────────────────────────────
+    async function fetchUsers() {
+      const btn = document.getElementById('em-refresh-btn');
+      btn.classList.add('spinning');
+      btn.disabled = true;
+
+      try {
+        const res  = await fetch('/api/admin/users');
+        const data = await res.json();
+        if (data.ok) {
+          allUsers = data.users;
+          document.getElementById('em-total-badge').textContent =
+            `${data.total} user${data.total !== 1 ? 's' : ''}`;
+          document.getElementById('em-footer-time').textContent =
+            `Last updated: ${new Date().toLocaleTimeString()}`;
+        } else {
+          showError(data.message || 'Failed to load users.');
+        }
+      } catch (err) {
+        showError('Network error — is the server running?');
+      } finally {
+        btn.classList.remove('spinning');
+        btn.disabled = false;
+        renderTable();
+      }
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────────────
+    const ACCOUNT_ICONS = {
+      employee:   { icon: 'badge',    cls: 'em-pill--employee',   label: 'Employee'   },
+      employer:   { icon: 'business', cls: 'em-pill--employer',   label: 'Employer'   },
+      researcher: { icon: 'science',  cls: 'em-pill--researcher', label: 'Researcher' },
+    };
+
+    function filterUsers() {
+      const q       = document.getElementById('em-search').value.toLowerCase().trim();
+      const type    = document.getElementById('em-filter-type').value;
+      const verified = document.getElementById('em-filter-verified').value;
+
+      return allUsers.filter(u => {
+        const name = `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase();
+        if (q && !name.includes(q)) return false;
+        if (type && u.accountType !== type) return false;
+        if (verified !== '' && String(u.isVerified ? 1 : 0) !== verified) return false;
+        return true;
+      });
+    }
+
+    function sortUsers(users) {
+      return [...users].sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (typeof va === 'string') va = va.toLowerCase();
+        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ?  1 : -1;
+        return 0;
+      });
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }) +
+             ' ' + d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+    }
+
+    function renderTable() {
+      const wrap    = document.getElementById('em-table-wrap');
+      const visible = sortUsers(filterUsers());
+
+      document.getElementById('em-footer-count').textContent =
+        `Showing ${visible.length} of ${allUsers.length} users`;
+
+      if (allUsers.length === 0) {
+        wrap.innerHTML = `<div class="em-state">
+          <span class="material-icons-round">group_off</span>
+          <span>No users registered yet.</span>
+        </div>`;
+        return;
+      }
+
+      if (visible.length === 0) {
+        wrap.innerHTML = `<div class="em-state">
+          <span class="material-icons-round">search_off</span>
+          <span>No users match your filters.</span>
+        </div>`;
+        return;
+      }
+
+      const cols = [
+        { key: 'id',             label: 'ID'        },
+        { key: 'firstName',      label: 'Name'      },
+        { key: 'email',          label: 'Email'     },
+        { key: 'accountType',    label: 'Type'      },
+        { key: 'emphoraScore',   label: 'Score'     },
+        { key: 'isVerified',     label: 'Verified'  },
+        { key: 'activeSessions', label: 'Sessions'  },
+        { key: 'createdAt',      label: 'Joined'    },
+      ];
+
+      const thead = cols.map(c => {
+        const active = sortCol === c.key ? 'sorted' : '';
+        const arrow  = sortCol === c.key ? (sortAsc ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
+        return `<th class="${active}" data-col="${c.key}">
+          ${c.label}
+          <span class="material-icons-round sort-icon">${arrow}</span>
+        </th>`;
+      }).join('');
+
+      const tbody = visible.map((u, i) => {
+        const at   = ACCOUNT_ICONS[u.accountType] || ACCOUNT_ICONS.employee;
+        const pill = `<span class="em-pill ${at.cls}">
+          <span class="material-icons-round">${at.icon}</span>${at.label}
+        </span>`;
+
+        const ver  = u.isVerified
+          ? `<span class="em-verified em-verified--yes"><span class="material-icons-round">verified</span>Yes</span>`
+          : `<span class="em-verified em-verified--no"><span class="material-icons-round">cancel</span>No</span>`;
+
+        const ses  = `<span class="em-sessions${u.activeSessions === 0 ? ' em-sessions--zero' : ''}">${u.activeSessions}</span>`;
+
+        return `<tr style="animation-delay:${i * 0.025}s">
+          <td class="em-cell-id">#${u.id}</td>
+          <td class="em-cell-name">${escHtml(u.firstName)} ${escHtml(u.lastName)}</td>
+          <td class="em-cell-email">${escHtml(u.email)}</td>
+          <td>${pill}</td>
+          <td>${u.emphoraScore.toFixed(1)}</td>
+          <td>${ver}</td>
+          <td style="text-align:center">${ses}</td>
+          <td class="em-cell-date">${formatDate(u.createdAt)}</td>
+        </tr>`;
+      }).join('');
+
+      wrap.innerHTML = `
+        <table class="em-table" role="grid" aria-label="Registered users">
+          <thead><tr>${thead}</tr></thead>
+          <tbody>${tbody}</tbody>
+        </table>`;
+
+      // Sort click handlers
+      wrap.querySelectorAll('th[data-col]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.col;
+          if (sortCol === col) sortAsc = !sortAsc;
+          else { sortCol = col; sortAsc = true; }
+          renderTable();
+        });
+      });
+    }
+
+    function showError(msg) {
+      document.getElementById('em-table-wrap').innerHTML = `
+        <div class="em-state">
+          <span class="material-icons-round">error_outline</span>
+          <span>${escHtml(msg)}</span>
+        </div>`;
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Event Bindings ─────────────────────────────────────────────────────────
+    document.getElementById('em-search').addEventListener('input', renderTable);
+    document.getElementById('em-filter-type').addEventListener('change', renderTable);
+    document.getElementById('em-filter-verified').addEventListener('change', renderTable);
+    document.getElementById('em-refresh-btn').addEventListener('click', fetchUsers);
+
+    // ── Boot ───────────────────────────────────────────────────────────────────
+    fetchUsers();
+  </script>
+
+</body>
+</html>
