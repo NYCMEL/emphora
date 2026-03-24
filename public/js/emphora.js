@@ -577,21 +577,31 @@ class Emphora {
   _onLoginSuccess(user) {
     this._sessionUser = user;
 
-    const loginType   = user?.accountType || 'employee';
+    // Determine account type — fall back to email-based detection
+    // if DB still has old accountType (e.g. admin stored as 'employee')
+    const adminEmails = (this._config.devTools?.accounts || [])
+      .filter(a => a.accountType === 'admin')
+      .map(a => a.email);
+
+    let loginType = user?.accountType || 'employee';
+    if (adminEmails.includes(user?.email)) {
+      loginType = 'admin';
+      user = { ...user, accountType: 'admin' };
+    }
+
     this._updateAccountTag(loginType, true);
     this._toast(this._config.toast.messages.loginSuccess, 'success');
     this._announce(`Welcome, ${user?.firstName || 'back'}!`);
 
-    // Persist user to sessionStorage so the dashboard page can read it
+    // Persist corrected user to sessionStorage
     try {
       sessionStorage.setItem('emphora_user', JSON.stringify(user));
     } catch (_) {}
 
-    // Redirect to the role-specific dashboard
+    // Redirect to role-specific dashboard
     const dashboards = this._config.dashboards || {};
     const target     = dashboards[loginType] || dashboards['employee'] || 'employee.html';
 
-    // Small delay so toast is visible before navigation
     setTimeout(() => {
       window.location.href = target;
     }, 600);

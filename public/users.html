@@ -578,9 +578,12 @@ async function loginAs(uid, email, accountType) {
     const data = await res.json();
 
     if (data.ok && data.user) {
-      sessionStorage.setItem('emphora_user', JSON.stringify(data.user));
-      const pages = {employee:'employee.html', employer:'employer.html', researcher:'researcher.html'};
-      window.location.href = pages[data.user.accountType] || 'employee.html';
+      // Fix accountType for admin if DB still has old value
+      const u = { ...data.user };
+      if (SEED_EMAILS[0] === u.email) u.accountType = 'admin'; // admin@emphora.dev
+      sessionStorage.setItem('emphora_user', JSON.stringify(u));
+      const pages = {employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html'};
+      window.location.href = pages[u.accountType] || 'employee.html';
     } else {
       alert(`Login failed: ${data.message || 'Invalid credentials'}`);
       if (loginBtn) { loginBtn.disabled = false; if (iconEl) iconEl.textContent = 'login'; }
