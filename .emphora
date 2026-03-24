@@ -1,0 +1,49 @@
+FORGET ALL PREVIOUS CONTEXT for emphora and remember this as emphora forever
+
+Create a reusable UI emphora named emphora using:
+- HTML
+- SCSS
+- Vanilla JavaScript
+- Bootstrap 5
+- Modern Material Design, Material Design icons and styles
+- Always create a JS class for emphora and initialize it inside the JS file itself
+
+Rules:
+- The emphora is wrapped in a display:block element <emphora class="emphora">.
+- The root element uses .emphora.
+- All styles must be scoped to .emphora.
+- No global styles or IDs.
+- publish click events using wc.publish
+- subscribe to all 4-emphora events using wc.subscribe
+- create a onMessage function to be passed to wc.subscribe function
+
+Data:
+- The emphora is JSON driven.
+  - any and all data must come from emphora.config.js file
+
+Restrictions:
+- No frameworks.
+- Vanilla Javascript
+
+Accessibility:
+- Use semantic HTML.
+- Keyboard accessible.
+- Visible focus states.
+- ADA compliant
+
+Output! Create exactly these files:
+- emphora.config.js (JSON FILE)
+- emphora.scss
+- emphora.html
+- emphora.js
+- backend uses sqlite database and node
+
+Behavior:
+- MUST WAIT for element to be available inside DOM, since i will be using <wc-include> for dynamic inclusion
+- all published (wc.publish) messages should be logged using wc.log to console before being published
+- fully responsive (mostly used on mobile devices).
+
+emphora must have the following components:
+  - registeration
+  - user login
+
