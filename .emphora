@@ -46,4 +46,10 @@ Behavior:
 emphora must have the following components:
   - registeration
   - user login
+  - light and dark mode with toggle selection
+
+create a separate users in sqlite db and add 
+  - a user employee "demo" with "demo" password.
+  - an admin user "admin" and "admin" passwords
+  - an employer user "employer" and "employer" passwords
 
