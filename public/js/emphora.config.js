@@ -135,7 +135,7 @@ const EmophoraConfig = {
     },
     validation: {
       email:    { required: true, pattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", message: "Please enter a valid email address." },
-      password: { required: true, minLength: 6, message: "Password must be at least 6 characters." }
+      password: { required: true, minLength: 4, message: "Password must be at least 4 characters." }
     }
   },
 

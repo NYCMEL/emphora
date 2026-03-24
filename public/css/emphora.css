@@ -215,6 +215,172 @@
   color: var(--em-text-muted);
   margin-bottom: 1.75rem; }
 
+.emphora .em-dash-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0.75rem 0 1rem;
+  animation: em-fadeIn 0.3s ease both; }
+
+.emphora .em-dash-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
+  background: var(--em-primary);
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.emphora .em-dash-avatar[data-type="employee"] {
+  background: var(--em-primary); }
+
+.emphora .em-dash-avatar[data-type="employer"] {
+  background: var(--em-secondary); }
+
+.emphora .em-dash-avatar[data-type="researcher"] {
+  background: var(--em-accent); }
+
+.emphora .em-dash-hero-info {
+  flex: 1;
+  min-width: 0; }
+
+.emphora .em-dash-name {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--em-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+
+.emphora .em-dash-role {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--em-primary);
+  margin: 2px 0; }
+
+.emphora .em-dash-email {
+  font-size: 0.72rem;
+  color: var(--em-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+
+.emphora .em-dash-stats {
+  display: flex;
+  gap: 0;
+  background: var(--em-bg-surface-2);
+  border: 1px solid var(--em-border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem; }
+
+.emphora .em-dash-stats > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 0.5rem;
+  text-align: center;
+  border-right: 1px solid var(--em-border); }
+
+.emphora .em-dash-stats > *:last-child {
+  border-right: none; }
+
+.emphora .em-dash-stat__value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--em-text-primary); }
+
+.emphora .em-dash-stat__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--em-text-muted);
+  margin-top: 3px; }
+
+.emphora .em-dash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700; }
+
+.emphora .em-dash-badge--verified {
+  background: var(--em-success-bg);
+  color: var(--em-success); }
+
+.emphora .em-dash-badge--unverified {
+  background: var(--em-bg-surface-3);
+  color: var(--em-text-muted); }
+
+.emphora .em-dash-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 0.25rem; }
+
+.emphora .em-dash-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 10px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--em-border);
+  background: var(--em-bg-surface-2);
+  color: var(--em-text-secondary);
+  text-decoration: none;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.emphora .em-dash-action-btn .material-icons-round {
+  font-size: 1.05rem; }
+
+.emphora .em-dash-action-btn:hover {
+  border-color: var(--em-primary);
+  color: var(--em-primary);
+  background: var(--em-primary-light); }
+
+.emphora .em-dash-action-btn:focus-visible {
+  outline: 3px solid var(--em-primary);
+  outline-offset: 2px; }
+
+.emphora .em-dash-action-btn--admin {
+  background: rgba(103, 58, 183, 0.08);
+  border-color: rgba(103, 58, 183, 0.25);
+  color: #673AB7; }
+
+.emphora .em-dash-action-btn--admin:hover {
+  background: rgba(103, 58, 183, 0.15);
+  border-color: #673AB7;
+  color: #673AB7; }
+
+[data-emphora-theme="dark"] .emphora .em-dash-action-btn--admin {
+  background: rgba(179, 136, 255, 0.1);
+  border-color: rgba(179, 136, 255, 0.28);
+  color: #B388FF; }
+
+[data-emphora-theme="dark"] .emphora .em-dash-action-btn--admin:hover {
+  background: rgba(179, 136, 255, 0.18);
+  border-color: #B388FF;
+  color: #B388FF; }
+
 .emphora .em-admin-overlay {
   position: fixed;
   inset: 0;

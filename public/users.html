@@ -591,33 +591,59 @@
     document.getElementById('em-theme-btn').onclick = () => applyTheme(theme === 'light' ? 'dark' : 'light');
 
     // ── Fetch ──────────────────────────────────────────────────────────────────
+    // Resolve API base — works whether page is served from Express or opened directly
+    const API_BASE = (location.origin.startsWith('http') && !location.origin.startsWith('file'))
+      ? ''       // same-origin Express server
+      : 'http://localhost:3001';  // fallback for file:// opens
+
     async function fetchUsers() {
       const btn = document.getElementById('em-refresh-btn');
       btn.classList.add('spinning');
       btn.disabled = true;
+      showLoading();
 
       try {
-        const res  = await fetch('/api/admin/users');
+        const url  = `${API_BASE}/api/admin/users`;
+        console.log('[Emphora] fetching:', url);
+        const res  = await fetch(url);
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('[Emphora] HTTP', res.status, text);
+          showState('error_outline', `Server error ${res.status} — check console.`);
+          return;
+        }
+
         const data = await res.json();
         console.log('[Emphora] /api/admin/users →', data);
 
         if (data.ok) {
           allUsers = data.users || [];
+          const total = data.total ?? allUsers.length;
           document.getElementById('em-total-badge').textContent =
-            `${data.total} user${data.total !== 1 ? 's' : ''}`;
+            `${total} user${total !== 1 ? 's' : ''}`;
           document.getElementById('em-footer-time').textContent =
             `Updated: ${new Date().toLocaleTimeString()}`;
+          renderTable();
         } else {
-          showState('error_outline', data.message || 'API returned error.');
+          showState('error_outline', data.message || 'API returned an error.');
         }
       } catch (err) {
         console.error('[Emphora] fetch error:', err);
-        showState('wifi_off', 'Network error — is the server running?');
+        showState('wifi_off',
+          `Network error: ${err.message}. Is the server running at ${API_BASE || location.origin}?`);
       } finally {
         btn.classList.remove('spinning');
         btn.disabled = false;
-        renderTable();
       }
+    }
+
+    function showLoading() {
+      document.getElementById('em-table-wrap').innerHTML =
+        `<div class="em-state">
+          <span style="width:28px;height:28px;border:3px solid var(--em-border);border-top-color:var(--em-primary);border-radius:50%;display:inline-block;animation:spin .75s linear infinite"></span>
+          <span>Loading…</span>
+        </div>`;
     }
 
     // ── Filter + Sort ──────────────────────────────────────────────────────────
@@ -659,7 +685,7 @@
       document.getElementById('em-footer-count').textContent =
         `Showing ${users.length} of ${allUsers.length} users`;
 
-      if (allUsers.length === 0) { showState('group_off', 'No users yet. Try restarting the server to seed accounts.'); return; }
+      if (allUsers.length === 0) { showState('group_off', 'No users yet — restart the server to auto-seed accounts.'); return; }
       if (users.length  === 0)  { showState('search_off', 'No users match your filters.'); return; }
 
       const cols = [

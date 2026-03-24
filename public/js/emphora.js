@@ -179,6 +179,17 @@ class Emphora {
       if (!btn) return;
       const target = btn.dataset.emGoto;
       this._clearAllErrors();
+
+      // Sign out: hide account tag, clear session, publish logout
+      if (btn.id === 'em-dash-logout' || btn.dataset.logout === 'true') {
+        this._updateAccountTag('employee', false);
+        this._sessionUser = null;
+        const payload = {};
+        wc.log(this._config.events.logout, payload);
+        wc.publish(this._config.events.logout, payload);
+        this._toast(this._config.toast.messages.logoutSuccess, 'info');
+      }
+
       this._showView(target);
     });
   }
@@ -202,14 +213,11 @@ class Emphora {
         this._setLoading(false);
 
         if (result.ok) {
-          const payload = { email, userId: result.userId };
+          const loginType = result.user?.accountType || this._accountType;
+          const payload   = { email, userId: result.userId, accountType: loginType, user: result.user };
           wc.log(this._config.events.login, payload);
           wc.publish(this._config.events.login, payload);
-          // Show account type tag from server response (fallback to current chip selection)
-          const loginType = result.user?.accountType || this._accountType;
-          this._updateAccountTag(loginType, true);
-          this._toast(this._config.toast.messages.loginSuccess, 'success');
-          this._announce('Login successful. Welcome back.');
+          this._onLoginSuccess(result.user || { email, accountType: loginType });
         } else {
           this._toast(result.message || this._config.toast.messages.loginError, 'error');
           this._setFieldError('login-email', ' ');          // highlight
@@ -473,36 +481,33 @@ class Emphora {
     const bar = this._qs('#em-dev-bar');
     if (!bar) return;
 
-    // Hide bar entirely if devTools disabled in config
+    // If devTools is disabled in config, hide the entire bar
     if (!cfg || !cfg.enabled) {
       bar.style.display = 'none';
       return;
     }
 
-    // Boot admin panel
+    // ── Boot the admin panel instance ──────────────────────────────────────
     this._admin = new EmAdmin(this._root, this._config);
-    const adminBtn = this._qs('#em-dev-admin');
-    if (adminBtn) {
+
+    // ── Wire the Admin button (no data-dev-account, handled separately) ────
+    const devAdminBtn = this._qs('#em-dev-admin');
+    if (devAdminBtn) {
       if (!cfg.admin || !cfg.admin.enabled) {
-        adminBtn.style.display = 'none';
+        devAdminBtn.style.display = 'none';
       } else {
-        adminBtn.addEventListener('click', () => this._admin.open());
+        devAdminBtn.addEventListener('click', (e) => {
+          this._addRipple(devAdminBtn, e);
+          this._admin.open();
+        });
       }
     }
 
-    // Build a lookup map: button id -> account config
+    // ── Build lookup: data-dev-account value -> account config ─────────────
     const accountMap = {};
     (cfg.accounts || []).forEach(a => { accountMap[a.id] = a; });
 
-    // Admin panel button — opens users.html in a new tab
-    const adminBtn = this._qs('#em-dev-admin');
-    if (adminBtn) {
-      adminBtn.addEventListener('click', (e) => {
-        this._addRipple(adminBtn, e);
-        window.open('users.html', '_blank', 'noopener');
-      });
-    }
-
+    // ── Handle quick-login button clicks ───────────────────────────────────
     bar.addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-dev-account]');
       if (!btn) return;
@@ -512,16 +517,15 @@ class Emphora {
       const account = accountMap[btn.dataset.devAccount];
       if (!account) return;
 
-      // Show spinner on clicked button
-      const icon  = btn.querySelector('.material-icons-round');
-      const label = btn.childNodes[btn.childNodes.length - 1];
+      // Show spinner, hide icon
+      const iconEl  = btn.querySelector('.material-icons-round');
       const spinner = document.createElement('span');
       spinner.className = 'em-dev-btn-spinner';
       btn.classList.add('em-dev-btn--loading');
-      if (icon) icon.style.display = 'none';
+      if (iconEl) iconEl.style.display = 'none';
       btn.insertBefore(spinner, btn.firstChild);
 
-      // Pre-fill the login form fields so the user can see what was used
+      // Pre-fill visible form fields for transparency
       const emailEl = this._qs('#login-email');
       const pwEl    = this._qs('#login-password');
       if (emailEl) emailEl.value = account.email;
@@ -530,28 +534,20 @@ class Emphora {
       this._setLoading(true);
 
       try {
-        // First attempt login — if account doesn't exist yet, auto-register it
-        let result = await this._apiLogin({
-          email:    account.email,
-          password: account.password,
-        });
+        // Try login first; if not seeded yet, register then login
+        let result = await this._apiLogin({ email: account.email, password: account.password });
 
-        if (!result.ok && result.message && result.message.toLowerCase().includes('invalid')) {
-          // Account not seeded yet — register it silently
-          console.info(`[Emphora DevTools] Seeding test account: ${account.email}`);
-          const regResult = await this._apiRegister({
+        if (!result.ok && (result.message || '').toLowerCase().includes('invalid')) {
+          console.info(`[Emphora DevTools] Seeding: ${account.email}`);
+          const reg = await this._apiRegister({
             firstName:   account.label,
             lastName:    'Test',
             email:       account.email,
             password:    account.password,
             accountType: account.accountType,
           });
-          if (regResult.ok) {
-            // Now login with the freshly created account
-            result = await this._apiLogin({
-              email:    account.email,
-              password: account.password,
-            });
+          if (reg.ok) {
+            result = await this._apiLogin({ email: account.email, password: account.password });
           }
         }
 
@@ -559,25 +555,91 @@ class Emphora {
 
         if (result.ok) {
           const loginType = result.user?.accountType || account.accountType;
-          const payload   = { email: account.email, userId: result.userId, accountType: loginType };
+          const payload   = { email: account.email, userId: result.userId, accountType: loginType, user: result.user };
           wc.log(this._config.events.login, payload);
           wc.publish(this._config.events.login, payload);
-          this._updateAccountTag(loginType, true);
-          this._toast(`Signed in as ${account.label} (test account)`, 'success');
-          this._announce(`Quick login successful as ${account.label}`);
+          this._onLoginSuccess(result.user || { email: account.email, accountType: loginType, firstName: account.label });
         } else {
           this._toast(result.message || this._config.toast.messages.loginError, 'error');
         }
-      } catch {
+      } catch (err) {
+        console.error('[Emphora DevTools] login error:', err);
         this._setLoading(false);
         this._toast(this._config.toast.messages.networkError, 'error');
       } finally {
-        // Restore button
         btn.classList.remove('em-dev-btn--loading');
         if (spinner.parentNode) spinner.remove();
-        if (icon) icon.style.display = '';
+        if (iconEl) iconEl.style.display = '';
       }
     });
+  }
+  // ── Login Success — navigate to dashboard ──────────────────────────────────
+  _onLoginSuccess(user) {
+    // Store session user for the dashboard
+    this._sessionUser = user;
+
+    // Update the account type tag
+    const loginType = user?.accountType || 'employee';
+    this._updateAccountTag(loginType, true);
+
+    // Show dashboard view
+    this._showView('dashboard', false);
+
+    // Populate dashboard with user data
+    this._renderDashboard(user);
+
+    this._toast(this._config.toast.messages.loginSuccess, 'success');
+    this._announce(`Welcome, ${user?.firstName || 'back'}!`);
+  }
+
+  _renderDashboard(user) {
+    const el = (id) => this._qs(`#${id}`);
+    const TYPE_LABELS = { employee: 'Professional', employer: 'Employer', researcher: 'Researcher' };
+    const TYPE_ICONS  = { employee: 'badge', employer: 'business', researcher: 'science' };
+
+    const firstName   = user?.firstName    || user?.email?.split('@')[0] || 'User';
+    const lastName    = user?.lastName     || '';
+    const email       = user?.email        || '';
+    const accountType = user?.accountType  || 'employee';
+    const isVerified  = user?.isVerified   || false;
+    const score       = user?.emphoraScore || 0;
+    const joined      = user?.createdAt
+      ? new Date(user.createdAt).toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' })
+      : '—';
+
+    const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || '?';
+
+    const nameEl = el('em-dash-name');
+    const roleEl = el('em-dash-role');
+    const emailEl = el('em-dash-email');
+    const initEl  = el('em-dash-initials');
+    const verEl   = el('em-dash-verified');
+    const scoreEl = el('em-dash-score');
+    const joinEl  = el('em-dash-joined');
+
+    if (nameEl)  nameEl.textContent  = `${firstName} ${lastName}`.trim();
+    if (roleEl)  roleEl.textContent  = TYPE_LABELS[accountType] || accountType;
+    if (emailEl) emailEl.textContent = email;
+    if (initEl)  initEl.textContent  = initials;
+    if (verEl) {
+      verEl.textContent  = isVerified ? '✓ Verified' : 'Unverified';
+      verEl.className    = `em-dash-badge em-dash-badge--${isVerified ? 'verified' : 'unverified'}`;
+    }
+    if (scoreEl) scoreEl.textContent = score > 0 ? score.toFixed(1) : '—';
+    if (joinEl)  joinEl.textContent  = joined;
+
+    // Set avatar colour by account type
+    if (initEl) {
+      const avatarEl = el('em-dash-avatar');
+      if (avatarEl) avatarEl.setAttribute('data-type', accountType);
+    }
+
+    // Show/hide admin link
+    const adminLink = el('em-dash-admin-link');
+    if (adminLink) {
+      adminLink.style.display =
+        (this._config.devTools?.enabled) ? 'inline-flex' : 'none';
+    }
   }
 
   // ── Account Tag ─────────────────────────────────────────────────────────────

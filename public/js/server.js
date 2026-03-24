@@ -140,15 +140,23 @@ async function initDb() {
   ];
 
   for (const s of seedUsers) {
+    const hash   = bcrypt.hashSync(s.password, SALT_ROUNDS);
     const exists = dbGet('SELECT id FROM users WHERE email = ?', [s.email]);
     if (!exists) {
-      const hash = bcrypt.hashSync(s.password, SALT_ROUNDS);
+      // Create account for the first time
       db.run(
         `INSERT INTO users (first_name, last_name, email, password_hash, account_type, is_verified, is_active)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [s.firstName, s.lastName, s.email, hash, s.accountType, s.isVerified, s.isActive]
       );
-      console.info(`[Emphora DB] Seeded: ${s.email} / ${s.password}`);
+      console.info(`[Emphora DB] Seeded:   ${s.email} / ${s.password}`);
+    } else {
+      // Always update password_hash to match current config (handles password changes)
+      db.run(
+        `UPDATE users SET password_hash = ?, is_active = ? WHERE email = ?`,
+        [hash, s.isActive, s.email]
+      );
+      console.info(`[Emphora DB] Re-synced: ${s.email} / ${s.password}`);
     }
   }
   dbSave();
@@ -227,7 +235,7 @@ const ACCOUNT_TYPES = new Set(['employee', 'employer', 'researcher']);
 function validateLogin({ email, password }) {
   const e = [];
   if (!email    || !EMAIL_RE.test(email.trim())) e.push({ field: 'email',    message: 'Valid email required.' });
-  if (!password || password.length < 6)           e.push({ field: 'password', message: 'Password min 6 chars.' });
+  if (!password || password.length < 4)           e.push({ field: 'password', message: 'Password min 4 chars.' });
   return e;
 }
 
@@ -352,6 +360,7 @@ app.get('/api/admin/users', (req, res) => {
               emphora_score, is_verified, is_active, created_at
          FROM users ORDER BY id DESC`
     );
+    console.log(`[Emphora API] GET /api/admin/users → ${users.length} row(s)`);
     const sessions = dbAll(
       `SELECT user_id, COUNT(*) as session_count
          FROM sessions WHERE expires_at > ? GROUP BY user_id`,
