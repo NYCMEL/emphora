@@ -13,6 +13,31 @@ const EmophoraConfig = {
     portFallbackTries: 10  // how many ports to try before giving up
   },
 
+  devTools: {
+    // Quick-login buttons shown above the login form (dev/testing only).
+    // Set enabled: false to hide them in production.
+    enabled: true,
+    label: "Quick login for testing",
+    accounts: [
+      {
+        id:       "dev-employee",
+        label:    "Employee",
+        icon:     "badge",
+        email:    "employee@emphora.dev",
+        password: "test1234",
+        accountType: "employee"
+      },
+      {
+        id:       "dev-employer",
+        label:    "Employer",
+        icon:     "business",
+        email:    "employer@emphora.dev",
+        password: "test1234",
+        accountType: "employer"
+      }
+    ]
+  },
+
   accountTag: {
     show: true,
     defaultType: "employee",

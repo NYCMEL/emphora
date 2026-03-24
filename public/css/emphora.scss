@@ -281,6 +281,167 @@ $dark: (
   }
 
   // ─────────────────────────────────────────────
+  // DEV QUICK-LOGIN BAR
+  // ─────────────────────────────────────────────
+  .em-dev-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px 7px 12px;
+    margin-bottom: 1.1rem;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(245, 166, 35, 0.06) 6px,
+      rgba(245, 166, 35, 0.06) 12px
+    );
+    border: 1.5px dashed rgba(245, 166, 35, 0.45);
+    border-radius: 10px;
+    @include transition(opacity);
+
+    [data-emphora-theme="dark"] & {
+      border-color: rgba(245, 166, 35, 0.3);
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 6px,
+        rgba(245, 166, 35, 0.04) 6px,
+        rgba(245, 166, 35, 0.04) 12px
+      );
+    }
+
+    &__label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(180, 120, 10, 0.9);
+      white-space: nowrap;
+      flex-shrink: 0;
+
+      [data-emphora-theme="dark"] & {
+        color: rgba(245, 166, 35, 0.75);
+      }
+
+      .material-icons-round {
+        font-size: 0.85rem;
+      }
+    }
+
+    &__btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+  }
+
+  .em-dev-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    border: 1.5px solid transparent;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    @include transition(all, 0.18s);
+
+    .material-icons-round {
+      font-size: 0.85rem;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    // Employee — blue
+    &--employee {
+      background: rgba(26, 107, 204, 0.1);
+      border-color: rgba(26, 107, 204, 0.3);
+      color: #1A6BCC;
+
+      &:hover {
+        background: rgba(26, 107, 204, 0.18);
+        border-color: #1A6BCC;
+      }
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(77, 158, 255, 0.12);
+        border-color: rgba(77, 158, 255, 0.3);
+        color: #4D9EFF;
+
+        &:hover {
+          background: rgba(77, 158, 255, 0.2);
+          border-color: #4D9EFF;
+        }
+      }
+    }
+
+    // Employer — teal
+    &--employer {
+      background: rgba(0, 137, 123, 0.1);
+      border-color: rgba(0, 137, 123, 0.3);
+      color: #00897B;
+
+      &:hover {
+        background: rgba(0, 137, 123, 0.18);
+        border-color: #00897B;
+      }
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(38, 166, 154, 0.12);
+        border-color: rgba(38, 166, 154, 0.3);
+        color: #26A69A;
+
+        &:hover {
+          background: rgba(38, 166, 154, 0.2);
+          border-color: #26A69A;
+        }
+      }
+    }
+
+    // Spinner state while logging in
+    &--loading {
+      opacity: 0.7;
+      pointer-events: none;
+
+      .em-dev-btn-spinner {
+        display: inline-block;
+        width: 12px; height: 12px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: em-spin 0.65s linear infinite;
+      }
+    }
+
+    .em-ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.18;
+      width: 60px; height: 60px;
+      margin-left: -30px; margin-top: -30px;
+      transform: scale(0);
+      animation: em-ripple 0.5s ease-out forwards;
+      pointer-events: none;
+    }
+  }
+
+  // ─────────────────────────────────────────────
   // ACCOUNT TYPE TAG (top bar)
   // ─────────────────────────────────────────────
   .em-account-tag {

@@ -105,6 +105,7 @@ class Emphora {
     this._updateAccountTag(this._accountType, false);
     this._bindPasswordStrength();
     this._bindRipples();
+    this._bindDevBar();
     this._subscribeToEvents();
     this._showView(this._currentView, false);
 
@@ -464,6 +465,99 @@ class Emphora {
       label.textContent = text;
       label.className   = `em-pwd-strength-label${cls ? ` em-pwd-strength-label--${cls}` : ''}`;
     }
+  }
+
+  // ── Dev Quick-Login Bar ─────────────────────────────────────────────────────
+  _bindDevBar() {
+    const cfg = this._config.devTools;
+    const bar = this._qs('#em-dev-bar');
+    if (!bar) return;
+
+    // Hide bar entirely if devTools disabled in config
+    if (!cfg || !cfg.enabled) {
+      bar.style.display = 'none';
+      return;
+    }
+
+    // Build a lookup map: button id -> account config
+    const accountMap = {};
+    (cfg.accounts || []).forEach(a => { accountMap[a.id] = a; });
+
+    bar.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-dev-account]');
+      if (!btn) return;
+
+      this._addRipple(btn, e);
+
+      const account = accountMap[btn.dataset.devAccount];
+      if (!account) return;
+
+      // Show spinner on clicked button
+      const icon  = btn.querySelector('.material-icons-round');
+      const label = btn.childNodes[btn.childNodes.length - 1];
+      const spinner = document.createElement('span');
+      spinner.className = 'em-dev-btn-spinner';
+      btn.classList.add('em-dev-btn--loading');
+      if (icon) icon.style.display = 'none';
+      btn.insertBefore(spinner, btn.firstChild);
+
+      // Pre-fill the login form fields so the user can see what was used
+      const emailEl = this._qs('#login-email');
+      const pwEl    = this._qs('#login-password');
+      if (emailEl) emailEl.value = account.email;
+      if (pwEl)    pwEl.value    = account.password;
+
+      this._setLoading(true);
+
+      try {
+        // First attempt login — if account doesn't exist yet, auto-register it
+        let result = await this._apiLogin({
+          email:    account.email,
+          password: account.password,
+        });
+
+        if (!result.ok && result.message && result.message.toLowerCase().includes('invalid')) {
+          // Account not seeded yet — register it silently
+          console.info(`[Emphora DevTools] Seeding test account: ${account.email}`);
+          const regResult = await this._apiRegister({
+            firstName:   account.label,
+            lastName:    'Test',
+            email:       account.email,
+            password:    account.password,
+            accountType: account.accountType,
+          });
+          if (regResult.ok) {
+            // Now login with the freshly created account
+            result = await this._apiLogin({
+              email:    account.email,
+              password: account.password,
+            });
+          }
+        }
+
+        this._setLoading(false);
+
+        if (result.ok) {
+          const loginType = result.user?.accountType || account.accountType;
+          const payload   = { email: account.email, userId: result.userId, accountType: loginType };
+          wc.log(this._config.events.login, payload);
+          wc.publish(this._config.events.login, payload);
+          this._updateAccountTag(loginType, true);
+          this._toast(`Signed in as ${account.label} (test account)`, 'success');
+          this._announce(`Quick login successful as ${account.label}`);
+        } else {
+          this._toast(result.message || this._config.toast.messages.loginError, 'error');
+        }
+      } catch {
+        this._setLoading(false);
+        this._toast(this._config.toast.messages.networkError, 'error');
+      } finally {
+        // Restore button
+        btn.classList.remove('em-dev-btn--loading');
+        if (spinner.parentNode) spinner.remove();
+        if (icon) icon.style.display = '';
+      }
+    });
   }
 
   // ── Account Tag ─────────────────────────────────────────────────────────────
