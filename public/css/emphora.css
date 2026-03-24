@@ -1082,6 +1082,16 @@
   border-color: rgba(240, 98, 146, 0.3);
   color: #F06292; }
 
+.emphora .em-account-tag.em-tag--admin {
+  background: rgba(103, 58, 183, 0.1);
+  border-color: rgba(103, 58, 183, 0.28);
+  color: #673AB7; }
+
+[data-emphora-theme="dark"] .emphora .em-account-tag.em-tag--admin {
+  background: rgba(179, 136, 255, 0.14);
+  border-color: rgba(179, 136, 255, 0.3);
+  color: #B388FF; }
+
 .emphora .em-theme-toggle {
   display: flex;
   align-items: center;

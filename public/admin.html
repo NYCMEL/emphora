@@ -1,0 +1,326 @@
+<!--
+  Place at: public/admin.html
+  Emphora Admin Dashboard
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Emphora — Admin Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="css/emphora.css"/>
+  <style>
+    :root{--primary:#673AB7;--bg:#F0F4F8;--surface:#fff;--surface2:#F8FAFC;--border:#D0DCE8;--text:#0D1B2A;--muted:#7A8FA6;--success:#2E7D32;--warning:#E65100;--danger:#C62828;--employee:#1A6BCC;--employer:#00897B;--researcher:#C2185B;}
+    [data-theme="dark"]{--bg:#0A0F1A;--surface:#111827;--surface2:#1A2236;--border:rgba(255,255,255,.10);--text:#E8F1FF;--muted:#5C7389;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:15px;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s;}
+
+    /* ── TOPBAR ── */
+    .topbar{position:sticky;top:0;z-index:100;height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.25rem;gap:12px;}
+    .logo{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:1.3rem;color:var(--primary);text-decoration:none;}
+    .logo b{color:#00897B;font-weight:400;}
+    .role-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(103,58,183,.12);color:var(--primary);border:1px solid rgba(103,58,183,.25);}
+    .role-tag .material-icons-round{font-size:.82rem;}
+    .spacer{flex:1;}
+    .user-info{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);}
+    .avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .icon-btn:hover{color:var(--primary);border-color:var(--primary);}
+    .icon-btn .material-icons-round{font-size:1rem;}
+
+    /* ── PAGE ── */
+    .page{width:100%;padding:1.5rem 1.25rem;}
+
+    /* ── HERO ── */
+    .page-hero{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;padding:1.25rem 1.5rem;background:rgba(103,58,183,.08);border:1px solid rgba(103,58,183,.18);border-radius:14px;}
+    .hero-avatar{width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:1.3rem;color:#fff;flex-shrink:0;}
+    .hero-name{font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;font-weight:400;}
+    .hero-sub{font-size:.78rem;color:var(--muted);margin-top:2px;}
+    .hero-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+
+    /* ── STAT CARDS ── */
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1.5rem;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:default;}
+    .stat-label{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .stat-value{font-size:1.6rem;font-weight:700;letter-spacing:-.03em;color:var(--text);line-height:1;}
+    .stat-sub{font-size:.72rem;color:var(--muted);margin-top:4px;}
+    .stat-card.accent .stat-value{color:var(--primary);}
+    .stat-card.green  .stat-value{color:var(--success);}
+    .stat-card.blue   .stat-value{color:var(--employee);}
+    .stat-card.teal   .stat-value{color:var(--employer);}
+    .stat-card.red    .stat-value{color:var(--danger);}
+
+    /* ── SECTIONS ── */
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;overflow:hidden;}
+    .section-header{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--border);}
+    .section-title{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;}
+    .section-title .material-icons-round{font-size:1rem;color:var(--primary);}
+    .section-body{padding:1.1rem;}
+
+    /* ── TABLE ── */
+    table{width:100%;border-collapse:collapse;font-size:.82rem;}
+    th{padding:8px 12px;text-align:left;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+    td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tbody tr:hover td{background:rgba(103,58,183,.04);}
+    td.primary{color:var(--text);font-weight:500;}
+    td.dim{opacity:.45;}
+
+    /* ── PILLS ── */
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:700;border:1px solid transparent;}
+    .pill-employee  {background:rgba(26,107,204,.1); color:var(--employee);  border-color:rgba(26,107,204,.2);}
+    .pill-employer  {background:rgba(0,137,123,.1);  color:var(--employer);  border-color:rgba(0,137,123,.2);}
+    .pill-researcher{background:rgba(194,24,91,.08); color:var(--researcher);border-color:rgba(194,24,91,.2);}
+    .pill-admin     {background:rgba(103,58,183,.1); color:var(--primary);   border-color:rgba(103,58,183,.2);}
+    .pill-green     {background:rgba(46,125,50,.1);  color:var(--success);   border-color:rgba(46,125,50,.2);}
+    .pill-grey      {background:var(--surface2);     color:var(--muted);     border-color:var(--border);}
+
+    /* ── BUTTONS ── */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;white-space:nowrap;}
+    .btn:hover{border-color:var(--primary);color:var(--primary);}
+    .btn .material-icons-round{font-size:.9rem;}
+    .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .btn-primary:hover{filter:brightness(1.1);color:#fff;}
+    .btn-danger{background:rgba(198,40,40,.08);border-color:rgba(198,40,40,.25);color:var(--danger);}
+    .btn-danger:hover{background:rgba(198,40,40,.15);}
+
+    /* ── STATE ── */
+    .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:2.5rem;color:var(--muted);font-size:.84rem;}
+    .spinner{width:22px;height:22px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--primary);animation:spin .75s linear infinite;flex-shrink:0;}
+
+    @keyframes spin{to{transform:rotate(360deg);}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+    tbody tr{animation:fadeIn .15s ease both;}
+
+    @media(max-width:600px){.page-hero{flex-wrap:wrap;}.hero-actions{width:100%;}.stats{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="/" class="logo">Emph<b>ora</b></a>
+  <span class="role-tag"><span class="material-icons-round">admin_panel_settings</span>Admin</span>
+  <div class="spacer"></div>
+  <div class="user-info"><span id="topbar-name">—</span><div class="avatar" id="topbar-initials">AU</div></div>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <button class="icon-btn" id="logout-btn" title="Sign out" aria-label="Sign out"><span class="material-icons-round">logout</span></button>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <div class="hero-avatar" id="hero-avatar">AU</div>
+    <div>
+      <div class="hero-name" id="hero-name">Admin User</div>
+      <div class="hero-sub" id="hero-sub">—</div>
+    </div>
+    <div class="hero-actions">
+      <a href="users.html" class="btn btn-primary" id="users-btn">
+        <span class="material-icons-round">group</span>Users
+      </a>
+      <button class="btn btn-danger" id="logout-btn2">
+        <span class="material-icons-round">logout</span>Sign Out
+      </button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS — populated from /api/admin/users -->
+  <div class="stats" id="stats-row">
+    <div class="stat-card accent">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value" id="s-total">—</div>
+      <div class="stat-sub">Registered accounts</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Employees</div>
+      <div class="stat-value" id="s-employees">—</div>
+      <div class="stat-sub">Professionals</div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-label">Employers</div>
+      <div class="stat-value" id="s-employers">—</div>
+      <div class="stat-sub">Recruiters</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Disabled</div>
+      <div class="stat-value" id="s-disabled">—</div>
+      <div class="stat-sub">Inactive accounts</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Active Sessions</div>
+      <div class="stat-value" id="s-sessions">—</div>
+      <div class="stat-sub">Currently logged in</div>
+    </div>
+  </div>
+
+  <!-- RECENT USERS TABLE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="material-icons-round">group</span>Recent Users
+      </div>
+      <a href="users.html" class="btn">
+        <span class="material-icons-round">open_in_new</span>Manage all users
+      </a>
+    </div>
+    <div class="section-body" style="padding:0">
+      <div id="users-table-wrap">
+        <div class="loading"><div class="spinner"></div><span>Loading users…</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT TYPE BREAKDOWN -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="material-icons-round">pie_chart</span>Account Breakdown
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="breakdown-wrap" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+'use strict';
+
+const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch { return null; } })();
+if (!user) window.location.href = '/';
+
+const API = window.location.protocol === 'file:' ? 'http://localhost:3001' : '';
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+let theme = localStorage.getItem('em-theme') || 'light';
+function applyTheme(t) {
+  theme = t;
+  document.body.dataset.theme = t;
+  document.querySelector('#theme-btn .material-icons-round').textContent =
+    t === 'dark' ? 'dark_mode' : 'light_mode';
+  localStorage.setItem('em-theme', t);
+}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick = () => applyTheme(theme === 'dark' ? 'light' : 'dark');
+
+// ── User info ─────────────────────────────────────────────────────────────────
+function initUser() {
+  if (!user) return;
+  const fn  = user.firstName || 'Admin';
+  const ln  = user.lastName  || '';
+  const ini = ((fn[0]||'') + (ln[0]||'')).toUpperCase();
+  document.getElementById('hero-name').textContent      = `${fn} ${ln}`.trim();
+  document.getElementById('hero-sub').textContent       = `${user.email||''} · System Administrator`;
+  document.getElementById('hero-avatar').textContent    = ini || 'AU';
+  document.getElementById('topbar-name').textContent    = fn;
+  document.getElementById('topbar-initials').textContent = ini || 'AU';
+}
+initUser();
+
+// ── Sign out ──────────────────────────────────────────────────────────────────
+function signOut() {
+  sessionStorage.removeItem('emphora_user');
+  try { fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' }).catch(()=>{}); } catch(_) {}
+  window.location.href = '/';
+}
+document.getElementById('logout-btn').onclick  = signOut;
+document.getElementById('logout-btn2').onclick = signOut;
+
+// ── Load users ────────────────────────────────────────────────────────────────
+const TYPE_ICONS  = { employee:'badge', employer:'business', researcher:'science', admin:'admin_panel_settings' };
+const TYPE_LABELS = { employee:'Employee', employer:'Employer', researcher:'Researcher', admin:'Admin' };
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }); }
+  catch { return iso; }
+}
+
+async function loadUsers() {
+  try {
+    const res  = await fetch(`${API}/api/admin/users`, { credentials: 'include' });
+    const data = await res.json();
+    if (!data.ok) return;
+
+    const users = data.users || [];
+
+    // ── Stats ────────────────────────────────────────────────────────────────
+    const employees   = users.filter(u => u.accountType === 'employee').length;
+    const employers   = users.filter(u => u.accountType === 'employer').length;
+    const disabled    = users.filter(u => !u.isActive).length;
+    const sessions    = users.reduce((n, u) => n + (u.activeSessions || 0), 0);
+
+    document.getElementById('s-total').textContent     = users.length;
+    document.getElementById('s-employees').textContent = employees;
+    document.getElementById('s-employers').textContent = employers;
+    document.getElementById('s-disabled').textContent  = disabled;
+    document.getElementById('s-sessions').textContent  = sessions;
+
+    // ── Recent users table (last 8) ───────────────────────────────────────────
+    const recent = users.slice(0, 8);
+    const tbody  = recent.map((u, i) => {
+      const active   = Boolean(u.isActive);
+      const typeLabel = TYPE_LABELS[u.accountType] || u.accountType;
+      const icon      = TYPE_ICONS[u.accountType]  || 'person';
+      return `<tr style="animation-delay:${i*.04}s">
+        <td class="primary">${esc(u.firstName)} ${esc(u.lastName)}</td>
+        <td class="${active ? '' : 'dim'}">${esc(u.email)}</td>
+        <td><span class="pill pill-${esc(u.accountType)}">
+          <span class="material-icons-round" style="font-size:.72rem">${icon}</span>
+          ${esc(typeLabel)}
+        </span></td>
+        <td>${active
+          ? '<span class="pill pill-green">Active</span>'
+          : '<span class="pill pill-grey">Disabled</span>'}</td>
+        <td>${fmtDate(u.createdAt)}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('users-table-wrap').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Email</th><th>Type</th><th>Status</th><th>Joined</th>
+          </tr>
+        </thead>
+        <tbody>${tbody}</tbody>
+      </table>`;
+
+    // ── Breakdown bars ────────────────────────────────────────────────────────
+    const total = users.length || 1;
+    const groups = [
+      { label: 'Employees',   count: employees,                                          color: 'var(--employee)'  },
+      { label: 'Employers',   count: employers,                                          color: 'var(--employer)'  },
+      { label: 'Researchers', count: users.filter(u=>u.accountType==='researcher').length, color: 'var(--researcher)'},
+      { label: 'Admins',      count: users.filter(u=>u.accountType==='admin').length,    color: 'var(--primary)'   },
+    ];
+
+    document.getElementById('breakdown-wrap').innerHTML = groups.map(g => `
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:5px">
+          <span style="color:var(--text);font-weight:500">${g.label}</span>
+          <span style="color:var(--muted)">${g.count} <span style="opacity:.5">/ ${users.length}</span></span>
+        </div>
+        <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+          <div style="height:100%;border-radius:3px;background:${g.color};width:${Math.round(g.count/total*100)}%;transition:width .6s ease"></div>
+        </div>
+      </div>`).join('');
+
+  } catch (err) {
+    console.error('[Emphora Admin] load error:', err);
+    document.getElementById('users-table-wrap').innerHTML =
+      `<div class="loading"><span>Error loading users — ${esc(err.message)}</span></div>`;
+  }
+}
+
+loadUsers();
+</script>
+</body>
+</html>

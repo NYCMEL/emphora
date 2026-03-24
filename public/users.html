@@ -145,6 +145,9 @@
     .btn-save:hover { background:#1255A4; }
     .btn-save:disabled { opacity:.55;cursor:not-allowed; }
 
+    .back-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;transition:all .15s;}
+    .back-btn:hover{border-color:#673AB7;color:#673AB7;background:rgba(103,58,183,.08);}
+    .back-btn .material-icons-round{font-size:.9rem;}
     @keyframes spin   { to{transform:rotate(360deg);} }
     @keyframes fadein { from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;} }
     tbody tr { animation:fadein .14s ease both; }
@@ -157,6 +160,9 @@
 
 <nav class="topbar">
   <a href="/" class="logo">Emph<b>ora</b></a>
+  <a href="admin.html" class="back-btn" id="back-btn" aria-label="Back to Admin dashboard">
+    <span class="material-icons-round">arrow_back</span>Admin
+  </a>
   <div class="spacer"></div>
   <span class="badge" id="total-badge">loading…</span>
   <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
@@ -610,6 +616,13 @@ document.addEventListener('keydown', e => {
   el.addEventListener('input',  render);
   el.addEventListener('change', render);
 });
+
+// Show back button only if user is admin type
+const _u = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch { return null; } })();
+const backBtn = document.getElementById('back-btn');
+if (backBtn && _u?.accountType !== 'admin') {
+  backBtn.style.display = 'none';
+}
 
 // Boot
 load();

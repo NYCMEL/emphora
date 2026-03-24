@@ -30,7 +30,7 @@ const EmophoraConfig = {
         icon:        "shield_person",
         email:       "admin@emphora.dev",
         password:    "test-1234",
-        accountType: "employee"
+        accountType: "admin"
       },
       {
         id:          "dev-employee",
@@ -65,7 +65,8 @@ const EmophoraConfig = {
     types: {
       employee:   { label: "Employee",   icon: "badge",    colorClass: "em-tag--employee"   },
       employer:   { label: "Employer",   icon: "business", colorClass: "em-tag--employer"   },
-      researcher: { label: "Researcher", icon: "science",  colorClass: "em-tag--researcher" }
+      researcher: { label: "Researcher", icon: "science",  colorClass: "em-tag--researcher" },
+      admin:      { label: "Admin",      icon: "admin_panel_settings", colorClass: "em-tag--admin" }
     }
   },
 
@@ -101,7 +102,7 @@ const EmophoraConfig = {
     employee:   "employee.html",
     employer:   "employer.html",
     researcher: "researcher.html",
-    admin:      "users.html"
+    admin:      "admin.html"
   },
 
   login: {

@@ -1217,6 +1217,18 @@ $dark: (
         color: #F06292;
       }
     }
+
+    &.em-tag--admin {
+      background: rgba(103, 58, 183, 0.1);
+      border-color: rgba(103, 58, 183, 0.28);
+      color: #673AB7;
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(179, 136, 255, 0.14);
+        border-color: rgba(179, 136, 255, 0.3);
+        color: #B388FF;
+      }
+    }
   }
 
   // ─────────────────────────────────────────────
