@@ -573,23 +573,28 @@ class Emphora {
       }
     });
   }
-  // ── Login Success — navigate to dashboard ──────────────────────────────────
+  // ── Login Success — redirect to role dashboard ──────────────────────────────
   _onLoginSuccess(user) {
-    // Store session user for the dashboard
     this._sessionUser = user;
 
-    // Update the account type tag
-    const loginType = user?.accountType || 'employee';
+    const loginType   = user?.accountType || 'employee';
     this._updateAccountTag(loginType, true);
-
-    // Show dashboard view
-    this._showView('dashboard', false);
-
-    // Populate dashboard with user data
-    this._renderDashboard(user);
-
     this._toast(this._config.toast.messages.loginSuccess, 'success');
     this._announce(`Welcome, ${user?.firstName || 'back'}!`);
+
+    // Persist user to sessionStorage so the dashboard page can read it
+    try {
+      sessionStorage.setItem('emphora_user', JSON.stringify(user));
+    } catch (_) {}
+
+    // Redirect to the role-specific dashboard
+    const dashboards = this._config.dashboards || {};
+    const target     = dashboards[loginType] || dashboards['employee'] || 'employee.html';
+
+    // Small delay so toast is visible before navigation
+    setTimeout(() => {
+      window.location.href = target;
+    }, 600);
   }
 
   _renderDashboard(user) {

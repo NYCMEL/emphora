@@ -29,7 +29,7 @@ const EmophoraConfig = {
         label:       "Admin",
         icon:        "shield_person",
         email:       "admin@emphora.dev",
-        password:    "admin",
+        password:    "test-1234",
         accountType: "employee"
       },
       {
@@ -37,7 +37,7 @@ const EmophoraConfig = {
         label:       "Employee",
         icon:        "badge",
         email:       "employee@emphora.dev",
-        password:    "employee",
+        password:    "test-1234",
         accountType: "employee"
       },
       {
@@ -45,7 +45,7 @@ const EmophoraConfig = {
         label:       "Employer",
         icon:        "business",
         email:       "employer@emphora.dev",
-        password:    "employer",
+        password:    "test-1234",
         accountType: "employer"
       },
       {
@@ -53,7 +53,7 @@ const EmophoraConfig = {
         label:       "Researcher",
         icon:        "science",
         email:       "researcher@emphora.dev",
-        password:    "researcher",
+        password:    "test-1234",
         accountType: "researcher"
       }
     ]
@@ -95,6 +95,13 @@ const EmophoraConfig = {
       logout:   "/auth/logout",
       profile:  "/user/profile"
     }
+  },
+
+  dashboards: {
+    employee:   "employee.html",
+    employer:   "employer.html",
+    researcher: "researcher.html",
+    admin:      "users.html"
   },
 
   login: {

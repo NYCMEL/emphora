@@ -103,6 +103,7 @@ async function initDb() {
       account_type  TEXT    NOT NULL DEFAULT 'employee',
       emphora_score REAL    NOT NULL DEFAULT 0.0,
       is_verified   INTEGER NOT NULL DEFAULT 0,
+      is_active     INTEGER NOT NULL DEFAULT 1,
       created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -120,8 +121,45 @@ async function initDb() {
 
   dbSave(); // initial flush
 
+  // ── Migrations ──────────────────────────────────────────────────────────────
+  // Safely add columns that may not exist in older DB files
+  try { db.run("ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1"); dbSave(); }
+  catch (_) { /* column already exists */ }
+
   // Periodic flush to guard against crashes
   setInterval(dbSave, SAVE_INTERVAL_MS);
+
+  // ── Seed dev accounts ───────────────────────────────────────────────────────
+  // Creates test accounts on first run if they don't exist.
+  // Password = same as the username part before @emphora.dev
+  const seedUsers = [
+    { firstName: 'Admin',      lastName: 'User', email: 'admin@emphora.dev',      password: 'test-1234', accountType: 'employee',   isVerified: 1, isActive: 1 },
+    { firstName: 'Employee',   lastName: 'Test', email: 'employee@emphora.dev',   password: 'test-1234', accountType: 'employee',   isVerified: 1, isActive: 1 },
+    { firstName: 'Employer',   lastName: 'Test', email: 'employer@emphora.dev',   password: 'test-1234', accountType: 'employer',   isVerified: 1, isActive: 1 },
+    { firstName: 'Researcher', lastName: 'Test', email: 'researcher@emphora.dev', password: 'test-1234', accountType: 'researcher', isVerified: 0, isActive: 1 },
+  ];
+
+  for (const s of seedUsers) {
+    const hash   = bcrypt.hashSync(s.password, SALT_ROUNDS);
+    const exists = dbGet('SELECT id FROM users WHERE email = ?', [s.email]);
+    if (!exists) {
+      // Create account for the first time
+      db.run(
+        `INSERT INTO users (first_name, last_name, email, password_hash, account_type, is_verified, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [s.firstName, s.lastName, s.email, hash, s.accountType, s.isVerified, s.isActive]
+      );
+      console.info(`[Emphora DB] Seeded:   ${s.email} / ${s.password}`);
+    } else {
+      // Always update password_hash to match current config (handles password changes)
+      db.run(
+        `UPDATE users SET password_hash = ?, is_active = ? WHERE email = ?`,
+        [hash, s.isActive, s.email]
+      );
+      console.info(`[Emphora DB] Re-synced: ${s.email} / ${s.password}`);
+    }
+  }
+  dbSave();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -158,6 +196,7 @@ function sanitiseUser(user) {
     accountType:  user.account_type,
     emphoraScore: user.emphora_score,
     isVerified:   Boolean(user.is_verified),
+    isActive:     user.is_active === undefined ? true : Boolean(user.is_active),
     createdAt:    user.created_at,
   };
 }
@@ -196,7 +235,7 @@ const ACCOUNT_TYPES = new Set(['employee', 'employer', 'researcher']);
 function validateLogin({ email, password }) {
   const e = [];
   if (!email    || !EMAIL_RE.test(email.trim())) e.push({ field: 'email',    message: 'Valid email required.' });
-  if (!password || password.length < 6)           e.push({ field: 'password', message: 'Password min 6 chars.' });
+  if (!password || password.length < 4)           e.push({ field: 'password', message: 'Password min 4 chars.' });
   return e;
 }
 
@@ -277,6 +316,9 @@ app.post('/api/auth/login', (req, res) => {
   if (!bcrypt.compareSync(password, user.password_hash))
     return sendError(res, 401, 'Invalid email or password.');
 
+  if (user.is_active === 0)
+    return sendError(res, 403, 'This account has been disabled. Please contact support.');
+
   const token   = makeToken(user.id);
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   dbRun(
@@ -303,6 +345,150 @@ app.post('/api/auth/logout', requireAuth, (req, res) => {
  */
 app.get('/api/user/profile', requireAuth, (req, res) => {
   res.json({ ok: true, user: sanitiseUser(req.user) });
+});
+
+// ── Admin Routes ─────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/admin/users
+ * List all users with active session count.
+ */
+app.get('/api/admin/users', (req, res) => {
+  try {
+    const users = dbAll(
+      `SELECT id, first_name, last_name, email, account_type,
+              emphora_score, is_verified, is_active, created_at
+         FROM users ORDER BY id DESC`
+    );
+    console.log(`[Emphora API] GET /api/admin/users → ${users.length} row(s)`);
+    const sessions = dbAll(
+      `SELECT user_id, COUNT(*) as session_count
+         FROM sessions WHERE expires_at > ? GROUP BY user_id`,
+      [new Date().toISOString()]
+    );
+    const sessionMap = {};
+    sessions.forEach(s => { sessionMap[s.user_id] = s.session_count; });
+
+    const rows = users.map(u => ({
+      ...sanitiseUser(u),
+      activeSessions: sessionMap[u.id] || 0,
+    }));
+
+    res.json({ ok: true, total: rows.length, users: rows });
+  } catch (err) {
+    console.error('[Emphora API] admin/users error:', err);
+    sendError(res, 500, 'Could not fetch users.');
+  }
+});
+
+/**
+ * GET /api/admin/users/:id
+ * Single user detail.
+ */
+app.get('/api/admin/users/:id', (req, res) => {
+  const user = dbGet(
+    `SELECT id, first_name, last_name, email, account_type,
+            emphora_score, is_verified, is_active, created_at
+       FROM users WHERE id = ?`,
+    [req.params.id]
+  );
+  if (!user) return sendError(res, 404, 'User not found.');
+  res.json({ ok: true, user: sanitiseUser(user) });
+});
+
+/**
+ * PATCH /api/admin/users/:id
+ * Update firstName, lastName, email, accountType, isVerified, isActive.
+ */
+app.patch('/api/admin/users/:id', (req, res) => {
+  const user = dbGet('SELECT * FROM users WHERE id = ?', [req.params.id]);
+  if (!user) return sendError(res, 404, 'User not found.');
+
+  const {
+    firstName   = user.first_name,
+    lastName    = user.last_name,
+    email       = user.email,
+    accountType = user.account_type,
+    isVerified  = user.is_verified,
+    isActive    = user.is_active,
+  } = req.body;
+
+  // Email uniqueness check (skip if unchanged)
+  if (email.trim().toLowerCase() !== user.email) {
+    const clash = dbGet('SELECT id FROM users WHERE email = ? AND id != ?',
+      [email.trim().toLowerCase(), user.id]);
+    if (clash) return sendError(res, 409, 'Email already in use by another account.');
+  }
+
+  try {
+    dbRun(
+      `UPDATE users SET
+         first_name   = ?,
+         last_name    = ?,
+         email        = ?,
+         account_type = ?,
+         is_verified  = ?,
+         is_active    = ?
+       WHERE id = ?`,
+      [
+        firstName.trim(),
+        lastName.trim(),
+        email.trim().toLowerCase(),
+        accountType,
+        isVerified ? 1 : 0,
+        isActive   ? 1 : 0,
+        user.id,
+      ]
+    );
+    const updated = dbGet('SELECT * FROM users WHERE id = ?', [user.id]);
+    res.json({ ok: true, user: sanitiseUser(updated) });
+  } catch (err) {
+    console.error('[Emphora API] admin PATCH error:', err);
+    sendError(res, 500, 'Update failed.');
+  }
+});
+
+/**
+ * PATCH /api/admin/users/:id/activate   — enable user
+ * PATCH /api/admin/users/:id/deactivate — disable user (blocks login)
+ */
+app.patch('/api/admin/users/:id/activate', (req, res) => {
+  const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
+  if (!user) return sendError(res, 404, 'User not found.');
+  dbRun('UPDATE users SET is_active = 1 WHERE id = ?', [user.id]);
+  res.json({ ok: true, message: 'User activated.' });
+});
+
+app.patch('/api/admin/users/:id/deactivate', (req, res) => {
+  const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
+  if (!user) return sendError(res, 404, 'User not found.');
+  dbRun('UPDATE users SET is_active = 0 WHERE id = ?', [user.id]);
+  // Kill all active sessions for this user
+  dbRun('DELETE FROM sessions WHERE user_id = ?', [user.id]);
+  res.json({ ok: true, message: 'User deactivated and sessions revoked.' });
+});
+
+/**
+ * DELETE /api/admin/users/:id
+ * Permanently delete user + their sessions.
+ */
+app.delete('/api/admin/users/:id', (req, res) => {
+  const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
+  if (!user) return sendError(res, 404, 'User not found.');
+  dbRun('DELETE FROM sessions WHERE user_id = ?', [user.id]);
+  dbRun('DELETE FROM users WHERE id = ?', [user.id]);
+  res.json({ ok: true, message: 'User deleted.' });
+});
+
+/**
+ * POST /api/admin/users/:id/reset-sessions
+ * Revoke all active sessions for a user (force logout everywhere).
+ */
+app.post('/api/admin/users/:id/reset-sessions', (req, res) => {
+  const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
+  if (!user) return sendError(res, 404, 'User not found.');
+  dbRun('DELETE FROM sessions WHERE user_id = ?', [user.id]);
+  res.json({ ok: true, message: 'All sessions revoked.' });
 });
 
 // ── 404 & error handlers ──────────────────────────────────────────────────────

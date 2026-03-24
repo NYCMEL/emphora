@@ -1,933 +1,570 @@
+<!--
+  Place at: public/users.html
+  Access:   http://localhost:3001/users.html
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!--
-    Place this file at:  public/users.html
-    Access at:           http://localhost:3001/users.html
-  -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emphora — Users</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous" />
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --em-primary:    #1A6BCC;
-      --em-secondary:  #00897B;
-      --em-accent:     #C2185B;
-      --em-bg:         #F0F4F8;
-      --em-surface:    #FFFFFF;
-      --em-surface-2:  #F8FAFC;
-      --em-border:     #D0DCE8;
-      --em-text:       #0D1B2A;
-      --em-muted:      #7A8FA6;
-      --em-employee:   #1A6BCC;
-      --em-employer:   #00897B;
-      --em-researcher: #C2185B;
-      --em-admin-col:  #673AB7;
-      --em-success:    #2E7D32;
-      --em-warning:    #E65100;
-      --em-error:      #C62828;
+      --bg:#F0F4F8; --surface:#FFFFFF; --surface2:#F8FAFC; --border:#D0DCE8;
+      --primary:#1A6BCC; --secondary:#00897B; --accent:#C2185B; --purple:#673AB7;
+      --text:#0D1B2A; --muted:#7A8FA6;
+      --success:#2E7D32; --warning:#E65100; --danger:#C62828; --r:10px;
     }
     [data-theme="dark"] {
-      --em-primary:    #4D9EFF;
-      --em-secondary:  #26A69A;
-      --em-accent:     #F06292;
-      --em-bg:         #0A0F1A;
-      --em-surface:    #111827;
-      --em-surface-2:  #1A2236;
-      --em-border:     rgba(255,255,255,0.10);
-      --em-text:       #E8F1FF;
-      --em-muted:      #5C7389;
-      --em-employee:   #4D9EFF;
-      --em-employer:   #26A69A;
-      --em-researcher: #F06292;
-      --em-admin-col:  #B388FF;
-      --em-success:    #66BB6A;
-      --em-warning:    #FFA726;
-      --em-error:      #EF5350;
+      --bg:#0A0F1A; --surface:#111827; --surface2:#1A2236; --border:rgba(255,255,255,.10);
+      --primary:#4D9EFF; --secondary:#26A69A; --accent:#F06292; --purple:#B388FF;
+      --text:#E8F1FF; --muted:#5C7389;
+      --success:#66BB6A; --warning:#FFA726; --danger:#EF5350;
     }
+    body { font-family:system-ui,-apple-system,sans-serif; font-size:14px; background:var(--bg); color:var(--text); min-height:100vh; transition:background .2s,color .2s; }
 
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: var(--em-bg);
-      color: var(--em-text);
-      font-size: 14px;
-      transition: background 0.25s, color 0.25s;
-    }
+    /* topbar */
+    .topbar { position:sticky;top:0;z-index:50;height:50px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px; }
+    .logo { font-family:Georgia,serif;font-style:italic;font-size:1.2rem;color:var(--primary);text-decoration:none; }
+    .logo b { color:var(--secondary);font-weight:400; }
+    .spacer { flex:1; }
+    .badge { background:rgba(26,107,204,.12);color:var(--primary);border:1px solid rgba(26,107,204,.22);border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:700;white-space:nowrap; }
+    .icon-btn { width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s; }
+    .icon-btn:hover { color:var(--primary);border-color:var(--primary); }
+    .icon-btn .material-icons-round { font-size:.95rem; }
 
-    /* ── TOPBAR ── */
-    .em-topbar {
-      background: var(--em-surface);
-      border-bottom: 1px solid var(--em-border);
-      padding: 0 1.5rem;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      gap: 12px;
-    }
-    .em-logo {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-style: italic;
-      font-size: 1.25rem;
-      color: var(--em-primary);
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .em-logo span { color: var(--em-secondary); }
+    /* page */
+    .page { max-width:1100px;margin:0 auto;padding:20px; }
+    .page-hdr { display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px; }
+    .page-title { font-family:Georgia,serif;font-size:1.4rem;font-weight:400;letter-spacing:-.02em; }
+    .page-sub { font-size:.76rem;color:var(--muted);margin-top:2px; }
+    .btn-row { display:flex;gap:8px; }
 
-    .em-topbar-right { display: flex; align-items: center; gap: 8px; }
+    /* buttons */
+    .btn { display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--muted);font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap; }
+    .btn:hover { border-color:var(--primary);color:var(--primary); }
+    .btn .material-icons-round { font-size:.9rem; }
+    .btn-primary { background:var(--primary);border-color:var(--primary);color:#fff; }
+    .btn-primary:hover { background:#1255A4;border-color:#1255A4;color:#fff; }
+    .btn.spin .material-icons-round { animation:spin .7s linear infinite; }
 
-    .em-badge {
-      background: rgba(26,107,204,0.12);
-      color: var(--em-primary);
-      border: 1px solid rgba(26,107,204,0.22);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
+    /* toolbar */
+    .toolbar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
+    .search-wrap { position:relative;flex:1;min-width:160px; }
+    .search-icon { position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex; }
+    .search-icon .material-icons-round { font-size:.95rem; }
+    input[type=search] { width:100%;padding:7px 10px 7px 30px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);font:inherit;font-size:.82rem;outline:none; }
+    input[type=search]:focus { border-color:var(--primary); }
+    select { padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);font:inherit;font-size:.8rem;cursor:pointer;outline:none; }
+    select:focus { border-color:var(--primary); }
+    select option { background:var(--surface); }
 
-    .em-theme-btn {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      border: 1px solid var(--em-border);
-      background: var(--em-bg);
-      color: var(--em-muted);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.18s;
-      flex-shrink: 0;
-    }
-    .em-theme-btn:hover { color: var(--em-primary); border-color: var(--em-primary); }
-    .em-theme-btn .material-icons-round { font-size: 1rem; }
+    /* card + table */
+    .card { background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06); }
+    table { width:100%;border-collapse:collapse;font-size:.82rem; }
+    thead tr { border-bottom:1px solid var(--border); }
+    th { padding:9px 13px;text-align:left;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap;cursor:pointer;user-select:none; }
+    th:hover { color:var(--primary); }
+    th.sorted { color:var(--primary); }
+    th .si { font-size:.72rem;vertical-align:middle;opacity:.45; }
+    th.sorted .si { opacity:1; }
+    td { padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tbody tr { transition:background .1s; }
+    tbody tr:hover td { background:rgba(26,107,204,.04); }
+    tbody tr.dim td { opacity:.4; }
+    .cell-id { color:var(--muted);font-size:.7rem;font-family:monospace; }
+    .cell-name { font-weight:600; }
+    .cell-email { color:var(--muted);font-size:.78rem; }
+    .cell-date { color:var(--muted);font-size:.72rem;white-space:nowrap; }
 
-    /* ── CONTENT ── */
-    .em-content { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+    .pill { display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:700;border:1px solid transparent; }
+    .pill .material-icons-round { font-size:.72rem; }
+    .pill-employee   { background:rgba(26,107,204,.1); color:var(--primary);   border-color:rgba(26,107,204,.22); }
+    .pill-employer   { background:rgba(0,137,123,.1);  color:var(--secondary); border-color:rgba(0,137,123,.22);  }
+    .pill-researcher { background:rgba(194,24,91,.08); color:var(--accent);    border-color:rgba(194,24,91,.2);   }
 
-    .em-page-header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .em-page-title {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: 1.5rem;
-      font-weight: 400;
-      letter-spacing: -0.02em;
-      margin: 0;
-    }
-    .em-page-sub { font-size: 0.78rem; color: var(--em-muted); margin: 2px 0 0; }
+    .status { display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:700; }
+    .status .material-icons-round { font-size:.82rem; }
+    .active-yes { color:var(--success); }
+    .active-no  { color:var(--muted); }
+    .ver-yes { color:var(--success);font-size:.72rem;font-weight:700; }
+    .ver-no  { color:var(--muted);font-size:.72rem; }
 
-    /* ── TOOLBAR ── */
-    .em-toolbar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .em-search-wrap { position: relative; flex: 1; min-width: 180px; }
-    .em-search-icon {
-      position: absolute;
-      left: 10px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--em-muted);
-      pointer-events: none;
-      display: flex;
-    }
-    .em-search-icon .material-icons-round { font-size: 1rem; }
+    .sess { display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.7rem;font-weight:700;background:rgba(26,107,204,.1);color:var(--primary); }
+    .sess-zero { background:var(--bg);color:var(--muted); }
 
-    .em-search {
-      width: 100%;
-      padding: 7px 12px 7px 34px;
-      border: 1.5px solid var(--em-border);
-      border-radius: 8px;
-      background: var(--em-surface);
-      color: var(--em-text);
-      font-size: 0.82rem;
-      outline: none;
-      transition: border-color 0.18s;
-      font-family: inherit;
-    }
-    .em-search:focus { border-color: var(--em-primary); }
+    .acts { display:flex;gap:4px; }
+    .act { width:27px;height:27px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s; }
+    .act .material-icons-round { font-size:.82rem;pointer-events:none; }
+    .act:hover          { background:var(--surface2);color:var(--text); }
+    .act-edit:hover     { background:rgba(26,107,204,.1);color:var(--primary);border-color:var(--primary); }
+    .act-enable:hover   { background:rgba(46,125,50,.1);color:var(--success);border-color:var(--success); }
+    .act-disable:hover  { background:rgba(230,81,0,.08);color:var(--warning);border-color:var(--warning); }
+    .act-delete:hover   { background:rgba(198,40,40,.08);color:var(--danger);border-color:var(--danger); }
 
-    .em-select {
-      padding: 7px 12px;
-      border: 1.5px solid var(--em-border);
-      border-radius: 8px;
-      background: var(--em-surface);
-      color: var(--em-text);
-      font-size: 0.82rem;
-      font-family: inherit;
-      outline: none;
-      cursor: pointer;
-      transition: border-color 0.18s;
-    }
-    .em-select:focus { border-color: var(--em-primary); }
-    .em-select option { background: var(--em-surface); }
+    /* states */
+    .state { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:3rem 1rem;color:var(--muted);font-size:.84rem;text-align:center; }
+    .state .material-icons-round { font-size:2.2rem;opacity:.3; }
+    .spinner { width:28px;height:28px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--primary);animation:spin .75s linear infinite; }
 
-    .em-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 7px 14px;
-      border: 1.5px solid var(--em-border);
-      border-radius: 8px;
-      background: var(--em-surface);
-      color: var(--em-muted);
-      font-size: 0.78rem; font-weight: 600;
-      cursor: pointer;
-      transition: all 0.18s;
-      white-space: nowrap;
-      font-family: inherit;
-    }
-    .em-btn:hover { border-color: var(--em-primary); color: var(--em-primary); }
-    .em-btn .material-icons-round { font-size: 0.9rem; }
-    .em-btn--primary {
-      background: var(--em-primary);
-      border-color: var(--em-primary);
-      color: #fff;
-    }
-    .em-btn--primary:hover { background: #1255A4; border-color: #1255A4; color: #fff; }
-    .em-btn.spinning .material-icons-round { animation: spin 0.7s linear infinite; }
+    /* debug */
+    .debug-box { background:#FFF3E0;border:1px solid #FFB74D;border-radius:8px;padding:10px 14px;font-size:.75rem;font-family:monospace;color:#4E342E;white-space:pre-wrap;word-break:break-all;margin:8px 14px; }
+    [data-theme="dark"] .debug-box { background:#1A1400;border-color:#7B6000;color:#FFE082; }
 
-    /* ── TABLE CARD ── */
-    .em-card {
-      background: var(--em-surface);
-      border: 1px solid var(--em-border);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(13,27,42,0.07);
-    }
+    /* footer */
+    .card-footer { display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-top:1px solid var(--border);font-size:.73rem;color:var(--muted);flex-wrap:wrap;gap:6px; }
 
-    .em-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-    .em-table thead tr { border-bottom: 1px solid var(--em-border); }
-    .em-table th {
-      padding: 10px 14px;
-      text-align: left;
-      font-size: 0.67rem;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--em-muted);
-      white-space: nowrap;
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.15s;
-    }
-    .em-table th:hover { color: var(--em-primary); }
-    .em-table th.sorted { color: var(--em-primary); }
-    .em-table th .si { font-size: 0.72rem; vertical-align: middle; opacity: 0.5; }
-    .em-table th.sorted .si { opacity: 1; }
+    /* modal */
+    .modal-bg { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s; }
+    .modal-bg.open { opacity:1;pointer-events:all; }
+    .modal { background:var(--surface);border-radius:16px;width:100%;max-width:440px;padding:1.4rem;box-shadow:0 20px 60px rgba(0,0,0,.28);transform:scale(.95);transition:transform .22s cubic-bezier(.34,1.4,.64,1); }
+    .modal-bg.open .modal { transform:scale(1); }
+    .modal-hdr { display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem; }
+    .modal-title { font-family:Georgia,serif;font-size:1.1rem;font-weight:400; }
+    .form { display:flex;flex-direction:column;gap:.6rem; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:.6rem; }
+    @media(max-width:420px){.form-row{grid-template-columns:1fr;}}
+    .field { display:flex;flex-direction:column;gap:3px; }
+    label.lbl { font-size:.7rem;font-weight:700;letter-spacing:.03em;color:var(--muted); }
+    .finput { padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font:inherit;font-size:.82rem;outline:none; }
+    .finput:focus { border-color:var(--primary); }
+    .finput option { background:var(--surface); }
+    .checks { display:flex;gap:12px;align-items:center;padding-top:4px; }
+    .chk-label { display:flex;align-items:center;gap:5px;font-size:.78rem;cursor:pointer; }
+    .chk-label input { accent-color:var(--primary);cursor:pointer;width:14px;height:14px; }
+    .form-actions { display:flex;gap:8px;justify-content:flex-end;padding-top:.3rem; }
+    .btn-cancel { padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font:inherit;cursor:pointer;transition:all .15s; }
+    .btn-cancel:hover { border-color:var(--text);color:var(--text); }
+    .btn-save { display:inline-flex;align-items:center;gap:5px;padding:7px 18px;border-radius:8px;background:var(--primary);border:none;color:#fff;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer; }
+    .btn-save:hover { background:#1255A4; }
+    .btn-save:disabled { opacity:.55;cursor:not-allowed; }
 
-    .em-table td {
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--em-border);
-      vertical-align: middle;
-    }
-    .em-table tr:last-child td { border-bottom: none; }
-    .em-table tbody tr { transition: background 0.1s; }
-    .em-table tbody tr:hover td { background: rgba(26,107,204,0.04); }
-    .em-table tbody tr.disabled-row td { opacity: 0.45; }
+    @keyframes spin   { to{transform:rotate(360deg);} }
+    @keyframes fadein { from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;} }
+    tbody tr { animation:fadein .14s ease both; }
 
-    /* cell types */
-    .cell-id    { color: var(--em-muted); font-size: 0.7rem; font-family: monospace; }
-    .cell-name  { font-weight: 600; }
-    .cell-email { color: var(--em-muted); font-size: 0.78rem; }
-    .cell-date  { color: var(--em-muted); font-size: 0.72rem; white-space: nowrap; }
-
-    /* pills */
-    .pill {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 9px; border-radius: 20px;
-      font-size: 0.67rem; font-weight: 700;
-      white-space: nowrap; border: 1px solid transparent;
-    }
-    .pill .material-icons-round { font-size: 0.72rem; }
-    .pill-employee   { background: rgba(26,107,204,0.1);  color: var(--em-employee);   border-color: rgba(26,107,204,0.22);  }
-    .pill-employer   { background: rgba(0,137,123,0.1);   color: var(--em-employer);   border-color: rgba(0,137,123,0.22);   }
-    .pill-researcher { background: rgba(194,24,91,0.08);  color: var(--em-researcher); border-color: rgba(194,24,91,0.2);    }
-
-    /* status */
-    .status {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 0.7rem; font-weight: 700;
-    }
-    .status-active   { color: var(--em-success); }
-    .status-disabled { color: var(--em-muted); }
-    .status .material-icons-round { font-size: 0.85rem; }
-
-    /* verified */
-    .verified-yes { color: var(--em-success); font-size: 0.7rem; font-weight: 700; }
-    .verified-no  { color: var(--em-muted);   font-size: 0.7rem; }
-
-    /* action buttons */
-    .act-btns { display: flex; gap: 4px; }
-    .act-btn {
-      width: 28px; height: 28px;
-      border-radius: 7px;
-      border: 1px solid var(--em-border);
-      background: transparent;
-      color: var(--em-muted);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .act-btn .material-icons-round { font-size: 0.82rem; pointer-events: none; }
-    .act-btn:hover                { background: var(--em-surface-2); color: var(--em-text); }
-    .act-btn.enable-btn:hover    { background: rgba(46,125,50,0.1);  color: var(--em-success); border-color: var(--em-success); }
-    .act-btn.disable-btn:hover   { background: rgba(230,81,0,0.08);  color: var(--em-warning); border-color: var(--em-warning); }
-    .act-btn.delete-btn:hover    { background: rgba(198,40,40,0.08); color: var(--em-error);   border-color: var(--em-error);   }
-    .act-btn.edit-btn:hover      { background: rgba(26,107,204,0.1); color: var(--em-primary); border-color: var(--em-primary); }
-
-    /* sessions bubble */
-    .sess {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      font-size: 0.7rem; font-weight: 700;
-      background: rgba(26,107,204,0.1);
-      color: var(--em-primary);
-    }
-    .sess-zero { background: var(--em-bg); color: var(--em-muted); }
-
-    /* ── STATES ── */
-    .em-state {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 3.5rem 1rem;
-      color: var(--em-muted);
-      gap: 10px;
-      text-align: center;
-      font-size: 0.85rem;
-    }
-    .em-state .material-icons-round { font-size: 2.5rem; opacity: 0.35; }
-
-    /* ── FOOTER ── */
-    .em-table-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px;
-      border-top: 1px solid var(--em-border);
-      font-size: 0.74rem;
-      color: var(--em-muted);
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    /* ── MODAL (add/edit user) ── */
-    .em-modal-bg {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(3px);
-      z-index: 200;
-      display: flex; align-items: center; justify-content: center;
-      padding: 1rem;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.22s;
-    }
-    .em-modal-bg.open { opacity: 1; pointer-events: all; }
-    .em-modal {
-      background: var(--em-surface);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 460px;
-      padding: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      transform: scale(0.94);
-      transition: transform 0.25s cubic-bezier(0.34,1.4,0.64,1);
-    }
-    .em-modal-bg.open .em-modal { transform: scale(1); }
-    .em-modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.1rem;
-    }
-    .em-modal-title {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: 1.15rem; font-weight: 400; margin: 0;
-    }
-    .em-modal-close {
-      width: 32px; height: 32px; border-radius: 50%;
-      border: 1px solid var(--em-border);
-      background: transparent; color: var(--em-muted);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .em-modal-close:hover { color: var(--em-error); border-color: var(--em-error); }
-    .em-modal-close .material-icons-round { font-size: 0.95rem; }
-
-    .em-form { display: flex; flex-direction: column; gap: 0.7rem; }
-    .em-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
-    @media(max-width: 420px) { .em-form-row { grid-template-columns: 1fr; } }
-    .em-field { display: flex; flex-direction: column; gap: 3px; }
-    .em-label {
-      font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 0.03em; color: var(--em-muted);
-    }
-    .em-input {
-      padding: 7px 10px;
-      border: 1.5px solid var(--em-border);
-      border-radius: 8px;
-      background: var(--em-surface-2);
-      color: var(--em-text);
-      font-size: 0.82rem; font-family: inherit;
-      outline: none; transition: border-color 0.15s;
-    }
-    .em-input:focus { border-color: var(--em-primary); }
-    .em-input option { background: var(--em-surface); }
-
-    .em-toggles { display: flex; gap: 12px; align-items: center; padding-top: 4px; }
-    .em-toggle-label {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 0.78rem; color: var(--em-text);
-      cursor: pointer; user-select: none;
-    }
-    .em-toggle-label input[type="checkbox"] {
-      width: 14px; height: 14px;
-      accent-color: var(--em-primary); cursor: pointer;
-    }
-
-    .em-form-actions {
-      display: flex; gap: 8px; justify-content: flex-end;
-      padding-top: 0.4rem;
-    }
-    .em-save-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 8px 18px; border-radius: 8px;
-      background: var(--em-primary); border: none; color: #fff;
-      font-size: 0.82rem; font-weight: 700; font-family: inherit;
-      cursor: pointer; transition: background 0.15s;
-    }
-    .em-save-btn:hover:not(:disabled) { background: #1255A4; }
-    .em-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .em-cancel-btn {
-      display: inline-flex; align-items: center;
-      padding: 8px 14px; border-radius: 8px;
-      background: transparent; border: 1.5px solid var(--em-border);
-      color: var(--em-muted); font-size: 0.82rem; font-family: inherit;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .em-cancel-btn:hover { border-color: var(--em-text); color: var(--em-text); }
-
-    /* ── ANIMATIONS ── */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
-    .em-table tbody tr { animation: fadeIn 0.15s ease both; }
-
-    /* ── RESPONSIVE ── */
-    @media(max-width: 680px) {
-      .em-table th:nth-child(6),
-      .em-table td:nth-child(6),
-      .em-table th:nth-child(7),
-      .em-table td:nth-child(7) { display: none; }
-    }
-    @media(max-width: 480px) {
-      .em-table th:nth-child(1), .em-table td:nth-child(1),
-      .em-table th:nth-child(5), .em-table td:nth-child(5) { display: none; }
-    }
+    @media(max-width:680px){th:nth-child(6),td:nth-child(6),th:nth-child(7),td:nth-child(7){display:none;}}
+    @media(max-width:480px){th:nth-child(1),td:nth-child(1),th:nth-child(5),td:nth-child(5){display:none;}}
   </style>
 </head>
 <body>
 
-  <!-- TOP BAR -->
-  <nav class="em-topbar">
-    <a href="emphora.html" class="em-logo">Emph<span>ora</span></a>
-    <div class="em-topbar-right">
-      <span class="em-badge" id="em-total-badge">loading…</span>
-      <button class="em-theme-btn" id="em-theme-btn" aria-label="Toggle theme" title="Toggle theme">
-        <span class="material-icons-round">light_mode</span>
-      </button>
+<nav class="topbar">
+  <a href="emphora.html" class="logo">Emph<b>ora</b></a>
+  <div class="spacer"></div>
+  <span class="badge" id="total-badge">loading…</span>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+    <span class="material-icons-round">light_mode</span>
+  </button>
+</nav>
+
+<div class="page">
+  <div class="page-hdr">
+    <div>
+      <h1 class="page-title">All Users</h1>
+      <p class="page-sub" id="api-sub">—</p>
     </div>
-  </nav>
-
-  <!-- CONTENT -->
-  <div class="em-content">
-
-    <div class="em-page-header">
-      <div>
-        <h1 class="em-page-title">All Users</h1>
-        <p class="em-page-sub">Registered Emphora accounts · live from SQLite</p>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="em-btn" id="em-refresh-btn" aria-label="Refresh">
-          <span class="material-icons-round">refresh</span> Refresh
-        </button>
-        <button class="em-btn em-btn--primary" id="em-add-btn" aria-label="Add user">
-          <span class="material-icons-round">person_add</span> Add User
-        </button>
-      </div>
-    </div>
-
-    <!-- TOOLBAR -->
-    <div class="em-toolbar">
-      <div class="em-search-wrap">
-        <span class="em-search-icon"><span class="material-icons-round">search</span></span>
-        <input class="em-search" id="em-search" type="search" placeholder="Search name or email…" aria-label="Search users" />
-      </div>
-      <select class="em-select" id="em-filter-type" aria-label="Filter by type">
-        <option value="">All types</option>
-        <option value="employee">Employee</option>
-        <option value="employer">Employer</option>
-        <option value="researcher">Researcher</option>
-      </select>
-      <select class="em-select" id="em-filter-status" aria-label="Filter by status">
-        <option value="">All status</option>
-        <option value="active">Active</option>
-        <option value="disabled">Disabled</option>
-      </select>
-      <select class="em-select" id="em-filter-verified" aria-label="Filter by verified">
-        <option value="">All</option>
-        <option value="yes">Verified</option>
-        <option value="no">Unverified</option>
-      </select>
-    </div>
-
-    <!-- TABLE -->
-    <div class="em-card">
-      <div id="em-table-wrap" role="region" aria-label="Users" aria-live="polite">
-        <div class="em-state">
-          <span class="em-admin-spinner" style="width:28px;height:28px;border:3px solid #D0DCE8;border-top-color:#1A6BCC;border-radius:50%;display:inline-block;animation:spin 0.75s linear infinite"></span>
-          <span>Loading users…</span>
-        </div>
-      </div>
-      <div class="em-table-footer">
-        <span id="em-footer-count">—</span>
-        <span id="em-footer-time">—</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ADD / EDIT MODAL -->
-  <div class="em-modal-bg" id="em-modal-bg" role="dialog" aria-modal="true" aria-labelledby="em-modal-title">
-    <div class="em-modal">
-      <div class="em-modal-header">
-        <h2 class="em-modal-title" id="em-modal-title">Add user</h2>
-        <button class="em-modal-close" id="em-modal-close" aria-label="Close">
-          <span class="material-icons-round">close</span>
-        </button>
-      </div>
-      <form class="em-form" id="em-user-form" novalidate>
-        <input type="hidden" id="form-id" />
-        <div class="em-form-row">
-          <div class="em-field">
-            <label class="em-label" for="form-fname">First name *</label>
-            <input class="em-input" type="text" id="form-fname" placeholder="First name" required />
-          </div>
-          <div class="em-field">
-            <label class="em-label" for="form-lname">Last name *</label>
-            <input class="em-input" type="text" id="form-lname" placeholder="Last name" required />
-          </div>
-        </div>
-        <div class="em-field">
-          <label class="em-label" for="form-email">Email *</label>
-          <input class="em-input" type="email" id="form-email" placeholder="user@example.com" required />
-        </div>
-        <div class="em-field">
-          <label class="em-label" for="form-password">
-            Password <span id="form-pw-hint" style="font-weight:400;opacity:0.6">(min 8 chars)</span>
-          </label>
-          <input class="em-input" type="password" id="form-password" placeholder="Set password" />
-        </div>
-        <div class="em-form-row">
-          <div class="em-field">
-            <label class="em-label" for="form-type">Account type</label>
-            <select class="em-input" id="form-type">
-              <option value="employee">Employee</option>
-              <option value="employer">Employer</option>
-              <option value="researcher">Researcher</option>
-            </select>
-          </div>
-          <div class="em-field">
-            <label class="em-label">Flags</label>
-            <div class="em-toggles">
-              <label class="em-toggle-label">
-                <input type="checkbox" id="form-verified" />
-                Verified
-              </label>
-              <label class="em-toggle-label">
-                <input type="checkbox" id="form-active" checked />
-                Active
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="em-form-actions">
-          <button type="button" class="em-cancel-btn" id="em-modal-cancel">Cancel</button>
-          <button type="submit" class="em-save-btn" id="em-save-btn">
-            <span class="material-icons-round" style="font-size:0.9rem">save</span>
-            <span id="em-save-label">Save user</span>
-          </button>
-        </div>
-      </form>
+    <div class="btn-row">
+      <button class="btn" id="refresh-btn"><span class="material-icons-round">refresh</span> Refresh</button>
+      <button class="btn btn-primary" id="add-btn"><span class="material-icons-round">person_add</span> Add User</button>
     </div>
   </div>
 
-  <script>
-    // ── State ──────────────────────────────────────────────────────────────────
-    let allUsers = [];
-    let sortCol  = 'id';
-    let sortAsc  = false;
-    let editId   = null;
-    let theme    = localStorage.getItem('em-admin-theme') || 'light';
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon"><span class="material-icons-round">search</span></span>
+      <input type="search" id="search" placeholder="Search name or email…" aria-label="Search" />
+    </div>
+    <select id="filter-type">
+      <option value="">All types</option>
+      <option value="employee">Employee</option>
+      <option value="employer">Employer</option>
+      <option value="researcher">Researcher</option>
+    </select>
+    <select id="filter-status">
+      <option value="">All status</option>
+      <option value="1">Active</option>
+      <option value="0">Disabled</option>
+    </select>
+    <select id="filter-verified">
+      <option value="">All</option>
+      <option value="1">Verified</option>
+      <option value="0">Unverified</option>
+    </select>
+  </div>
 
-    // ── Theme ──────────────────────────────────────────────────────────────────
-    function applyTheme(t) {
-      theme = t;
-      document.body.setAttribute('data-theme', t);
-      const icon = document.querySelector('#em-theme-btn .material-icons-round');
-      if (icon) icon.textContent = t === 'dark' ? 'dark_mode' : 'light_mode';
-      localStorage.setItem('em-admin-theme', t);
-    }
-    applyTheme(theme);
-    document.getElementById('em-theme-btn').onclick = () => applyTheme(theme === 'light' ? 'dark' : 'light');
+  <div class="card">
+    <div id="table-wrap"><div class="state"><div class="spinner"></div><span>Loading…</span></div></div>
+    <div id="debug-wrap"></div>
+    <div class="card-footer">
+      <span id="footer-count">—</span>
+      <span id="footer-time">—</span>
+    </div>
+  </div>
+</div>
 
-    // ── Fetch ──────────────────────────────────────────────────────────────────
-    // Resolve API base — works whether page is served from Express or opened directly
-    const API_BASE = (location.origin.startsWith('http') && !location.origin.startsWith('file'))
-      ? ''       // same-origin Express server
-      : 'http://localhost:3001';  // fallback for file:// opens
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 class="modal-title" id="modal-title">Add user</h2>
+      <button class="icon-btn" id="modal-close" aria-label="Close"><span class="material-icons-round">close</span></button>
+    </div>
+    <form class="form" id="user-form" novalidate>
+      <input type="hidden" id="f-id" />
+      <div class="form-row">
+        <div class="field"><label class="lbl" for="f-fname">First name *</label><input class="finput" type="text" id="f-fname" placeholder="First name" required /></div>
+        <div class="field"><label class="lbl" for="f-lname">Last name *</label><input class="finput" type="text" id="f-lname" placeholder="Last name" required /></div>
+      </div>
+      <div class="field"><label class="lbl" for="f-email">Email *</label><input class="finput" type="email" id="f-email" placeholder="user@example.com" required /></div>
+      <div class="field">
+        <label class="lbl" for="f-pw">Password <span id="f-pw-hint" style="font-weight:400;opacity:.6">(min 8 chars)</span></label>
+        <input class="finput" type="password" id="f-pw" placeholder="Set password" />
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="lbl" for="f-type">Account type</label>
+          <select class="finput" id="f-type"><option value="employee">Employee</option><option value="employer">Employer</option><option value="researcher">Researcher</option></select>
+        </div>
+        <div class="field">
+          <label class="lbl">Flags</label>
+          <div class="checks">
+            <label class="chk-label"><input type="checkbox" id="f-verified" /> Verified</label>
+            <label class="chk-label"><input type="checkbox" id="f-active" checked /> Active</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn-save" id="save-btn">
+          <span class="material-icons-round" style="font-size:.9rem">save</span>
+          <span id="save-label">Save user</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
-    async function fetchUsers() {
-      const btn = document.getElementById('em-refresh-btn');
-      btn.classList.add('spinning');
-      btn.disabled = true;
-      showLoading();
+<script>
+'use strict';
 
-      try {
-        const url  = `${API_BASE}/api/admin/users`;
-        console.log('[Emphora] fetching:', url);
-        const res  = await fetch(url);
+// ── API base ──────────────────────────────────────────────────────────────────
+const API = window.location.protocol === 'file:' ? 'http://localhost:3001' : '';
+document.getElementById('api-sub').textContent =
+  `API: ${API || window.location.origin} · live from SQLite`;
 
-        if (!res.ok) {
-          const text = await res.text();
-          console.error('[Emphora] HTTP', res.status, text);
-          showState('error_outline', `Server error ${res.status} — check console.`);
-          return;
-        }
+// ── State ─────────────────────────────────────────────────────────────────────
+let allUsers = [];
+let sortCol  = 'id';
+let sortAsc  = false;
+let editId   = null;
+let theme    = localStorage.getItem('em-theme') || 'light';
 
-        const data = await res.json();
-        console.log('[Emphora] /api/admin/users →', data);
+// ── Theme ─────────────────────────────────────────────────────────────────────
+function applyTheme(t) {
+  theme = t;
+  document.body.dataset.theme = t;
+  document.querySelector('#theme-btn .material-icons-round').textContent =
+    t === 'dark' ? 'dark_mode' : 'light_mode';
+  localStorage.setItem('em-theme', t);
+}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick = () =>
+  applyTheme(theme === 'dark' ? 'light' : 'dark');
 
-        if (data.ok) {
-          allUsers = data.users || [];
-          const total = data.total ?? allUsers.length;
-          document.getElementById('em-total-badge').textContent =
-            `${total} user${total !== 1 ? 's' : ''}`;
-          document.getElementById('em-footer-time').textContent =
-            `Updated: ${new Date().toLocaleTimeString()}`;
-          renderTable();
-        } else {
-          showState('error_outline', data.message || 'API returned an error.');
-        }
-      } catch (err) {
-        console.error('[Emphora] fetch error:', err);
-        showState('wifi_off',
-          `Network error: ${err.message}. Is the server running at ${API_BASE || location.origin}?`);
-      } finally {
-        btn.classList.remove('spinning');
-        btn.disabled = false;
-      }
-    }
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+async function load() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spin');
+  btn.disabled = true;
+  setWrap(`<div class="state"><div class="spinner"></div><span>Loading…</span></div>`);
+  setDebug('');
 
-    function showLoading() {
-      document.getElementById('em-table-wrap').innerHTML =
-        `<div class="em-state">
-          <span style="width:28px;height:28px;border:3px solid var(--em-border);border-top-color:var(--em-primary);border-radius:50%;display:inline-block;animation:spin .75s linear infinite"></span>
-          <span>Loading…</span>
-        </div>`;
-    }
+  try {
+    const url = `${API}/api/admin/users`;
+    const res  = await fetch(url, { credentials: 'include' });
+    const raw  = await res.text();
 
-    // ── Filter + Sort ──────────────────────────────────────────────────────────
-    function filtered() {
-      const q        = (document.getElementById('em-search').value || '').toLowerCase().trim();
-      const typeF    = document.getElementById('em-filter-type').value;
-      const statusF  = document.getElementById('em-filter-status').value;
-      const verF     = document.getElementById('em-filter-verified').value;
+    // Always show raw response so you can debug
+    setDebug(`GET ${url}\nHTTP ${res.status}\n\n${raw.slice(0, 600)}`);
 
-      return allUsers.filter(u => {
-        const name = `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase();
-        if (q       && !name.includes(q))              return false;
-        if (typeF   && u.accountType !== typeF)         return false;
-        if (statusF === 'active'   && !u.isActive)      return false;
-        if (statusF === 'disabled' &&  u.isActive)      return false;
-        if (verF    === 'yes'      && !u.isVerified)    return false;
-        if (verF    === 'no'       &&  u.isVerified)    return false;
-        return true;
-      });
-    }
-
-    function sorted(users) {
-      return [...users].sort((a, b) => {
-        let va = a[sortCol], vb = b[sortCol];
-        if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
-        if (va < vb) return sortAsc ? -1 : 1;
-        if (va > vb) return sortAsc ?  1 : -1;
-        return 0;
-      });
-    }
-
-    // ── Render ─────────────────────────────────────────────────────────────────
-    const TYPE_ICONS  = { employee:'badge', employer:'business', researcher:'science' };
-    const TYPE_LABELS = { employee:'Employee', employer:'Employer', researcher:'Researcher' };
-
-    function renderTable() {
-      const wrap  = document.getElementById('em-table-wrap');
-      const users = sorted(filtered());
-      document.getElementById('em-footer-count').textContent =
-        `Showing ${users.length} of ${allUsers.length} users`;
-
-      if (allUsers.length === 0) { showState('group_off', 'No users yet — restart the server to auto-seed accounts.'); return; }
-      if (users.length  === 0)  { showState('search_off', 'No users match your filters.'); return; }
-
-      const cols = [
-        { key:'id',             label:'ID'       },
-        { key:'firstName',      label:'Name'     },
-        { key:'email',          label:'Email'    },
-        { key:'accountType',    label:'Type'     },
-        { key:'isActive',       label:'Status'   },
-        { key:'isVerified',     label:'Verified' },
-        { key:'activeSessions', label:'Sessions' },
-        { key:'createdAt',      label:'Joined'   },
-        { key:'_actions',       label:''         },
-      ];
-
-      const arrowIcon = (col) => {
-        if (sortCol !== col) return `<span class="material-icons-round si">unfold_more</span>`;
-        return `<span class="material-icons-round si">${sortAsc ? 'arrow_upward' : 'arrow_downward'}</span>`;
-      };
-
-      const thead = cols.map(c => {
-        const sorted = sortCol === c.key ? 'sorted' : '';
-        const noSort = c.key === '_actions' ? 'style="cursor:default"' : `data-col="${c.key}"`;
-        return `<th class="${sorted}" ${noSort}>${esc(c.label)}${ c.key !== '_actions' ? arrowIcon(c.key) : ''}</th>`;
-      }).join('');
-
-      const tbody = users.map((u, i) => {
-        const icon  = TYPE_ICONS[u.accountType]  || 'person';
-        const tlabel = TYPE_LABELS[u.accountType] || u.accountType;
-        const pillCls = `pill pill-${u.accountType}`;
-
-        const status = u.isActive
-          ? `<span class="status status-active"><span class="material-icons-round">check_circle</span>Active</span>`
-          : `<span class="status status-disabled"><span class="material-icons-round">block</span>Disabled</span>`;
-
-        const ver = u.isVerified
-          ? `<span class="verified-yes">✓ Yes</span>`
-          : `<span class="verified-no">— No</span>`;
-
-        const sess = `<span class="sess${u.activeSessions === 0 ? ' sess-zero' : ''}">${u.activeSessions}</span>`;
-
-        const toggleBtn = u.isActive
-          ? `<button class="act-btn disable-btn" data-action="disable" data-id="${u.id}" aria-label="Disable" title="Disable"><span class="material-icons-round">block</span></button>`
-          : `<button class="act-btn enable-btn"  data-action="enable"  data-id="${u.id}" aria-label="Enable"  title="Enable"><span class="material-icons-round">check_circle</span></button>`;
-
-        const rowCls = u.isActive ? '' : 'disabled-row';
-
-        return `<tr class="${rowCls}" style="animation-delay:${i*0.02}s">
-          <td class="cell-id">#${u.id}</td>
-          <td class="cell-name">${esc(u.firstName)} ${esc(u.lastName)}</td>
-          <td class="cell-email">${esc(u.email)}</td>
-          <td><span class="${pillCls}"><span class="material-icons-round">${icon}</span>${esc(tlabel)}</span></td>
-          <td>${status}</td>
-          <td>${ver}</td>
-          <td style="text-align:center">${sess}</td>
-          <td class="cell-date">${fmtDate(u.createdAt)}</td>
-          <td>
-            <div class="act-btns">
-              <button class="act-btn edit-btn"   data-action="edit"   data-id="${u.id}" aria-label="Edit"   title="Edit"><span class="material-icons-round">edit</span></button>
-              ${toggleBtn}
-              <button class="act-btn delete-btn" data-action="delete" data-id="${u.id}" aria-label="Delete" title="Delete"><span class="material-icons-round">delete_outline</span></button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('');
-
-      wrap.innerHTML = `
-        <table class="em-table" role="grid">
-          <thead><tr>${thead}</tr></thead>
-          <tbody>${tbody}</tbody>
-        </table>`;
-
-      // Sort clicks
-      wrap.querySelectorAll('th[data-col]').forEach(th => {
-        th.addEventListener('click', () => {
-          const col = th.dataset.col;
-          sortCol === col ? (sortAsc = !sortAsc) : (sortCol = col, sortAsc = true);
-          renderTable();
-        });
-      });
-
-      // Action clicks
-      wrap.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const { action, id } = btn.dataset;
-          const uid = Number(id);
-          if (action === 'edit')    openModal(uid);
-          if (action === 'enable')  setActive(uid, true);
-          if (action === 'disable') setActive(uid, false);
-          if (action === 'delete')  deleteUser(uid);
-        });
-      });
+    if (!res.ok) {
+      setWrap(`<div class="state"><span class="material-icons-round">error_outline</span>
+        <span>HTTP ${res.status} — see debug box below</span></div>`);
+      return;
     }
 
-    function showState(icon, msg) {
-      document.getElementById('em-table-wrap').innerHTML =
-        `<div class="em-state"><span class="material-icons-round">${icon}</span><span>${esc(msg)}</span></div>`;
+    let data;
+    try { data = JSON.parse(raw); }
+    catch (e) {
+      setWrap(`<div class="state"><span class="material-icons-round">error_outline</span>
+        <span>Response is not JSON — see debug box below</span></div>`);
+      return;
     }
 
-    // ── Modal ──────────────────────────────────────────────────────────────────
-    function openModal(userId) {
-      editId = userId || null;
-      const isEdit = editId !== null;
-
-      document.getElementById('em-modal-title').textContent = isEdit ? 'Edit user' : 'Add user';
-      document.getElementById('em-save-label').textContent  = isEdit ? 'Save changes' : 'Create user';
-      document.getElementById('form-pw-hint').textContent   = isEdit ? '(leave blank to keep)' : '(min 8 chars)';
-      document.getElementById('form-password').required     = !isEdit;
-
-      document.getElementById('em-user-form').reset();
-      document.getElementById('form-id').value = editId || '';
-      document.getElementById('form-active').checked = true;
-
-      if (isEdit) {
-        const u = allUsers.find(x => x.id === editId);
-        if (!u) return;
-        document.getElementById('form-fname').value       = u.firstName;
-        document.getElementById('form-lname').value       = u.lastName;
-        document.getElementById('form-email').value       = u.email;
-        document.getElementById('form-type').value        = u.accountType;
-        document.getElementById('form-verified').checked  = Boolean(u.isVerified);
-        document.getElementById('form-active').checked    = u.isActive !== false;
-      }
-
-      document.getElementById('em-modal-bg').classList.add('open');
-      document.getElementById('em-modal-bg').setAttribute('aria-hidden', 'false');
-      setTimeout(() => document.getElementById('form-fname').focus(), 60);
+    if (!data.ok) {
+      setWrap(`<div class="state"><span class="material-icons-round">error_outline</span>
+        <span>${esc(data.message || 'API returned ok:false')}</span></div>`);
+      return;
     }
 
-    function closeModal() {
-      document.getElementById('em-modal-bg').classList.remove('open');
-      document.getElementById('em-modal-bg').setAttribute('aria-hidden', 'true');
-      document.getElementById('em-user-form').reset();
-      editId = null;
-    }
+    allUsers = Array.isArray(data.users) ? data.users : [];
+    const n  = allUsers.length;
+    document.getElementById('total-badge').textContent = `${n} user${n !== 1 ? 's' : ''}`;
+    document.getElementById('footer-time').textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+    if (n > 0) setDebug('');  // clear debug on success
+    render();
 
-    // ── Form submit ────────────────────────────────────────────────────────────
-    document.getElementById('em-user-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const saveBtn  = document.getElementById('em-save-btn');
-      const saveLabel = document.getElementById('em-save-label');
-      const isEdit   = editId !== null;
+  } catch (err) {
+    setWrap(`<div class="state"><span class="material-icons-round">wifi_off</span>
+      <span>Network error — is the server running?<br/><small>${esc(err.message)}</small></span></div>`);
+    setDebug(`fetch threw:\n${err.message}`);
+  } finally {
+    btn.classList.remove('spin');
+    btn.disabled = false;
+  }
+}
 
-      const body = {
-        firstName:   document.getElementById('form-fname').value.trim(),
-        lastName:    document.getElementById('form-lname').value.trim(),
-        email:       document.getElementById('form-email').value.trim(),
-        accountType: document.getElementById('form-type').value,
-        isVerified:  document.getElementById('form-verified').checked,
-        isActive:    document.getElementById('form-active').checked,
-      };
-      const pw = document.getElementById('form-password').value;
-      if (pw) body.password = pw;
-      else if (!isEdit) { alert('Password is required for new users.'); return; }
+function setWrap(html) { document.getElementById('table-wrap').innerHTML = html; }
+function setDebug(txt) {
+  document.getElementById('debug-wrap').innerHTML =
+    txt ? `<div class="debug-box">${esc(txt)}</div>` : '';
+}
 
-      saveBtn.disabled    = true;
-      saveLabel.textContent = isEdit ? 'Saving…' : 'Creating…';
+// ── Filter / sort ─────────────────────────────────────────────────────────────
+function getFiltered() {
+  const q  = (document.getElementById('search').value || '').toLowerCase().trim();
+  const tp = document.getElementById('filter-type').value;
+  const st = document.getElementById('filter-status').value;
+  const vr = document.getElementById('filter-verified').value;
 
-      try {
-        let res, data;
-        if (isEdit) {
-          res  = await fetch(`/api/admin/users/${editId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-          });
-          data = await res.json();
-        } else {
-          res  = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-          });
-          data = await res.json();
-        }
+  return allUsers.filter(u => {
+    const nm = `${u.firstName||''} ${u.lastName||''} ${u.email||''}`.toLowerCase();
+    if (q  && !nm.includes(q))         return false;
+    if (tp && u.accountType !== tp)    return false;
+    if (st === '1' && !u.isActive)     return false;
+    if (st === '0' &&  u.isActive)     return false;
+    if (vr === '1' && !u.isVerified)   return false;
+    if (vr === '0' &&  u.isVerified)   return false;
+    return true;
+  });
+}
 
-        if (data.ok) {
-          closeModal();
-          await fetchUsers();
-        } else {
-          alert(data.message || 'Save failed. Check console.');
-        }
-      } catch (err) {
-        alert('Network error: ' + err.message);
-      } finally {
-        saveBtn.disabled    = false;
-        saveLabel.textContent = 'Save user';
-      }
+function getSorted(arr) {
+  return [...arr].sort((a, b) => {
+    let va = a[sortCol] ?? '', vb = b[sortCol] ?? '';
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    return va < vb ? (sortAsc ? -1 : 1) : va > vb ? (sortAsc ? 1 : -1) : 0;
+  });
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+const ICONS  = { employee:'badge', employer:'business', researcher:'science' };
+const LABELS = { employee:'Employee', employer:'Employer', researcher:'Researcher' };
+
+function render() {
+  const rows = getSorted(getFiltered());
+  document.getElementById('footer-count').textContent =
+    `Showing ${rows.length} of ${allUsers.length} users`;
+
+  if (allUsers.length === 0) {
+    setWrap(`<div class="state"><span class="material-icons-round">group_off</span>
+      <span>No users — restart server to seed accounts</span></div>`);
+    return;
+  }
+  if (rows.length === 0) {
+    setWrap(`<div class="state"><span class="material-icons-round">search_off</span>
+      <span>No users match your filters</span></div>`);
+    return;
+  }
+
+  const cols = [
+    {k:'id',l:'ID'},{k:'firstName',l:'Name'},{k:'email',l:'Email'},
+    {k:'accountType',l:'Type'},{k:'isActive',l:'Status'},{k:'isVerified',l:'Verified'},
+    {k:'activeSessions',l:'Sessions'},{k:'createdAt',l:'Joined'},{k:'_',l:''},
+  ];
+
+  const arr = k => sortCol !== k
+    ? `<span class="material-icons-round si">unfold_more</span>`
+    : `<span class="material-icons-round si">${sortAsc?'arrow_upward':'arrow_downward'}</span>`;
+
+  const thead = cols.map(c => c.k === '_'
+    ? `<th style="cursor:default"></th>`
+    : `<th class="${sortCol===c.k?'sorted':''}" data-k="${c.k}">${esc(c.l)}${arr(c.k)}</th>`
+  ).join('');
+
+  const tbody = rows.map((u, i) => {
+    const icon    = ICONS[u.accountType]  || 'person';
+    const tlabel  = LABELS[u.accountType] || String(u.accountType);
+    const active  = Boolean(u.isActive);
+    const verified = Boolean(u.isVerified);
+    const sess    = Number(u.activeSessions) || 0;
+
+    return `<tr class="${active?'':'dim'}" style="animation-delay:${i*.02}s">
+      <td class="cell-id">#${u.id}</td>
+      <td class="cell-name">${esc(u.firstName||'')} ${esc(u.lastName||'')}</td>
+      <td class="cell-email">${esc(u.email||'')}</td>
+      <td><span class="pill pill-${esc(u.accountType)}"><span class="material-icons-round">${icon}</span>${esc(tlabel)}</span></td>
+      <td><span class="status ${active?'active-yes':'active-no'}"><span class="material-icons-round">${active?'check_circle':'block'}</span>${active?'Active':'Disabled'}</span></td>
+      <td>${verified?'<span class="ver-yes">✓ Yes</span>':'<span class="ver-no">— No</span>'}</td>
+      <td style="text-align:center"><span class="sess${sess===0?' sess-zero':''}">${sess}</span></td>
+      <td class="cell-date">${fmtDate(u.createdAt)}</td>
+      <td><div class="acts">
+        <button class="act act-edit"    data-a="edit"    data-id="${u.id}" title="Edit"><span class="material-icons-round">edit</span></button>
+        ${active
+          ? `<button class="act act-disable" data-a="disable" data-id="${u.id}" title="Disable"><span class="material-icons-round">block</span></button>`
+          : `<button class="act act-enable"  data-a="enable"  data-id="${u.id}" title="Enable"><span class="material-icons-round">check_circle</span></button>`}
+        <button class="act act-delete"  data-a="delete"  data-id="${u.id}" title="Delete"><span class="material-icons-round">delete_outline</span></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  setWrap(`<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`);
+
+  document.querySelectorAll('th[data-k]').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.k;
+      sortCol === k ? (sortAsc = !sortAsc) : (sortCol = k, sortAsc = true);
+      render();
     });
+  });
 
-    // ── Enable / Disable ───────────────────────────────────────────────────────
-    async function setActive(userId, active) {
-      try {
-        const res  = await fetch(`/api/admin/users/${userId}/${active ? 'activate' : 'deactivate'}`, { method: 'PATCH' });
-        const data = await res.json();
-        if (data.ok) await fetchUsers();
-        else alert(data.message || 'Action failed.');
-      } catch (err) { alert('Network error: ' + err.message); }
-    }
-
-    // ── Delete ─────────────────────────────────────────────────────────────────
-    async function deleteUser(userId) {
-      const u = allUsers.find(x => x.id === userId);
-      if (!u || !confirm(`Delete ${u.firstName} ${u.lastName}? This cannot be undone.`)) return;
-      try {
-        const res  = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.ok) await fetchUsers();
-        else alert(data.message || 'Delete failed.');
-      } catch (err) { alert('Network error: ' + err.message); }
-    }
-
-    // ── Helpers ────────────────────────────────────────────────────────────────
-    function fmtDate(iso) {
-      if (!iso) return '—';
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
-    }
-    function esc(s) {
-      return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    // ── Bindings ───────────────────────────────────────────────────────────────
-    document.getElementById('em-refresh-btn').onclick  = fetchUsers;
-    document.getElementById('em-add-btn').onclick      = () => openModal(null);
-    document.getElementById('em-modal-close').onclick  = closeModal;
-    document.getElementById('em-modal-cancel').onclick = closeModal;
-    document.getElementById('em-modal-bg').addEventListener('click', e => {
-      if (e.target === document.getElementById('em-modal-bg')) closeModal();
+  document.querySelectorAll('.act[data-a]').forEach(b => {
+    b.addEventListener('click', () => {
+      const {a, id} = b.dataset, uid = Number(id);
+      if (a==='edit')    openModal(uid);
+      if (a==='enable')  toggle(uid, true);
+      if (a==='disable') toggle(uid, false);
+      if (a==='delete')  del(uid);
     });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && document.getElementById('em-modal-bg').classList.contains('open')) closeModal();
+  });
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(uid) {
+  editId = uid ?? null;
+  const isEdit = editId !== null;
+  document.getElementById('modal-title').textContent = isEdit ? 'Edit user' : 'Add user';
+  document.getElementById('save-label').textContent  = isEdit ? 'Save changes' : 'Create user';
+  document.getElementById('f-pw-hint').textContent   = isEdit ? '(leave blank to keep)' : '(min 8 chars)';
+  document.getElementById('f-pw').required           = !isEdit;
+  document.getElementById('user-form').reset();
+  document.getElementById('f-id').value = uid ?? '';
+  document.getElementById('f-active').checked = true;
+
+  if (isEdit) {
+    const u = allUsers.find(x => x.id === uid);
+    if (!u) return;
+    document.getElementById('f-fname').value      = u.firstName   || '';
+    document.getElementById('f-lname').value      = u.lastName    || '';
+    document.getElementById('f-email').value      = u.email       || '';
+    document.getElementById('f-type').value       = u.accountType || 'employee';
+    document.getElementById('f-verified').checked = Boolean(u.isVerified);
+    document.getElementById('f-active').checked   = Boolean(u.isActive);
+  }
+
+  const bg = document.getElementById('modal-bg');
+  bg.classList.add('open');
+  bg.setAttribute('aria-hidden','false');
+  setTimeout(() => document.getElementById('f-fname').focus(), 60);
+}
+
+function closeModal() {
+  const bg = document.getElementById('modal-bg');
+  bg.classList.remove('open');
+  bg.setAttribute('aria-hidden','true');
+  document.getElementById('user-form').reset();
+  editId = null;
+}
+
+document.getElementById('user-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const saveBtn = document.getElementById('save-btn');
+  const isEdit  = editId !== null;
+  const body    = {
+    firstName:   document.getElementById('f-fname').value.trim(),
+    lastName:    document.getElementById('f-lname').value.trim(),
+    email:       document.getElementById('f-email').value.trim(),
+    accountType: document.getElementById('f-type').value,
+    isVerified:  document.getElementById('f-verified').checked,
+    isActive:    document.getElementById('f-active').checked,
+  };
+  const pw = document.getElementById('f-pw').value;
+  if (pw) body.password = pw;
+  else if (!isEdit) { alert('Password is required.'); return; }
+
+  saveBtn.disabled = true;
+  document.getElementById('save-label').textContent = isEdit ? 'Saving…' : 'Creating…';
+
+  try {
+    const url = isEdit ? `${API}/api/admin/users/${editId}` : `${API}/api/auth/register`;
+    const res  = await fetch(url, {
+      method:  isEdit ? 'PATCH' : 'POST',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify(body),
+      credentials: 'include',
     });
-    document.getElementById('em-search').addEventListener('input', renderTable);
-    document.getElementById('em-filter-type').addEventListener('change', renderTable);
-    document.getElementById('em-filter-status').addEventListener('change', renderTable);
-    document.getElementById('em-filter-verified').addEventListener('change', renderTable);
+    const data = await res.json();
+    if (data.ok) { closeModal(); await load(); }
+    else alert(data.message || 'Save failed.');
+  } catch (err) { alert('Network error: ' + err.message); }
+  finally {
+    saveBtn.disabled = false;
+    document.getElementById('save-label').textContent = 'Save user';
+  }
+});
 
-    // ── Boot ───────────────────────────────────────────────────────────────────
-    fetchUsers();
-  </script>
+async function toggle(uid, active) {
+  try {
+    const res  = await fetch(`${API}/api/admin/users/${uid}/${active?'activate':'deactivate'}`,
+      {method:'PATCH', credentials:'include'});
+    const data = await res.json();
+    if (data.ok) load(); else alert(data.message);
+  } catch (err) { alert('Network error: ' + err.message); }
+}
 
+async function del(uid) {
+  const u = allUsers.find(x => x.id === uid);
+  if (!confirm(`Delete ${u?.firstName} ${u?.lastName}?\nThis cannot be undone.`)) return;
+  try {
+    const res  = await fetch(`${API}/api/admin/users/${uid}`,
+      {method:'DELETE', credentials:'include'});
+    const data = await res.json();
+    if (data.ok) load(); else alert(data.message);
+  } catch (err) { alert('Network error: ' + err.message); }
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+  catch { return String(iso); }
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('refresh-btn').onclick  = load;
+document.getElementById('add-btn').onclick      = () => openModal(null);
+document.getElementById('modal-close').onclick  = closeModal;
+document.getElementById('modal-cancel').onclick = closeModal;
+document.getElementById('modal-bg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape' && document.getElementById('modal-bg').classList.contains('open'))
+    closeModal();
+});
+['search','filter-type','filter-status','filter-verified'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input',  render);
+  el.addEventListener('change', render);
+});
+
+// Boot
+load();
+</script>
 </body>
 </html>

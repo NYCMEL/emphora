@@ -133,10 +133,10 @@ async function initDb() {
   // Creates test accounts on first run if they don't exist.
   // Password = same as the username part before @emphora.dev
   const seedUsers = [
-    { firstName: 'Admin',      lastName: 'User',       email: 'admin@emphora.dev',      password: 'admin',      accountType: 'employee',   isVerified: 1, isActive: 1 },
-    { firstName: 'Employee',   lastName: 'Test',       email: 'employee@emphora.dev',   password: 'employee',   accountType: 'employee',   isVerified: 1, isActive: 1 },
-    { firstName: 'Employer',   lastName: 'Test',       email: 'employer@emphora.dev',   password: 'employer',   accountType: 'employer',   isVerified: 1, isActive: 1 },
-    { firstName: 'Researcher', lastName: 'Test',       email: 'researcher@emphora.dev', password: 'researcher', accountType: 'researcher', isVerified: 0, isActive: 1 },
+    { firstName: 'Admin',      lastName: 'User', email: 'admin@emphora.dev',      password: 'test-1234', accountType: 'employee',   isVerified: 1, isActive: 1 },
+    { firstName: 'Employee',   lastName: 'Test', email: 'employee@emphora.dev',   password: 'test-1234', accountType: 'employee',   isVerified: 1, isActive: 1 },
+    { firstName: 'Employer',   lastName: 'Test', email: 'employer@emphora.dev',   password: 'test-1234', accountType: 'employer',   isVerified: 1, isActive: 1 },
+    { firstName: 'Researcher', lastName: 'Test', email: 'researcher@emphora.dev', password: 'test-1234', accountType: 'researcher', isVerified: 0, isActive: 1 },
   ];
 
   for (const s of seedUsers) {
