@@ -1,94 +1,131 @@
 /**
  * server.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Emphora Backend — Node.js + SQLite
+ * Emphora Backend — Node.js + sql.js (pure WASM, zero native compilation)
  *
  * Endpoints:
  *   POST /api/auth/login      { email, password }
  *   POST /api/auth/register   { firstName, lastName, email, password, accountType }
- *   POST /api/auth/logout     (auth header)
- *   GET  /api/user/profile    (auth header)
+ *   POST /api/auth/logout     Authorization: Bearer <token>
+ *   GET  /api/user/profile    Authorization: Bearer <token>
+ *   GET  /health
  *
  * Setup:
- *   npm install express better-sqlite3 bcryptjs jsonwebtoken cors
+ *   npm install
  *   node server.js
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 'use strict';
 
-const express   = require('express');
-const Database  = require('better-sqlite3');
-const bcrypt    = require('bcryptjs');
-const jwt       = require('jsonwebtoken');
-const cors      = require('cors');
-const path      = require('path');
-const fs        = require('fs');
+const express  = require('express');
+const initSqlJs = require('sql.js');
+const bcrypt   = require('bcryptjs');
+const jwt      = require('jsonwebtoken');
+const cors     = require('cors');
+const crypto   = require('crypto');
+const path     = require('path');
+const fs       = require('fs');
 
 // ── Config ────────────────────────────────────────────────────────────────────
-const PORT       = process.env.PORT       || 3000;
-const DB_PATH    = process.env.DB_PATH    || path.join(__dirname, 'emphora.db');
-const JWT_SECRET = process.env.JWT_SECRET || 'emphora-dev-secret-change-in-production';
-const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
+const PORT        = process.env.PORT        || 3000;
+const DB_PATH     = process.env.DB_PATH     || path.join(__dirname, 'emphora.db');
+const JWT_SECRET  = process.env.JWT_SECRET  || 'emphora-dev-secret-change-in-production';
+const JWT_EXPIRY  = process.env.JWT_EXPIRY  || '7d';
 const SALT_ROUNDS = 12;
+const SAVE_INTERVAL_MS = 10_000; // flush DB to disk every 10 s
 
-// ── Database ──────────────────────────────────────────────────────────────────
-const db = new Database(DB_PATH, { verbose: null });
+// ── sql.js wrapper ────────────────────────────────────────────────────────────
+// sql.js keeps the database entirely in memory (a Uint8Array).
+// We persist it to disk on every write and on a periodic interval.
 
-// Enable WAL mode for better concurrency
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+let db;   // sql.js Database instance
 
-// ── Schema ────────────────────────────────────────────────────────────────────
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name    TEXT    NOT NULL,
-    last_name     TEXT    NOT NULL,
-    email         TEXT    NOT NULL UNIQUE COLLATE NOCASE,
-    password_hash TEXT    NOT NULL,
-    account_type  TEXT    NOT NULL DEFAULT 'employee'
-                          CHECK(account_type IN ('employee','employer','researcher')),
-    emphora_score REAL    NOT NULL DEFAULT 0.0,
-    is_verified   INTEGER NOT NULL DEFAULT 0,
-    created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
-  );
+function dbSave() {
+  try {
+    const data = db.export();           // Uint8Array
+    fs.writeFileSync(DB_PATH, Buffer.from(data));
+  } catch (err) {
+    console.error('[Emphora DB] Save error:', err.message);
+  }
+}
 
-  CREATE TABLE IF NOT EXISTS sessions (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    token_hash TEXT    NOT NULL,
-    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-    expires_at TEXT    NOT NULL
-  );
+/** Run a statement that modifies data, then persist. */
+function dbRun(sql, params = []) {
+  db.run(sql, params);
+  dbSave();
+}
 
-  CREATE INDEX IF NOT EXISTS idx_users_email    ON users(email);
-  CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
-  CREATE INDEX IF NOT EXISTS idx_sessions_user  ON sessions(user_id);
-`);
+/** Return the first matching row as a plain object, or null. */
+function dbGet(sql, params = []) {
+  const stmt = db.prepare(sql);
+  stmt.bind(params);
+  if (stmt.step()) {
+    const row = stmt.getAsObject();
+    stmt.free();
+    return row;
+  }
+  stmt.free();
+  return null;
+}
 
-// ── Prepared statements ───────────────────────────────────────────────────────
-const stmts = {
-  getUserByEmail:  db.prepare('SELECT * FROM users WHERE email = ? COLLATE NOCASE'),
-  getUserById:     db.prepare('SELECT id, first_name, last_name, email, account_type, emphora_score, is_verified, created_at FROM users WHERE id = ?'),
-  insertUser:      db.prepare(`
-    INSERT INTO users (first_name, last_name, email, password_hash, account_type)
-    VALUES (@firstName, @lastName, @email, @passwordHash, @accountType)
-  `),
-  insertSession:   db.prepare(`
-    INSERT INTO sessions (user_id, token_hash, expires_at)
-    VALUES (@userId, @tokenHash, datetime('now', @expiry))
-  `),
-  deleteSession:   db.prepare('DELETE FROM sessions WHERE token_hash = ?'),
-  getSession:      db.prepare('SELECT * FROM sessions WHERE token_hash = ? AND expires_at > datetime(\'now\')'),
-  cleanSessions:   db.prepare('DELETE FROM sessions WHERE expires_at <= datetime(\'now\')'),
-};
+/** Return all matching rows as plain objects. */
+function dbAll(sql, params = []) {
+  const stmt   = db.prepare(sql);
+  const rows   = [];
+  stmt.bind(params);
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
+}
+
+// ── Database initialisation ───────────────────────────────────────────────────
+async function initDb() {
+  const SQL = await initSqlJs();
+
+  if (fs.existsSync(DB_PATH)) {
+    const fileBuffer = fs.readFileSync(DB_PATH);
+    db = new SQL.Database(fileBuffer);
+    console.info(`[Emphora DB] Loaded existing database from ${DB_PATH}`);
+  } else {
+    db = new SQL.Database();
+    console.info(`[Emphora DB] Created new in-memory database (will persist to ${DB_PATH})`);
+  }
+
+  // Schema
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      first_name    TEXT    NOT NULL,
+      last_name     TEXT    NOT NULL,
+      email         TEXT    NOT NULL UNIQUE,
+      password_hash TEXT    NOT NULL,
+      account_type  TEXT    NOT NULL DEFAULT 'employee',
+      emphora_score REAL    NOT NULL DEFAULT 0.0,
+      is_verified   INTEGER NOT NULL DEFAULT 0,
+      created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id    INTEGER NOT NULL,
+      token_hash TEXT    NOT NULL UNIQUE,
+      expires_at TEXT    NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_email    ON users(email);
+    CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
+    CREATE INDEX IF NOT EXISTS idx_sessions_user  ON sessions(user_id);
+  `);
+
+  dbSave(); // initial flush
+
+  // Periodic flush to guard against crashes
+  setInterval(dbSave, SAVE_INTERVAL_MS);
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function hashToken(token) {
-  // Simple hash for storage — bcrypt is overkill for JWTs
-  const crypto = require('crypto');
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
@@ -97,14 +134,13 @@ function makeToken(userId) {
 }
 
 function verifyToken(token) {
-  try { return jwt.verify(token, JWT_SECRET); }
+  try   { return jwt.verify(token, JWT_SECRET); }
   catch { return null; }
 }
 
 function extractToken(req) {
   const auth = req.headers['authorization'] || '';
-  if (auth.startsWith('Bearer ')) return auth.slice(7);
-  return null;
+  return auth.startsWith('Bearer ') ? auth.slice(7) : null;
 }
 
 function sendError(res, status, message, details = null) {
@@ -126,7 +162,7 @@ function sanitiseUser(user) {
   };
 }
 
-// ── Auth Middleware ───────────────────────────────────────────────────────────
+// ── Auth middleware ───────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
   const token = extractToken(req);
   if (!token) return sendError(res, 401, 'Authentication required.');
@@ -134,10 +170,18 @@ function requireAuth(req, res, next) {
   const payload = verifyToken(token);
   if (!payload) return sendError(res, 401, 'Invalid or expired token.');
 
-  const session = stmts.getSession.get(hashToken(token));
+  const now     = new Date().toISOString();
+  const session = dbGet(
+    `SELECT * FROM sessions WHERE token_hash = ? AND expires_at > ?`,
+    [hashToken(token), now]
+  );
   if (!session) return sendError(res, 401, 'Session not found or expired.');
 
-  const user = stmts.getUserById.get(payload.sub);
+  const user = dbGet(
+    `SELECT id, first_name, last_name, email, account_type, emphora_score, is_verified, created_at
+       FROM users WHERE id = ?`,
+    [payload.sub]
+  );
   if (!user) return sendError(res, 401, 'User not found.');
 
   req.user  = user;
@@ -145,53 +189,44 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// ── Input Validation ──────────────────────────────────────────────────────────
-const EMAIL_RE    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// ── Validation ────────────────────────────────────────────────────────────────
+const EMAIL_RE      = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ACCOUNT_TYPES = new Set(['employee', 'employer', 'researcher']);
 
 function validateLogin({ email, password }) {
-  const errors = [];
-  if (!email    || !EMAIL_RE.test(email.trim())) errors.push({ field: 'email',    message: 'Valid email required.' });
-  if (!password || password.length < 6)           errors.push({ field: 'password', message: 'Password min 6 chars.' });
-  return errors;
+  const e = [];
+  if (!email    || !EMAIL_RE.test(email.trim())) e.push({ field: 'email',    message: 'Valid email required.' });
+  if (!password || password.length < 6)           e.push({ field: 'password', message: 'Password min 6 chars.' });
+  return e;
 }
 
 function validateRegister({ firstName, lastName, email, password, accountType }) {
-  const errors = [];
-  if (!firstName || firstName.trim().length < 2)  errors.push({ field: 'firstName',   message: 'First name min 2 chars.' });
-  if (!lastName  || lastName.trim().length < 2)   errors.push({ field: 'lastName',    message: 'Last name min 2 chars.' });
-  if (!email     || !EMAIL_RE.test(email.trim()))  errors.push({ field: 'email',       message: 'Valid email required.' });
-  if (!password  || password.length < 8)           errors.push({ field: 'password',    message: 'Password min 8 chars.' });
-  if (accountType && !ACCOUNT_TYPES.has(accountType)) {
-    errors.push({ field: 'accountType', message: 'Invalid account type.' });
-  }
-  return errors;
+  const e = [];
+  if (!firstName || firstName.trim().length < 2) e.push({ field: 'firstName',  message: 'First name min 2 chars.' });
+  if (!lastName  || lastName.trim().length  < 2) e.push({ field: 'lastName',   message: 'Last name min 2 chars.' });
+  if (!email     || !EMAIL_RE.test(email.trim())) e.push({ field: 'email',      message: 'Valid email required.' });
+  if (!password  || password.length < 8)          e.push({ field: 'password',   message: 'Password min 8 chars.' });
+  if (accountType && !ACCOUNT_TYPES.has(accountType))
+    e.push({ field: 'accountType', message: 'Invalid account type.' });
+  return e;
 }
 
-// ── Express App ───────────────────────────────────────────────────────────────
+// ── Express app ───────────────────────────────────────────────────────────────
 const app = express();
 
-app.use(cors({
-  origin:      process.env.CORS_ORIGIN || '*',
-  methods:     ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true,
-}));
+app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true }));
-
-// Serve static files (emphora.html, emphora.css, emphora.js, etc.)
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname)));   // serves emphora.html etc.
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
-// Health check
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'emphora', time: new Date().toISOString() });
 });
 
 /**
  * POST /api/auth/register
- * Body: { firstName, lastName, email, password, accountType? }
  */
 app.post('/api/auth/register', (req, res) => {
   const { firstName, lastName, email, password, accountType = 'employee' } = req.body;
@@ -199,38 +234,36 @@ app.post('/api/auth/register', (req, res) => {
   const errors = validateRegister({ firstName, lastName, email, password, accountType });
   if (errors.length) return sendError(res, 422, 'Validation failed.', errors);
 
-  const existing = stmts.getUserByEmail.get(email.trim());
+  const normEmail = email.trim().toLowerCase();
+  const existing  = dbGet('SELECT id FROM users WHERE email = ?', [normEmail]);
   if (existing) return sendError(res, 409, 'An account with this email already exists.');
 
   const passwordHash = bcrypt.hashSync(password, SALT_ROUNDS);
 
   try {
-    const info = stmts.insertUser.run({
-      firstName:    firstName.trim(),
-      lastName:     lastName.trim(),
-      email:        email.trim().toLowerCase(),
-      passwordHash,
-      accountType:  accountType || 'employee',
-    });
+    dbRun(
+      `INSERT INTO users (first_name, last_name, email, password_hash, account_type)
+       VALUES (?, ?, ?, ?, ?)`,
+      [firstName.trim(), lastName.trim(), normEmail, passwordHash, accountType || 'employee']
+    );
 
-    const user  = stmts.getUserById.get(info.lastInsertRowid);
-    const token = makeToken(user.id);
-    stmts.insertSession.run({ userId: user.id, tokenHash: hashToken(token), expiry: '+7 days' });
+    const user    = dbGet('SELECT * FROM users WHERE email = ?', [normEmail]);
+    const token   = makeToken(user.id);
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    dbRun(
+      `INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)`,
+      [user.id, hashToken(token), expires]
+    );
 
-    res.status(201).json({
-      ok:    true,
-      token,
-      user:  sanitiseUser(user),
-    });
+    res.status(201).json({ ok: true, token, user: sanitiseUser(user) });
   } catch (err) {
     console.error('[Emphora API] register error:', err);
-    return sendError(res, 500, 'Registration failed. Please try again.');
+    sendError(res, 500, 'Registration failed. Please try again.');
   }
 });
 
 /**
  * POST /api/auth/login
- * Body: { email, password }
  */
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
@@ -238,62 +271,61 @@ app.post('/api/auth/login', (req, res) => {
   const errors = validateLogin({ email, password });
   if (errors.length) return sendError(res, 422, 'Validation failed.', errors);
 
-  const user = stmts.getUserByEmail.get(email.trim());
+  const user = dbGet('SELECT * FROM users WHERE email = ?', [email.trim().toLowerCase()]);
   if (!user) return sendError(res, 401, 'Invalid email or password.');
 
-  const match = bcrypt.compareSync(password, user.password_hash);
-  if (!match) return sendError(res, 401, 'Invalid email or password.');
+  if (!bcrypt.compareSync(password, user.password_hash))
+    return sendError(res, 401, 'Invalid email or password.');
 
-  const token = makeToken(user.id);
-  stmts.insertSession.run({ userId: user.id, tokenHash: hashToken(token), expiry: '+7 days' });
+  const token   = makeToken(user.id);
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  dbRun(
+    `INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)`,
+    [user.id, hashToken(token), expires]
+  );
 
-  // Clean expired sessions periodically
-  stmts.cleanSessions.run();
+  // Prune expired sessions
+  dbRun(`DELETE FROM sessions WHERE expires_at <= ?`, [new Date().toISOString()]);
 
-  res.json({
-    ok:     true,
-    token,
-    userId: user.id,
-    user:   sanitiseUser(user),
-  });
+  res.json({ ok: true, token, userId: user.id, user: sanitiseUser(user) });
 });
 
 /**
  * POST /api/auth/logout
- * Header: Authorization: Bearer <token>
  */
 app.post('/api/auth/logout', requireAuth, (req, res) => {
-  stmts.deleteSession.run(hashToken(req.token));
+  dbRun('DELETE FROM sessions WHERE token_hash = ?', [hashToken(req.token)]);
   res.json({ ok: true, message: 'Logged out.' });
 });
 
 /**
  * GET /api/user/profile
- * Header: Authorization: Bearer <token>
  */
 app.get('/api/user/profile', requireAuth, (req, res) => {
   res.json({ ok: true, user: sanitiseUser(req.user) });
 });
 
-// ── 404 & Error Handlers ──────────────────────────────────────────────────────
-app.use((_req, res) => {
-  res.status(404).json({ ok: false, message: 'Route not found.' });
-});
+// ── 404 & error handlers ──────────────────────────────────────────────────────
+app.use((_req, res) => res.status(404).json({ ok: false, message: 'Route not found.' }));
 
 app.use((err, _req, res, _next) => {
   console.error('[Emphora API] Unhandled error:', err);
   res.status(500).json({ ok: false, message: 'Internal server error.' });
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`
-  ┌──────────────────────────────────────────┐
-  │  Emphora API running on port ${PORT}         │
-  │  DB: ${DB_PATH}     │
-  │  http://localhost:${PORT}/emphora.html       │
-  └──────────────────────────────────────────┘
-  `);
+// ── Boot ──────────────────────────────────────────────────────────────────────
+initDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`
+  ┌─────────────────────────────────────────────┐
+  │   Emphora API  →  http://localhost:${PORT}      │
+  │   Database     →  ${DB_PATH}
+  │   Open         →  http://localhost:${PORT}/emphora.html
+  └─────────────────────────────────────────────┘`);
+  });
+}).catch((err) => {
+  console.error('[Emphora] Failed to initialise database:', err);
+  process.exit(1);
 });
 
 module.exports = app;
