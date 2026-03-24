@@ -101,6 +101,7 @@ class Emphora {
     this._bindPasswordToggles();
     this._bindChips();
     this._bindTermsCheckbox();
+    this._updateAccountTag(this._accountType, false);
     this._bindPasswordStrength();
     this._bindRipples();
     this._subscribeToEvents();
@@ -202,6 +203,9 @@ class Emphora {
           const payload = { email, userId: result.userId };
           wc.log(this._config.events.login, payload);
           wc.publish(this._config.events.login, payload);
+          // Show account type tag from server response (fallback to current chip selection)
+          const loginType = result.user?.accountType || this._accountType;
+          this._updateAccountTag(loginType, true);
           this._toast(this._config.toast.messages.loginSuccess, 'success');
           this._announce('Login successful. Welcome back.');
         } else {
@@ -390,6 +394,7 @@ class Emphora {
     this._accountType = active.dataset.value;
     const hidden = this._qs('#reg-account-type');
     if (hidden) hidden.value = this._accountType;
+    this._updateAccountTag(this._accountType, true);
   }
 
   // ── Terms Checkbox ──────────────────────────────────────────────────────────
@@ -458,6 +463,39 @@ class Emphora {
       label.textContent = text;
       label.className   = `em-pwd-strength-label${cls ? ` em-pwd-strength-label--${cls}` : ''}`;
     }
+  }
+
+  // ── Account Tag ─────────────────────────────────────────────────────────────
+  /**
+   * Update the account type tag in the card header.
+   * @param {string}  type    — 'employee' | 'employer' | 'researcher'
+   * @param {boolean} visible — whether to show the tag
+   */
+  _updateAccountTag(type, visible) {
+    const tag      = this._qs('#em-account-tag');
+    if (!tag) return;
+
+    const tagConfig = this._config.accountTag;
+    if (!tagConfig || !tagConfig.show) return;
+
+    const typeData  = tagConfig.types[type] || tagConfig.types[tagConfig.defaultType];
+    const iconEl    = tag.querySelector('.em-account-tag__icon');
+    const labelEl   = tag.querySelector('.em-account-tag__label');
+
+    // Swap colour class
+    Object.values(tagConfig.types).forEach((t) => tag.classList.remove(t.colorClass));
+    tag.classList.add(typeData.colorClass);
+
+    // Update icon + label
+    if (iconEl)  iconEl.textContent  = typeData.icon;
+    if (labelEl) labelEl.textContent = typeData.label;
+
+    // Update a11y
+    tag.setAttribute('aria-label', `Account type: ${typeData.label}`);
+    tag.setAttribute('aria-hidden', String(!visible));
+
+    // Animate in/out
+    tag.classList.toggle('em-account-tag--visible', visible);
   }
 
   // ── Ripple Effect ───────────────────────────────────────────────────────────

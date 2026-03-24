@@ -28,7 +28,7 @@ const path     = require('path');
 const fs       = require('fs');
 
 // ── Config ────────────────────────────────────────────────────────────────────
-const PORT        = process.env.PORT        || 3000;
+const PORT        = process.env.PORT        || 5000;  // default matches EmophoraConfig.server.port
 const DB_PATH     = process.env.DB_PATH     || path.join(__dirname, 'emphora.db');
 const JWT_SECRET  = process.env.JWT_SECRET  || 'emphora-dev-secret-change-in-production';
 const JWT_EXPIRY  = process.env.JWT_EXPIRY  || '7d';

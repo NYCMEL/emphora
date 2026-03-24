@@ -280,6 +280,74 @@ $dark: (
   }
 
   // ─────────────────────────────────────────────
+  // ACCOUNT TYPE TAG (top bar)
+  // ─────────────────────────────────────────────
+  .em-account-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px 4px 7px;
+    border-radius: 20px;
+    border: 1.5px solid transparent;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    @include transition(all, 0.25s);
+    // hidden by default — JS shows it when a chip is selected or login resolves
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.88);
+
+    &.em-account-tag--visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    &__icon {
+      font-size: 0.85rem !important;
+    }
+
+    // ── colour variants ──────────────────────
+    &.em-tag--employee {
+      background: rgba(26, 107, 204, 0.1);
+      border-color: rgba(26, 107, 204, 0.28);
+      color: #1A6BCC;
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(77, 158, 255, 0.15);
+        border-color: rgba(77, 158, 255, 0.32);
+        color: #4D9EFF;
+      }
+    }
+
+    &.em-tag--employer {
+      background: rgba(0, 137, 123, 0.1);
+      border-color: rgba(0, 137, 123, 0.28);
+      color: #00897B;
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(38, 166, 154, 0.15);
+        border-color: rgba(38, 166, 154, 0.35);
+        color: #26A69A;
+      }
+    }
+
+    &.em-tag--researcher {
+      background: rgba(233, 30, 99, 0.08);
+      border-color: rgba(233, 30, 99, 0.25);
+      color: #C2185B;
+
+      [data-emphora-theme="dark"] & {
+        background: rgba(240, 98, 146, 0.14);
+        border-color: rgba(240, 98, 146, 0.3);
+        color: #F06292;
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────
   // THEME TOGGLE
   // ─────────────────────────────────────────────
   .em-theme-toggle {

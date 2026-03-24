@@ -8,6 +8,20 @@ const EmophoraConfig = {
     defaultView: "login"
   },
 
+  server: {
+    port: 5000
+  },
+
+  accountTag: {
+    show: true,
+    defaultType: "employee",
+    types: {
+      employee:   { label: "Employee",   icon: "badge",    colorClass: "em-tag--employee"   },
+      employer:   { label: "Employer",   icon: "business", colorClass: "em-tag--employer"   },
+      researcher: { label: "Researcher", icon: "science",  colorClass: "em-tag--researcher" }
+    }
+  },
+
   theme: {
     light: {
       label: "Light Mode",
@@ -140,9 +154,9 @@ const EmophoraConfig = {
       show:    true,
       label:   "I am joining as a",
       options: [
-        { value: "employee",  label: "Professional / Job Seeker", icon: "badge" },
-        { value: "employer",  label: "Employer / Recruiter",      icon: "business" },
-        { value: "researcher",label: "Researcher / Analyst",      icon: "science" }
+        { value: "employee",   label: "Professional / Job Seeker", icon: "badge"    },
+        { value: "employer",   label: "Employer / Recruiter",      icon: "business" },
+        { value: "researcher", label: "Researcher / Analyst",      icon: "science"  }
       ]
     },
     terms: {
