@@ -217,7 +217,7 @@ const app = express();
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname)));   // serves emphora.html etc.
+app.use(express.static(path.join(__dirname, 'public')));  // serves public/ directory
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
@@ -331,7 +331,7 @@ function listenWithFallback(port, attempt = 0) {
   ┌─────────────────────────────────────────────┐
   │   Emphora API  →  http://localhost:${bound}      │
   │   Database     →  ${DB_PATH}                │
-  │   Open         →  http://localhost:${bound}/emphora.html
+  │   Open         →  http://localhost:${bound}/emphora.html        │
   └─────────────────────────────────────────────┘`);
   });
 

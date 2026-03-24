@@ -13,7 +13,7 @@
     crossorigin="anonymous"
   />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" />
-  <link rel="stylesheet" href="emphora.css" />
+  <link rel="stylesheet" href="css/emphora.css" />
 
   <style>
     html, body { margin: 0; padding: 0; min-height: 100vh; }
@@ -313,7 +313,9 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmZKPIkBZkSDzsGxBVbMo7Eo7FO"
     crossorigin="anonymous"
   ></script>
-  <script src="emphora.config.js"></script>
-  <script src="emphora.js"></script>
+  <!-- wc event bus must load first so wc.publish / wc.subscribe are available -->
+  <script src="js/_wc.js"></script>
+  <script src="js/emphora.config.js"></script>
+  <script src="js/emphora.js"></script>
 </body>
 </html>
