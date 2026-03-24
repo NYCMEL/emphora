@@ -104,6 +104,9 @@
     .act-enable:hover   { background:rgba(46,125,50,.1);color:var(--success);border-color:var(--success); }
     .act-disable:hover  { background:rgba(230,81,0,.08);color:var(--warning);border-color:var(--warning); }
     .act-delete:hover   { background:rgba(198,40,40,.08);color:var(--danger);border-color:var(--danger); }
+    .act-login          { background:rgba(103,58,183,.08);color:#673AB7;border-color:rgba(103,58,183,.25);width:auto;padding:0 10px;gap:4px;font-size:.72rem;font-weight:700; }
+    .act-login:hover    { background:rgba(103,58,183,.16);border-color:#673AB7; }
+    .act-login:disabled { opacity:.5;cursor:not-allowed; }
 
     /* states */
     .state { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:3rem 1rem;color:var(--muted);font-size:.84rem;text-align:center; }
@@ -153,7 +156,7 @@
 <body>
 
 <nav class="topbar">
-  <a href="emphora.html" class="logo">Emph<b>ora</b></a>
+  <a href="/" class="logo">Emph<b>ora</b></a>
   <div class="spacer"></div>
   <span class="badge" id="total-badge">loading…</span>
   <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
@@ -384,7 +387,7 @@ function render() {
   const cols = [
     {k:'id',l:'ID'},{k:'firstName',l:'Name'},{k:'email',l:'Email'},
     {k:'accountType',l:'Type'},{k:'isActive',l:'Status'},{k:'isVerified',l:'Verified'},
-    {k:'activeSessions',l:'Sessions'},{k:'createdAt',l:'Joined'},{k:'_',l:''},
+    {k:'activeSessions',l:'Sessions'},{k:'createdAt',l:'Joined'},{k:'_login',l:'Login as'},{k:'_',l:''},
   ];
 
   const arr = k => sortCol !== k
@@ -412,6 +415,13 @@ function render() {
       <td>${verified?'<span class="ver-yes">✓ Yes</span>':'<span class="ver-no">— No</span>'}</td>
       <td style="text-align:center"><span class="sess${sess===0?' sess-zero':''}">${sess}</span></td>
       <td class="cell-date">${fmtDate(u.createdAt)}</td>
+      <td>
+        <button class="act act-login" data-a="login" data-id="${u.id}"
+          data-email="${esc(u.email)}" data-type="${esc(u.accountType)}"
+          title="Login as this user">
+          <span class="material-icons-round">login</span>
+        </button>
+      </td>
       <td><div class="acts">
         <button class="act act-edit"    data-a="edit"    data-id="${u.id}" title="Edit"><span class="material-icons-round">edit</span></button>
         ${active
@@ -434,11 +444,12 @@ function render() {
 
   document.querySelectorAll('.act[data-a]').forEach(b => {
     b.addEventListener('click', () => {
-      const {a, id} = b.dataset, uid = Number(id);
+      const {a, id, email, type} = b.dataset, uid = Number(id);
       if (a==='edit')    openModal(uid);
       if (a==='enable')  toggle(uid, true);
       if (a==='disable') toggle(uid, false);
       if (a==='delete')  del(uid);
+      if (a==='login')   loginAs(uid, email, type);
     });
   });
 }
@@ -535,6 +546,43 @@ async function del(uid) {
     const data = await res.json();
     if (data.ok) load(); else alert(data.message);
   } catch (err) { alert('Network error: ' + err.message); }
+}
+
+// ── Login As ─────────────────────────────────────────────────────────────────
+const SEED_EMAILS  = ['admin@emphora.dev','employee@emphora.dev','employer@emphora.dev','researcher@emphora.dev'];
+const SEED_PASSWORD = 'test-1234';
+
+async function loginAs(uid, email, accountType) {
+  const password = SEED_EMAILS.includes(email)
+    ? SEED_PASSWORD
+    : prompt(`Password for ${email}:`);
+  if (!password) return;
+
+  const loginBtn = document.querySelector(`.act[data-a="login"][data-id="${uid}"]`);
+  const iconEl   = loginBtn?.querySelector('.material-icons-round');
+  if (loginBtn) { loginBtn.disabled = true; if (iconEl) iconEl.textContent = 'hourglass_empty'; }
+
+  try {
+    const res  = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password}),
+      credentials: 'include',
+    });
+    const data = await res.json();
+
+    if (data.ok && data.user) {
+      sessionStorage.setItem('emphora_user', JSON.stringify(data.user));
+      const pages = {employee:'employee.html', employer:'employer.html', researcher:'researcher.html'};
+      window.location.href = pages[data.user.accountType] || 'employee.html';
+    } else {
+      alert(`Login failed: ${data.message || 'Invalid credentials'}`);
+      if (loginBtn) { loginBtn.disabled = false; if (iconEl) iconEl.textContent = 'login'; }
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+    if (loginBtn) { loginBtn.disabled = false; if (iconEl) iconEl.textContent = 'login'; }
+  }
 }
 
 function fmtDate(iso) {

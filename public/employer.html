@@ -69,7 +69,7 @@
 <body>
 
 <nav class="topbar">
-  <a href="emphora.html" class="logo">Emph<b>ora</b></a>
+  <a href="/" class="logo">Emph<b>ora</b></a>
   <span class="role-tag"><span class="material-icons-round">business</span><span id="role-label">Employer</span></span>
   <div class="spacer"></div>
   <div class="user-info"><span id="topbar-name">—</span><div class="avatar" id="topbar-initials">?</div></div>
@@ -85,7 +85,6 @@
       <div class="hero-sub" id="hero-sub">—</div>
     </div>
     <div class="hero-actions">
-      <a href="users.html" class="btn" id="admin-link" style="display:none"><span class="material-icons-round">admin_panel_settings</span>Admin</a>
       <button class="btn btn-danger" id="logout-btn2"><span class="material-icons-round">logout</span>Sign Out</button>
     </div>
   </div>
@@ -178,7 +177,7 @@
 <script>
 'use strict';
 const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch{return null;} })();
-if (!user) window.location.href = 'emphora.html';
+if (!user) window.location.href = '/';
 const API = window.location.protocol==='file:' ? 'http://localhost:3001' : '';
 
 let theme = localStorage.getItem('em-theme') || 'light';
@@ -200,8 +199,7 @@ function initUser() {
   document.getElementById('hero-avatar').textContent    = ini||'?';
   document.getElementById('topbar-name').textContent    = fn;
   document.getElementById('topbar-initials').textContent = ini||'?';
-  const adminLink = document.getElementById('admin-link');
-  if (adminLink) adminLink.style.display = 'inline-flex';
+
   const LABELS = {employee:'Professional',employer:'Employer',researcher:'Researcher'};
   const rl = document.getElementById('role-label');
   if (rl) rl.textContent = LABELS[user.accountType]||user.accountType||'Employer';
@@ -211,7 +209,7 @@ initUser();
 function signOut() {
   sessionStorage.removeItem('emphora_user');
   try { fetch(`${API}/api/auth/logout`,{method:'POST',credentials:'include'}).catch(()=>{}); } catch(_){}
-  window.location.href = 'emphora.html';
+  window.location.href = '/';
 }
 document.getElementById('logout-btn').onclick  = signOut;
 document.getElementById('logout-btn2').onclick = signOut;
