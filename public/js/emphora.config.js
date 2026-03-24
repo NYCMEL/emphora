@@ -25,20 +25,36 @@ const EmophoraConfig = {
     },
     accounts: [
       {
-        id:       "dev-employee",
-        label:    "Employee",
-        icon:     "badge",
-        email:    "employee@emphora.dev",
-        password: "test1234",
+        id:          "dev-admin",
+        label:       "Admin",
+        icon:        "shield_person",
+        email:       "admin@emphora.dev",
+        password:    "admin",
         accountType: "employee"
       },
       {
-        id:       "dev-employer",
-        label:    "Employer",
-        icon:     "business",
-        email:    "employer@emphora.dev",
-        password: "test1234",
+        id:          "dev-employee",
+        label:       "Employee",
+        icon:        "badge",
+        email:       "employee@emphora.dev",
+        password:    "employee",
+        accountType: "employee"
+      },
+      {
+        id:          "dev-employer",
+        label:       "Employer",
+        icon:        "business",
+        email:       "employer@emphora.dev",
+        password:    "employer",
         accountType: "employer"
+      },
+      {
+        id:          "dev-researcher",
+        label:       "Researcher",
+        icon:        "science",
+        email:       "researcher@emphora.dev",
+        password:    "researcher",
+        accountType: "researcher"
       }
     ]
   },

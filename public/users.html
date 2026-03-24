@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--
+    Place this file at:  public/users.html
+    Access at:           http://localhost:3001/users.html
+  -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emphora — Users</title>
@@ -8,32 +12,40 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous" />
   <style>
     :root {
-      --em-primary:   #1A6BCC;
-      --em-secondary: #00897B;
-      --em-bg:        #F0F4F8;
-      --em-surface:   #FFFFFF;
-      --em-border:    #D0DCE8;
-      --em-text:      #0D1B2A;
-      --em-muted:     #7A8FA6;
-      --em-employee:  #1A6BCC;
-      --em-employer:  #00897B;
-      --em-researcher:#C2185B;
-      --em-verified:  #2E7D32;
-      --em-unverified:#B0BEC5;
+      --em-primary:    #1A6BCC;
+      --em-secondary:  #00897B;
+      --em-accent:     #C2185B;
+      --em-bg:         #F0F4F8;
+      --em-surface:    #FFFFFF;
+      --em-surface-2:  #F8FAFC;
+      --em-border:     #D0DCE8;
+      --em-text:       #0D1B2A;
+      --em-muted:      #7A8FA6;
+      --em-employee:   #1A6BCC;
+      --em-employer:   #00897B;
+      --em-researcher: #C2185B;
+      --em-admin-col:  #673AB7;
+      --em-success:    #2E7D32;
+      --em-warning:    #E65100;
+      --em-error:      #C62828;
     }
     [data-theme="dark"] {
-      --em-primary:   #4D9EFF;
-      --em-secondary: #26A69A;
-      --em-bg:        #0A0F1A;
-      --em-surface:   #111827;
-      --em-border:    rgba(255,255,255,0.10);
-      --em-text:      #E8F1FF;
-      --em-muted:     #5C7389;
-      --em-employee:  #4D9EFF;
-      --em-employer:  #26A69A;
-      --em-researcher:#F06292;
-      --em-verified:  #66BB6A;
-      --em-unverified:#455A64;
+      --em-primary:    #4D9EFF;
+      --em-secondary:  #26A69A;
+      --em-accent:     #F06292;
+      --em-bg:         #0A0F1A;
+      --em-surface:    #111827;
+      --em-surface-2:  #1A2236;
+      --em-border:     rgba(255,255,255,0.10);
+      --em-text:       #E8F1FF;
+      --em-muted:      #5C7389;
+      --em-employee:   #4D9EFF;
+      --em-employer:   #26A69A;
+      --em-researcher: #F06292;
+      --em-admin-col:  #B388FF;
+      --em-success:    #66BB6A;
+      --em-warning:    #FFA726;
+      --em-error:      #EF5350;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -46,7 +58,7 @@
       transition: background 0.25s, color 0.25s;
     }
 
-    /* ── TOP BAR ── */
+    /* ── TOPBAR ── */
     .em-topbar {
       background: var(--em-surface);
       border-bottom: 1px solid var(--em-border);
@@ -58,27 +70,31 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      gap: 12px;
     }
     .em-logo {
       font-family: 'DM Serif Display', Georgia, serif;
       font-style: italic;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       color: var(--em-primary);
       text-decoration: none;
+      white-space: nowrap;
     }
     .em-logo span { color: var(--em-secondary); }
-    .em-topbar-right { display: flex; align-items: center; gap: 10px; }
-    .em-badge-total {
+
+    .em-topbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .em-badge {
       background: rgba(26,107,204,0.12);
       color: var(--em-primary);
-      border: 1px solid rgba(26,107,204,0.25);
+      border: 1px solid rgba(26,107,204,0.22);
       border-radius: 20px;
       padding: 3px 10px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
-    /* ── THEME TOGGLE ── */
     .em-theme-btn {
       width: 34px; height: 34px;
       border-radius: 50%;
@@ -88,6 +104,7 @@
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.18s;
+      flex-shrink: 0;
     }
     .em-theme-btn:hover { color: var(--em-primary); border-color: var(--em-primary); }
     .em-theme-btn .material-icons-round { font-size: 1rem; }
@@ -112,7 +129,7 @@
     }
     .em-page-sub { font-size: 0.78rem; color: var(--em-muted); margin: 2px 0 0; }
 
-    /* ── SEARCH / FILTER BAR ── */
+    /* ── TOOLBAR ── */
     .em-toolbar {
       display: flex;
       gap: 8px;
@@ -120,82 +137,84 @@
       flex-wrap: wrap;
       align-items: center;
     }
-    .em-search {
-      flex: 1;
-      min-width: 200px;
-      padding: 7px 12px 7px 36px;
-      border: 1px solid var(--em-border);
-      border-radius: 8px;
-      background: var(--em-surface);
-      color: var(--em-text);
-      font-size: 0.82rem;
-      outline: none;
-      transition: border-color 0.18s;
-      position: relative;
-    }
-    .em-search:focus { border-color: var(--em-primary); }
-    .em-search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .em-search-wrap { position: relative; flex: 1; min-width: 180px; }
     .em-search-icon {
       position: absolute;
       left: 10px; top: 50%;
       transform: translateY(-50%);
       color: var(--em-muted);
       pointer-events: none;
+      display: flex;
     }
     .em-search-icon .material-icons-round { font-size: 1rem; }
 
-    .em-filter-select {
-      padding: 7px 12px;
-      border: 1px solid var(--em-border);
+    .em-search {
+      width: 100%;
+      padding: 7px 12px 7px 34px;
+      border: 1.5px solid var(--em-border);
       border-radius: 8px;
       background: var(--em-surface);
       color: var(--em-text);
       font-size: 0.82rem;
       outline: none;
+      transition: border-color 0.18s;
+      font-family: inherit;
+    }
+    .em-search:focus { border-color: var(--em-primary); }
+
+    .em-select {
+      padding: 7px 12px;
+      border: 1.5px solid var(--em-border);
+      border-radius: 8px;
+      background: var(--em-surface);
+      color: var(--em-text);
+      font-size: 0.82rem;
+      font-family: inherit;
+      outline: none;
       cursor: pointer;
       transition: border-color 0.18s;
     }
-    .em-filter-select:focus { border-color: var(--em-primary); }
+    .em-select:focus { border-color: var(--em-primary); }
+    .em-select option { background: var(--em-surface); }
 
-    .em-btn-refresh {
+    .em-btn {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 7px 14px;
-      border: 1px solid var(--em-border);
+      border: 1.5px solid var(--em-border);
       border-radius: 8px;
       background: var(--em-surface);
       color: var(--em-muted);
-      font-size: 0.78rem; font-weight: 500;
+      font-size: 0.78rem; font-weight: 600;
       cursor: pointer;
       transition: all 0.18s;
       white-space: nowrap;
+      font-family: inherit;
     }
-    .em-btn-refresh:hover { border-color: var(--em-primary); color: var(--em-primary); }
-    .em-btn-refresh .material-icons-round { font-size: 0.9rem; }
-    .em-btn-refresh.spinning .material-icons-round {
-      animation: em-spin 0.7s linear infinite;
+    .em-btn:hover { border-color: var(--em-primary); color: var(--em-primary); }
+    .em-btn .material-icons-round { font-size: 0.9rem; }
+    .em-btn--primary {
+      background: var(--em-primary);
+      border-color: var(--em-primary);
+      color: #fff;
     }
+    .em-btn--primary:hover { background: #1255A4; border-color: #1255A4; color: #fff; }
+    .em-btn.spinning .material-icons-round { animation: spin 0.7s linear infinite; }
 
     /* ── TABLE CARD ── */
-    .em-table-card {
+    .em-card {
       background: var(--em-surface);
       border: 1px solid var(--em-border);
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 2px 10px rgba(13,27,42,0.06);
+      box-shadow: 0 2px 12px rgba(13,27,42,0.07);
     }
 
-    .em-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-    .em-table thead tr {
-      border-bottom: 1px solid var(--em-border);
-    }
+    .em-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .em-table thead tr { border-bottom: 1px solid var(--em-border); }
     .em-table th {
       padding: 10px 14px;
       text-align: left;
-      font-size: 0.68rem;
+      font-size: 0.67rem;
       font-weight: 700;
       letter-spacing: 0.07em;
       text-transform: uppercase;
@@ -206,57 +225,72 @@
       transition: color 0.15s;
     }
     .em-table th:hover { color: var(--em-primary); }
-    .em-table th .sort-icon {
-      font-size: 0.75rem;
-      vertical-align: middle;
-      opacity: 0.4;
-    }
-    .em-table th.sorted .sort-icon { opacity: 1; color: var(--em-primary); }
+    .em-table th.sorted { color: var(--em-primary); }
+    .em-table th .si { font-size: 0.72rem; vertical-align: middle; opacity: 0.5; }
+    .em-table th.sorted .si { opacity: 1; }
 
     .em-table td {
       padding: 11px 14px;
       border-bottom: 1px solid var(--em-border);
-      color: var(--em-text);
       vertical-align: middle;
     }
     .em-table tr:last-child td { border-bottom: none; }
-    .em-table tbody tr {
-      transition: background 0.12s;
-    }
+    .em-table tbody tr { transition: background 0.1s; }
     .em-table tbody tr:hover td { background: rgba(26,107,204,0.04); }
+    .em-table tbody tr.disabled-row td { opacity: 0.45; }
 
     /* cell types */
-    .em-cell-id { color: var(--em-muted); font-size: 0.72rem; font-family: monospace; }
-    .em-cell-name { font-weight: 600; }
-    .em-cell-email { color: var(--em-muted); }
-    .em-cell-date { color: var(--em-muted); font-size: 0.75rem; white-space: nowrap; }
+    .cell-id    { color: var(--em-muted); font-size: 0.7rem; font-family: monospace; }
+    .cell-name  { font-weight: 600; }
+    .cell-email { color: var(--em-muted); font-size: 0.78rem; }
+    .cell-date  { color: var(--em-muted); font-size: 0.72rem; white-space: nowrap; }
 
-    /* account type pill */
-    .em-pill {
+    /* pills */
+    .pill {
       display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 0.67rem; font-weight: 700;
+      white-space: nowrap; border: 1px solid transparent;
     }
-    .em-pill .material-icons-round { font-size: 0.75rem; }
-    .em-pill--employee   { background: rgba(26,107,204,0.1);  color: var(--em-employee);   border: 1px solid rgba(26,107,204,0.22);  }
-    .em-pill--employer   { background: rgba(0,137,123,0.1);   color: var(--em-employer);   border: 1px solid rgba(0,137,123,0.22);   }
-    .em-pill--researcher { background: rgba(194,24,91,0.08);  color: var(--em-researcher); border: 1px solid rgba(194,24,91,0.2);    }
+    .pill .material-icons-round { font-size: 0.72rem; }
+    .pill-employee   { background: rgba(26,107,204,0.1);  color: var(--em-employee);   border-color: rgba(26,107,204,0.22);  }
+    .pill-employer   { background: rgba(0,137,123,0.1);   color: var(--em-employer);   border-color: rgba(0,137,123,0.22);   }
+    .pill-researcher { background: rgba(194,24,91,0.08);  color: var(--em-researcher); border-color: rgba(194,24,91,0.2);    }
 
-    /* verified badge */
-    .em-verified {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-size: 0.7rem; font-weight: 600;
+    /* status */
+    .status {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.7rem; font-weight: 700;
     }
-    .em-verified--yes { color: var(--em-verified); }
-    .em-verified--no  { color: var(--em-unverified); }
-    .em-verified .material-icons-round { font-size: 0.85rem; }
+    .status-active   { color: var(--em-success); }
+    .status-disabled { color: var(--em-muted); }
+    .status .material-icons-round { font-size: 0.85rem; }
 
-    /* sessions dot */
-    .em-sessions {
+    /* verified */
+    .verified-yes { color: var(--em-success); font-size: 0.7rem; font-weight: 700; }
+    .verified-no  { color: var(--em-muted);   font-size: 0.7rem; }
+
+    /* action buttons */
+    .act-btns { display: flex; gap: 4px; }
+    .act-btn {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      border: 1px solid var(--em-border);
+      background: transparent;
+      color: var(--em-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .act-btn .material-icons-round { font-size: 0.82rem; pointer-events: none; }
+    .act-btn:hover                { background: var(--em-surface-2); color: var(--em-text); }
+    .act-btn.enable-btn:hover    { background: rgba(46,125,50,0.1);  color: var(--em-success); border-color: var(--em-success); }
+    .act-btn.disable-btn:hover   { background: rgba(230,81,0,0.08);  color: var(--em-warning); border-color: var(--em-warning); }
+    .act-btn.delete-btn:hover    { background: rgba(198,40,40,0.08); color: var(--em-error);   border-color: var(--em-error);   }
+    .act-btn.edit-btn:hover      { background: rgba(26,107,204,0.1); color: var(--em-primary); border-color: var(--em-primary); }
+
+    /* sessions bubble */
+    .sess {
       display: inline-flex; align-items: center; justify-content: center;
       width: 22px; height: 22px;
       border-radius: 50%;
@@ -264,45 +298,140 @@
       background: rgba(26,107,204,0.1);
       color: var(--em-primary);
     }
-    .em-sessions--zero { background: var(--em-bg); color: var(--em-muted); }
+    .sess-zero { background: var(--em-bg); color: var(--em-muted); }
 
     /* ── STATES ── */
     .em-state {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 3rem 1rem;
+      padding: 3.5rem 1rem;
       color: var(--em-muted);
       gap: 10px;
       text-align: center;
+      font-size: 0.85rem;
     }
-    .em-state .material-icons-round { font-size: 2.5rem; opacity: 0.4; }
+    .em-state .material-icons-round { font-size: 2.5rem; opacity: 0.35; }
 
-    /* ── TABLE FOOTER ── */
+    /* ── FOOTER ── */
     .em-table-footer {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 14px;
       border-top: 1px solid var(--em-border);
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--em-muted);
       flex-wrap: wrap;
       gap: 8px;
     }
 
+    /* ── MODAL (add/edit user) ── */
+    .em-modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(3px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s;
+    }
+    .em-modal-bg.open { opacity: 1; pointer-events: all; }
+    .em-modal {
+      background: var(--em-surface);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      transform: scale(0.94);
+      transition: transform 0.25s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    .em-modal-bg.open .em-modal { transform: scale(1); }
+    .em-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+    .em-modal-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.15rem; font-weight: 400; margin: 0;
+    }
+    .em-modal-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--em-border);
+      background: transparent; color: var(--em-muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .em-modal-close:hover { color: var(--em-error); border-color: var(--em-error); }
+    .em-modal-close .material-icons-round { font-size: 0.95rem; }
+
+    .em-form { display: flex; flex-direction: column; gap: 0.7rem; }
+    .em-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    @media(max-width: 420px) { .em-form-row { grid-template-columns: 1fr; } }
+    .em-field { display: flex; flex-direction: column; gap: 3px; }
+    .em-label {
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.03em; color: var(--em-muted);
+    }
+    .em-input {
+      padding: 7px 10px;
+      border: 1.5px solid var(--em-border);
+      border-radius: 8px;
+      background: var(--em-surface-2);
+      color: var(--em-text);
+      font-size: 0.82rem; font-family: inherit;
+      outline: none; transition: border-color 0.15s;
+    }
+    .em-input:focus { border-color: var(--em-primary); }
+    .em-input option { background: var(--em-surface); }
+
+    .em-toggles { display: flex; gap: 12px; align-items: center; padding-top: 4px; }
+    .em-toggle-label {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.78rem; color: var(--em-text);
+      cursor: pointer; user-select: none;
+    }
+    .em-toggle-label input[type="checkbox"] {
+      width: 14px; height: 14px;
+      accent-color: var(--em-primary); cursor: pointer;
+    }
+
+    .em-form-actions {
+      display: flex; gap: 8px; justify-content: flex-end;
+      padding-top: 0.4rem;
+    }
+    .em-save-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 18px; border-radius: 8px;
+      background: var(--em-primary); border: none; color: #fff;
+      font-size: 0.82rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .em-save-btn:hover:not(:disabled) { background: #1255A4; }
+    .em-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .em-cancel-btn {
+      display: inline-flex; align-items: center;
+      padding: 8px 14px; border-radius: 8px;
+      background: transparent; border: 1.5px solid var(--em-border);
+      color: var(--em-muted); font-size: 0.82rem; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .em-cancel-btn:hover { border-color: var(--em-text); color: var(--em-text); }
+
     /* ── ANIMATIONS ── */
-    @keyframes em-spin { to { transform: rotate(360deg); } }
-    @keyframes em-fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-    .em-table tbody tr { animation: em-fadeIn 0.18s ease both; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+    .em-table tbody tr { animation: fadeIn 0.15s ease both; }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 700px) {
-      .em-table th:nth-child(5),
-      .em-table td:nth-child(5),
+    @media(max-width: 680px) {
+      .em-table th:nth-child(6),
+      .em-table td:nth-child(6),
       .em-table th:nth-child(7),
       .em-table td:nth-child(7) { display: none; }
     }
-    @media (max-width: 500px) {
-      .em-table th:nth-child(1),
-      .em-table td:nth-child(1) { display: none; }
+    @media(max-width: 480px) {
+      .em-table th:nth-child(1), .em-table td:nth-child(1),
+      .em-table th:nth-child(5), .em-table td:nth-child(5) { display: none; }
     }
   </style>
 </head>
@@ -312,8 +441,8 @@
   <nav class="em-topbar">
     <a href="emphora.html" class="em-logo">Emph<span>ora</span></a>
     <div class="em-topbar-right">
-      <span class="em-badge-total" id="em-total-badge">— users</span>
-      <button class="em-theme-btn" id="em-theme-btn" aria-label="Toggle dark mode" title="Toggle theme">
+      <span class="em-badge" id="em-total-badge">loading…</span>
+      <button class="em-theme-btn" id="em-theme-btn" aria-label="Toggle theme" title="Toggle theme">
         <span class="material-icons-round">light_mode</span>
       </button>
     </div>
@@ -324,58 +453,131 @@
 
     <div class="em-page-header">
       <div>
-        <h1 class="em-page-title">User Table</h1>
-        <p class="em-page-sub">All registered Emphora accounts · live from SQLite</p>
+        <h1 class="em-page-title">All Users</h1>
+        <p class="em-page-sub">Registered Emphora accounts · live from SQLite</p>
       </div>
-      <button class="em-btn-refresh" id="em-refresh-btn" aria-label="Refresh users">
-        <span class="material-icons-round">refresh</span> Refresh
-      </button>
+      <div style="display:flex;gap:8px">
+        <button class="em-btn" id="em-refresh-btn" aria-label="Refresh">
+          <span class="material-icons-round">refresh</span> Refresh
+        </button>
+        <button class="em-btn em-btn--primary" id="em-add-btn" aria-label="Add user">
+          <span class="material-icons-round">person_add</span> Add User
+        </button>
+      </div>
     </div>
 
     <!-- TOOLBAR -->
     <div class="em-toolbar">
       <div class="em-search-wrap">
         <span class="em-search-icon"><span class="material-icons-round">search</span></span>
-        <input
-          class="em-search"
-          id="em-search"
-          type="search"
-          placeholder="Search by name or email…"
-          aria-label="Search users"
-        />
+        <input class="em-search" id="em-search" type="search" placeholder="Search name or email…" aria-label="Search users" />
       </div>
-      <select class="em-filter-select" id="em-filter-type" aria-label="Filter by account type">
+      <select class="em-select" id="em-filter-type" aria-label="Filter by type">
         <option value="">All types</option>
         <option value="employee">Employee</option>
         <option value="employer">Employer</option>
         <option value="researcher">Researcher</option>
       </select>
-      <select class="em-filter-select" id="em-filter-verified" aria-label="Filter by verified status">
+      <select class="em-select" id="em-filter-status" aria-label="Filter by status">
+        <option value="">All status</option>
+        <option value="active">Active</option>
+        <option value="disabled">Disabled</option>
+      </select>
+      <select class="em-select" id="em-filter-verified" aria-label="Filter by verified">
         <option value="">All</option>
-        <option value="1">Verified</option>
-        <option value="0">Unverified</option>
+        <option value="yes">Verified</option>
+        <option value="no">Unverified</option>
       </select>
     </div>
 
-    <!-- TABLE CARD -->
-    <div class="em-table-card">
-      <div id="em-table-wrap" role="region" aria-label="Users table" aria-live="polite">
-        <!-- Rendered by JS -->
+    <!-- TABLE -->
+    <div class="em-card">
+      <div id="em-table-wrap" role="region" aria-label="Users" aria-live="polite">
+        <div class="em-state">
+          <span class="em-admin-spinner" style="width:28px;height:28px;border:3px solid #D0DCE8;border-top-color:#1A6BCC;border-radius:50%;display:inline-block;animation:spin 0.75s linear infinite"></span>
+          <span>Loading users…</span>
+        </div>
       </div>
       <div class="em-table-footer">
-        <span id="em-footer-count">Loading…</span>
-        <span id="em-footer-time"></span>
+        <span id="em-footer-count">—</span>
+        <span id="em-footer-time">—</span>
       </div>
     </div>
 
   </div>
 
+  <!-- ADD / EDIT MODAL -->
+  <div class="em-modal-bg" id="em-modal-bg" role="dialog" aria-modal="true" aria-labelledby="em-modal-title">
+    <div class="em-modal">
+      <div class="em-modal-header">
+        <h2 class="em-modal-title" id="em-modal-title">Add user</h2>
+        <button class="em-modal-close" id="em-modal-close" aria-label="Close">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <form class="em-form" id="em-user-form" novalidate>
+        <input type="hidden" id="form-id" />
+        <div class="em-form-row">
+          <div class="em-field">
+            <label class="em-label" for="form-fname">First name *</label>
+            <input class="em-input" type="text" id="form-fname" placeholder="First name" required />
+          </div>
+          <div class="em-field">
+            <label class="em-label" for="form-lname">Last name *</label>
+            <input class="em-input" type="text" id="form-lname" placeholder="Last name" required />
+          </div>
+        </div>
+        <div class="em-field">
+          <label class="em-label" for="form-email">Email *</label>
+          <input class="em-input" type="email" id="form-email" placeholder="user@example.com" required />
+        </div>
+        <div class="em-field">
+          <label class="em-label" for="form-password">
+            Password <span id="form-pw-hint" style="font-weight:400;opacity:0.6">(min 8 chars)</span>
+          </label>
+          <input class="em-input" type="password" id="form-password" placeholder="Set password" />
+        </div>
+        <div class="em-form-row">
+          <div class="em-field">
+            <label class="em-label" for="form-type">Account type</label>
+            <select class="em-input" id="form-type">
+              <option value="employee">Employee</option>
+              <option value="employer">Employer</option>
+              <option value="researcher">Researcher</option>
+            </select>
+          </div>
+          <div class="em-field">
+            <label class="em-label">Flags</label>
+            <div class="em-toggles">
+              <label class="em-toggle-label">
+                <input type="checkbox" id="form-verified" />
+                Verified
+              </label>
+              <label class="em-toggle-label">
+                <input type="checkbox" id="form-active" checked />
+                Active
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="em-form-actions">
+          <button type="button" class="em-cancel-btn" id="em-modal-cancel">Cancel</button>
+          <button type="submit" class="em-save-btn" id="em-save-btn">
+            <span class="material-icons-round" style="font-size:0.9rem">save</span>
+            <span id="em-save-label">Save user</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ── State ──────────────────────────────────────────────────────────────────
-    let allUsers   = [];
-    let sortCol    = 'id';
-    let sortAsc    = false;
-    let theme      = localStorage.getItem('em-admin-theme') || 'light';
+    let allUsers = [];
+    let sortCol  = 'id';
+    let sortAsc  = false;
+    let editId   = null;
+    let theme    = localStorage.getItem('em-admin-theme') || 'light';
 
     // ── Theme ──────────────────────────────────────────────────────────────────
     function applyTheme(t) {
@@ -386,10 +588,7 @@
       localStorage.setItem('em-admin-theme', t);
     }
     applyTheme(theme);
-
-    document.getElementById('em-theme-btn').addEventListener('click', () => {
-      applyTheme(theme === 'light' ? 'dark' : 'light');
-    });
+    document.getElementById('em-theme-btn').onclick = () => applyTheme(theme === 'light' ? 'dark' : 'light');
 
     // ── Fetch ──────────────────────────────────────────────────────────────────
     async function fetchUsers() {
@@ -400,17 +599,20 @@
       try {
         const res  = await fetch('/api/admin/users');
         const data = await res.json();
+        console.log('[Emphora] /api/admin/users →', data);
+
         if (data.ok) {
-          allUsers = data.users;
+          allUsers = data.users || [];
           document.getElementById('em-total-badge').textContent =
             `${data.total} user${data.total !== 1 ? 's' : ''}`;
           document.getElementById('em-footer-time').textContent =
-            `Last updated: ${new Date().toLocaleTimeString()}`;
+            `Updated: ${new Date().toLocaleTimeString()}`;
         } else {
-          showError(data.message || 'Failed to load users.');
+          showState('error_outline', data.message || 'API returned error.');
         }
       } catch (err) {
-        showError('Network error — is the server running?');
+        console.error('[Emphora] fetch error:', err);
+        showState('wifi_off', 'Network error — is the server running?');
       } finally {
         btn.classList.remove('spinning');
         btn.disabled = false;
@@ -418,148 +620,284 @@
       }
     }
 
-    // ── Render ─────────────────────────────────────────────────────────────────
-    const ACCOUNT_ICONS = {
-      employee:   { icon: 'badge',    cls: 'em-pill--employee',   label: 'Employee'   },
-      employer:   { icon: 'business', cls: 'em-pill--employer',   label: 'Employer'   },
-      researcher: { icon: 'science',  cls: 'em-pill--researcher', label: 'Researcher' },
-    };
-
-    function filterUsers() {
-      const q       = document.getElementById('em-search').value.toLowerCase().trim();
-      const type    = document.getElementById('em-filter-type').value;
-      const verified = document.getElementById('em-filter-verified').value;
+    // ── Filter + Sort ──────────────────────────────────────────────────────────
+    function filtered() {
+      const q        = (document.getElementById('em-search').value || '').toLowerCase().trim();
+      const typeF    = document.getElementById('em-filter-type').value;
+      const statusF  = document.getElementById('em-filter-status').value;
+      const verF     = document.getElementById('em-filter-verified').value;
 
       return allUsers.filter(u => {
         const name = `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase();
-        if (q && !name.includes(q)) return false;
-        if (type && u.accountType !== type) return false;
-        if (verified !== '' && String(u.isVerified ? 1 : 0) !== verified) return false;
+        if (q       && !name.includes(q))              return false;
+        if (typeF   && u.accountType !== typeF)         return false;
+        if (statusF === 'active'   && !u.isActive)      return false;
+        if (statusF === 'disabled' &&  u.isActive)      return false;
+        if (verF    === 'yes'      && !u.isVerified)    return false;
+        if (verF    === 'no'       &&  u.isVerified)    return false;
         return true;
       });
     }
 
-    function sortUsers(users) {
+    function sorted(users) {
       return [...users].sort((a, b) => {
         let va = a[sortCol], vb = b[sortCol];
-        if (typeof va === 'string') va = va.toLowerCase();
-        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
         if (va < vb) return sortAsc ? -1 : 1;
         if (va > vb) return sortAsc ?  1 : -1;
         return 0;
       });
     }
 
-    function formatDate(iso) {
-      if (!iso) return '—';
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }) +
-             ' ' + d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
-    }
+    // ── Render ─────────────────────────────────────────────────────────────────
+    const TYPE_ICONS  = { employee:'badge', employer:'business', researcher:'science' };
+    const TYPE_LABELS = { employee:'Employee', employer:'Employer', researcher:'Researcher' };
 
     function renderTable() {
-      const wrap    = document.getElementById('em-table-wrap');
-      const visible = sortUsers(filterUsers());
-
+      const wrap  = document.getElementById('em-table-wrap');
+      const users = sorted(filtered());
       document.getElementById('em-footer-count').textContent =
-        `Showing ${visible.length} of ${allUsers.length} users`;
+        `Showing ${users.length} of ${allUsers.length} users`;
 
-      if (allUsers.length === 0) {
-        wrap.innerHTML = `<div class="em-state">
-          <span class="material-icons-round">group_off</span>
-          <span>No users registered yet.</span>
-        </div>`;
-        return;
-      }
-
-      if (visible.length === 0) {
-        wrap.innerHTML = `<div class="em-state">
-          <span class="material-icons-round">search_off</span>
-          <span>No users match your filters.</span>
-        </div>`;
-        return;
-      }
+      if (allUsers.length === 0) { showState('group_off', 'No users yet. Try restarting the server to seed accounts.'); return; }
+      if (users.length  === 0)  { showState('search_off', 'No users match your filters.'); return; }
 
       const cols = [
-        { key: 'id',             label: 'ID'        },
-        { key: 'firstName',      label: 'Name'      },
-        { key: 'email',          label: 'Email'     },
-        { key: 'accountType',    label: 'Type'      },
-        { key: 'emphoraScore',   label: 'Score'     },
-        { key: 'isVerified',     label: 'Verified'  },
-        { key: 'activeSessions', label: 'Sessions'  },
-        { key: 'createdAt',      label: 'Joined'    },
+        { key:'id',             label:'ID'       },
+        { key:'firstName',      label:'Name'     },
+        { key:'email',          label:'Email'    },
+        { key:'accountType',    label:'Type'     },
+        { key:'isActive',       label:'Status'   },
+        { key:'isVerified',     label:'Verified' },
+        { key:'activeSessions', label:'Sessions' },
+        { key:'createdAt',      label:'Joined'   },
+        { key:'_actions',       label:''         },
       ];
 
+      const arrowIcon = (col) => {
+        if (sortCol !== col) return `<span class="material-icons-round si">unfold_more</span>`;
+        return `<span class="material-icons-round si">${sortAsc ? 'arrow_upward' : 'arrow_downward'}</span>`;
+      };
+
       const thead = cols.map(c => {
-        const active = sortCol === c.key ? 'sorted' : '';
-        const arrow  = sortCol === c.key ? (sortAsc ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
-        return `<th class="${active}" data-col="${c.key}">
-          ${c.label}
-          <span class="material-icons-round sort-icon">${arrow}</span>
-        </th>`;
+        const sorted = sortCol === c.key ? 'sorted' : '';
+        const noSort = c.key === '_actions' ? 'style="cursor:default"' : `data-col="${c.key}"`;
+        return `<th class="${sorted}" ${noSort}>${esc(c.label)}${ c.key !== '_actions' ? arrowIcon(c.key) : ''}</th>`;
       }).join('');
 
-      const tbody = visible.map((u, i) => {
-        const at   = ACCOUNT_ICONS[u.accountType] || ACCOUNT_ICONS.employee;
-        const pill = `<span class="em-pill ${at.cls}">
-          <span class="material-icons-round">${at.icon}</span>${at.label}
-        </span>`;
+      const tbody = users.map((u, i) => {
+        const icon  = TYPE_ICONS[u.accountType]  || 'person';
+        const tlabel = TYPE_LABELS[u.accountType] || u.accountType;
+        const pillCls = `pill pill-${u.accountType}`;
 
-        const ver  = u.isVerified
-          ? `<span class="em-verified em-verified--yes"><span class="material-icons-round">verified</span>Yes</span>`
-          : `<span class="em-verified em-verified--no"><span class="material-icons-round">cancel</span>No</span>`;
+        const status = u.isActive
+          ? `<span class="status status-active"><span class="material-icons-round">check_circle</span>Active</span>`
+          : `<span class="status status-disabled"><span class="material-icons-round">block</span>Disabled</span>`;
 
-        const ses  = `<span class="em-sessions${u.activeSessions === 0 ? ' em-sessions--zero' : ''}">${u.activeSessions}</span>`;
+        const ver = u.isVerified
+          ? `<span class="verified-yes">✓ Yes</span>`
+          : `<span class="verified-no">— No</span>`;
 
-        return `<tr style="animation-delay:${i * 0.025}s">
-          <td class="em-cell-id">#${u.id}</td>
-          <td class="em-cell-name">${escHtml(u.firstName)} ${escHtml(u.lastName)}</td>
-          <td class="em-cell-email">${escHtml(u.email)}</td>
-          <td>${pill}</td>
-          <td>${u.emphoraScore.toFixed(1)}</td>
+        const sess = `<span class="sess${u.activeSessions === 0 ? ' sess-zero' : ''}">${u.activeSessions}</span>`;
+
+        const toggleBtn = u.isActive
+          ? `<button class="act-btn disable-btn" data-action="disable" data-id="${u.id}" aria-label="Disable" title="Disable"><span class="material-icons-round">block</span></button>`
+          : `<button class="act-btn enable-btn"  data-action="enable"  data-id="${u.id}" aria-label="Enable"  title="Enable"><span class="material-icons-round">check_circle</span></button>`;
+
+        const rowCls = u.isActive ? '' : 'disabled-row';
+
+        return `<tr class="${rowCls}" style="animation-delay:${i*0.02}s">
+          <td class="cell-id">#${u.id}</td>
+          <td class="cell-name">${esc(u.firstName)} ${esc(u.lastName)}</td>
+          <td class="cell-email">${esc(u.email)}</td>
+          <td><span class="${pillCls}"><span class="material-icons-round">${icon}</span>${esc(tlabel)}</span></td>
+          <td>${status}</td>
           <td>${ver}</td>
-          <td style="text-align:center">${ses}</td>
-          <td class="em-cell-date">${formatDate(u.createdAt)}</td>
+          <td style="text-align:center">${sess}</td>
+          <td class="cell-date">${fmtDate(u.createdAt)}</td>
+          <td>
+            <div class="act-btns">
+              <button class="act-btn edit-btn"   data-action="edit"   data-id="${u.id}" aria-label="Edit"   title="Edit"><span class="material-icons-round">edit</span></button>
+              ${toggleBtn}
+              <button class="act-btn delete-btn" data-action="delete" data-id="${u.id}" aria-label="Delete" title="Delete"><span class="material-icons-round">delete_outline</span></button>
+            </div>
+          </td>
         </tr>`;
       }).join('');
 
       wrap.innerHTML = `
-        <table class="em-table" role="grid" aria-label="Registered users">
+        <table class="em-table" role="grid">
           <thead><tr>${thead}</tr></thead>
           <tbody>${tbody}</tbody>
         </table>`;
 
-      // Sort click handlers
+      // Sort clicks
       wrap.querySelectorAll('th[data-col]').forEach(th => {
         th.addEventListener('click', () => {
           const col = th.dataset.col;
-          if (sortCol === col) sortAsc = !sortAsc;
-          else { sortCol = col; sortAsc = true; }
+          sortCol === col ? (sortAsc = !sortAsc) : (sortCol = col, sortAsc = true);
           renderTable();
+        });
+      });
+
+      // Action clicks
+      wrap.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const { action, id } = btn.dataset;
+          const uid = Number(id);
+          if (action === 'edit')    openModal(uid);
+          if (action === 'enable')  setActive(uid, true);
+          if (action === 'disable') setActive(uid, false);
+          if (action === 'delete')  deleteUser(uid);
         });
       });
     }
 
-    function showError(msg) {
-      document.getElementById('em-table-wrap').innerHTML = `
-        <div class="em-state">
-          <span class="material-icons-round">error_outline</span>
-          <span>${escHtml(msg)}</span>
-        </div>`;
+    function showState(icon, msg) {
+      document.getElementById('em-table-wrap').innerHTML =
+        `<div class="em-state"><span class="material-icons-round">${icon}</span><span>${esc(msg)}</span></div>`;
     }
 
-    function escHtml(s) {
+    // ── Modal ──────────────────────────────────────────────────────────────────
+    function openModal(userId) {
+      editId = userId || null;
+      const isEdit = editId !== null;
+
+      document.getElementById('em-modal-title').textContent = isEdit ? 'Edit user' : 'Add user';
+      document.getElementById('em-save-label').textContent  = isEdit ? 'Save changes' : 'Create user';
+      document.getElementById('form-pw-hint').textContent   = isEdit ? '(leave blank to keep)' : '(min 8 chars)';
+      document.getElementById('form-password').required     = !isEdit;
+
+      document.getElementById('em-user-form').reset();
+      document.getElementById('form-id').value = editId || '';
+      document.getElementById('form-active').checked = true;
+
+      if (isEdit) {
+        const u = allUsers.find(x => x.id === editId);
+        if (!u) return;
+        document.getElementById('form-fname').value       = u.firstName;
+        document.getElementById('form-lname').value       = u.lastName;
+        document.getElementById('form-email').value       = u.email;
+        document.getElementById('form-type').value        = u.accountType;
+        document.getElementById('form-verified').checked  = Boolean(u.isVerified);
+        document.getElementById('form-active').checked    = u.isActive !== false;
+      }
+
+      document.getElementById('em-modal-bg').classList.add('open');
+      document.getElementById('em-modal-bg').setAttribute('aria-hidden', 'false');
+      setTimeout(() => document.getElementById('form-fname').focus(), 60);
+    }
+
+    function closeModal() {
+      document.getElementById('em-modal-bg').classList.remove('open');
+      document.getElementById('em-modal-bg').setAttribute('aria-hidden', 'true');
+      document.getElementById('em-user-form').reset();
+      editId = null;
+    }
+
+    // ── Form submit ────────────────────────────────────────────────────────────
+    document.getElementById('em-user-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn  = document.getElementById('em-save-btn');
+      const saveLabel = document.getElementById('em-save-label');
+      const isEdit   = editId !== null;
+
+      const body = {
+        firstName:   document.getElementById('form-fname').value.trim(),
+        lastName:    document.getElementById('form-lname').value.trim(),
+        email:       document.getElementById('form-email').value.trim(),
+        accountType: document.getElementById('form-type').value,
+        isVerified:  document.getElementById('form-verified').checked,
+        isActive:    document.getElementById('form-active').checked,
+      };
+      const pw = document.getElementById('form-password').value;
+      if (pw) body.password = pw;
+      else if (!isEdit) { alert('Password is required for new users.'); return; }
+
+      saveBtn.disabled    = true;
+      saveLabel.textContent = isEdit ? 'Saving…' : 'Creating…';
+
+      try {
+        let res, data;
+        if (isEdit) {
+          res  = await fetch(`/api/admin/users/${editId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          data = await res.json();
+        } else {
+          res  = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          data = await res.json();
+        }
+
+        if (data.ok) {
+          closeModal();
+          await fetchUsers();
+        } else {
+          alert(data.message || 'Save failed. Check console.');
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+      } finally {
+        saveBtn.disabled    = false;
+        saveLabel.textContent = 'Save user';
+      }
+    });
+
+    // ── Enable / Disable ───────────────────────────────────────────────────────
+    async function setActive(userId, active) {
+      try {
+        const res  = await fetch(`/api/admin/users/${userId}/${active ? 'activate' : 'deactivate'}`, { method: 'PATCH' });
+        const data = await res.json();
+        if (data.ok) await fetchUsers();
+        else alert(data.message || 'Action failed.');
+      } catch (err) { alert('Network error: ' + err.message); }
+    }
+
+    // ── Delete ─────────────────────────────────────────────────────────────────
+    async function deleteUser(userId) {
+      const u = allUsers.find(x => x.id === userId);
+      if (!u || !confirm(`Delete ${u.firstName} ${u.lastName}? This cannot be undone.`)) return;
+      try {
+        const res  = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.ok) await fetchUsers();
+        else alert(data.message || 'Delete failed.');
+      } catch (err) { alert('Network error: ' + err.message); }
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+    }
+    function esc(s) {
       return String(s)
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Event Bindings ─────────────────────────────────────────────────────────
+    // ── Bindings ───────────────────────────────────────────────────────────────
+    document.getElementById('em-refresh-btn').onclick  = fetchUsers;
+    document.getElementById('em-add-btn').onclick      = () => openModal(null);
+    document.getElementById('em-modal-close').onclick  = closeModal;
+    document.getElementById('em-modal-cancel').onclick = closeModal;
+    document.getElementById('em-modal-bg').addEventListener('click', e => {
+      if (e.target === document.getElementById('em-modal-bg')) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.getElementById('em-modal-bg').classList.contains('open')) closeModal();
+    });
     document.getElementById('em-search').addEventListener('input', renderTable);
     document.getElementById('em-filter-type').addEventListener('change', renderTable);
+    document.getElementById('em-filter-status').addEventListener('change', renderTable);
     document.getElementById('em-filter-verified').addEventListener('change', renderTable);
-    document.getElementById('em-refresh-btn').addEventListener('click', fetchUsers);
 
     // ── Boot ───────────────────────────────────────────────────────────────────
     fetchUsers();

@@ -739,6 +739,29 @@ $dark: (
     }
   }
 
+  // ── Dev bar researcher button colour ──────────
+  .em-dev-btn--researcher {
+    background: rgba(194, 24, 91, 0.08);
+    border-color: rgba(194, 24, 91, 0.28);
+    color: #C2185B;
+
+    &:hover {
+      background: rgba(194, 24, 91, 0.15);
+      border-color: #C2185B;
+    }
+
+    [data-emphora-theme="dark"] & {
+      background: rgba(240, 98, 146, 0.12);
+      border-color: rgba(240, 98, 146, 0.3);
+      color: #F06292;
+
+      &:hover {
+        background: rgba(240, 98, 146, 0.2);
+        border-color: #F06292;
+      }
+    }
+  }
+
   // ── Dev bar admin button colour ───────────────
   .em-dev-btn--admin {
     background: rgba(103, 58, 183, 0.1);
