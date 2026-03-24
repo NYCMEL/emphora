@@ -19,8 +19,9 @@
  */
 
 // ── wc bus (lightweight pub/sub + logger) ─────────────────────────────────────
-// A self-contained event bus used when no external wc library is present.
-// Replace this block if your environment already provides `window.wc`.
+// Falls back to a self-contained bus only when _wc.js has NOT already set
+// window.wc (i.e. during standalone / offline testing without _wc.js).
+// In production the public/js/_wc.js script loads first and takes precedence.
 (function () {
   if (window.wc) return; // don't overwrite existing wc
 
