@@ -41,6 +41,7 @@
     .section-title{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;}
     .section-title .material-icons-round{font-size:1rem;color:var(--primary);}
     .section-body{padding:1.1rem;}
+    .section-body.skills-body{padding:0;}
     table{width:100%;border-collapse:collapse;font-size:.82rem;}
     th{padding:8px 12px;text-align:left;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
     td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);}
@@ -63,13 +64,13 @@
     @media(max-width:600px){.page-hero{flex-wrap:wrap;}.hero-actions{width:100%;}.stats{grid-template-columns:1fr 1fr;}}
 
     /* ── Skills panel ── */
-    .skills-summary{display:flex;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1rem;}
+    .skills-summary{display:flex;gap:0;background:var(--surface2);border-bottom:1px solid var(--border);overflow:hidden;margin-bottom:0;border-radius:0;}
     .skills-summary-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:.75rem .5rem;border-right:1px solid var(--border);text-align:center;}
     .skills-summary-item:last-child{border-right:none;}
     .skills-summary-val{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;color:var(--primary);}
     .skills-summary-lbl{font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
     .skills-cat-row{display:flex;flex-direction:column;gap:0;}
-    .skills-cat-block{display:flex;flex-direction:column;gap:6px;padding:.7rem 1rem;border-bottom:1px solid var(--border);}
+    .skills-cat-block{display:flex;flex-direction:column;gap:6px;padding:.75rem 1.1rem;border-bottom:1px solid var(--border);}
     .skills-cat-block:last-child{border-bottom:none;}
     .skills-cat-block:nth-child(odd){background:#fff;}
     .skills-cat-block:nth-child(even){background:#F4F7FA;}
@@ -283,7 +284,7 @@
       <div class="section-title"><span class="material-icons-round">psychology</span>My Skills</div>
       <a href="skills.html" class="btn"><span class="material-icons-round">open_in_new</span>Manage</a>
     </div>
-    <div class="section-body" id="skills-panel-inner">
+    <div class="section-body skills-body" id="skills-panel-inner">
       <div class="skills-empty"><span class="material-icons-round">psychology</span><span>No skills rated yet — <a href="skills.html" style="color:var(--primary)">add some</a></span></div>
     </div>
   </div>
