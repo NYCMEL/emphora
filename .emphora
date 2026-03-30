@@ -1,95 +1,478 @@
-Create a reusable UI emphora named emphora using:
-- HTML (emphora.html — contains ONLY <emphora> tag, no body/head/scripts)
-- SCSS (emphora.scss)
-- Vanilla JavaScript (emphora.js)
-- Bootstrap 5
-- Modern Material Design, Material Design icons and styles
-- Always create a JS class for emphora and initialize it inside the JS file itself
+================================================================================
+EMPHORA — COMPLETE ONE-SHOT RECREATION PROMPT
+================================================================================
 
-Rules:
-- The emphora is wrapped in a display:block element <emphora class="emphora">
-- The root element uses .emphora
-- All styles must be scoped to .emphora
-- No global styles or IDs
-- Publish click events using wc.publish
-- Subscribe to all 4 emphora events using wc.subscribe
-- Create a onMessage function to be passed to wc.subscribe
-- All published (wc.publish) messages must be logged using wc.log to console before being published
-- MUST WAIT for element to be available inside DOM via MutationObserver (supports <wc-include>)
-- Fully responsive (mostly used on mobile)
+Build "Emphora" — a Professional Intelligence Platform (eLifeBook™ concept).
+A web application where professionals self-rate their skills, employers find
+talent, and researchers analyse workforce data.
 
-Data:
-- JSON driven — all data comes from emphora.config.js
+================================================================================
+TECH STACK
+================================================================================
 
-Files:
-- emphora.config.js — single source of truth for ALL data, config, labels, endpoints, passwords, ports, dashboards
-- emphora.scss — SCSS source only, never compiled CSS
-- emphora.html — ONLY the <emphora>…</emphora> tag, nothing else
-- emphora.js — Emphora class + EmAdmin class + wc bus
-- server.js — Node.js + sql.js backend
-- admin.html — Admin dashboard (accountType: admin)
-- employee.html — Employee/Professional dashboard
-- employer.html — Employer dashboard
-- researcher.html — Researcher dashboard
-- users.html — Full user management table
+Frontend:
+- Vanilla JavaScript only (no frameworks)
+- Bootstrap 5 (CDN)
+- Material Icons Round (Google CDN)
+- Fonts: DM Serif Display (headings/logo), Plus Jakarta Sans (body)
+- SCSS — source files only, NEVER provide compiled CSS output
 
 Backend:
-- Node.js + sql.js (pure WASM SQLite, no native compilation)
-- Port: 3001 (auto-increments if busy, defined in config)
-- Apache reverse proxy at emphora.melify.com → localhost:3001
+- Node.js + sql.js (pure WASM SQLite — no native compilation, no node-gyp)
+- bcryptjs, jsonwebtoken, express, cors
+- Port 3001, auto-increments if busy (try up to 10 ports)
+- Apache reverse proxy: emphora.melify.com → localhost:3001
 
-Auth:
-- JWT + bcrypt sessions stored in SQLite
-- Login, register, logout, profile endpoints
-- is_active flag blocks login when disabled
+================================================================================
+FILE STRUCTURE
+================================================================================
 
-Seed accounts (all password: test-1234):
-- admin@emphora.dev      — accountType: admin
-- employee@emphora.dev   — accountType: employee
-- employer@emphora.dev   — accountType: employer
-- researcher@emphora.dev — accountType: researcher
-- Seed re-syncs passwords on every server restart
+emphora/
+├── server.js
+├── emphora.db                    (auto-created by sql.js)
+├── package.json
+└── public/
+    ├── index.html                (shell — loads emphora.html via wc-include)
+    ├── emphora.html              ← ONLY <emphora>…</emphora> tag, NOTHING ELSE
+    ├── admin.html
+    ├── employee.html
+    ├── employer.html
+    ├── researcher.html
+    ├── users.html
+    ├── skills.html
+    ├── css/
+    │   └── emphora.scss
+    └── js/
+        ├── emphora.config.js
+        ├── emphora.js
+        ├── _wc.js
+        └── avatar-upload.js
 
-Account types: employee | employer | researcher | admin
+================================================================================
+EMPHORA.HTML — STRICT RULES
+================================================================================
 
-On login → redirect to role dashboard:
-- admin      → admin.html
-- employee   → employee.html
-- employer   → employer.html
-- researcher → researcher.html
-- User saved to sessionStorage as 'emphora_user'
-- Logout → redirect to /
+- Contains ONLY the <emphora class="emphora">…</emphora> tag
+- No <!DOCTYPE>, no <html>, no <head>, no <body>, no <script> tags
+- File starts on line 1 with <emphora and ends with </emphora>
+- All markup scoped inside this one custom element
 
-Components:
-- Registration form (firstName, lastName, email, password, confirmPassword, accountType chips, terms)
-- Login form
-- Light/dark mode toggle (persisted to localStorage)
-- Account type tag in card header (updates live on chip select)
-- Password strength meter
-- Dev tools bar REMOVED — login now via users.html one-click login
-- Admin panel (EmAdmin class) — inline modal with user list, add/edit/enable/disable/delete
+================================================================================
+EMPHORA.CONFIG.JS — SINGLE SOURCE OF TRUTH
+================================================================================
 
-users.html:
-- Full CRUD user table (search, filter by type/status/verified, sortable columns)
-- One-click "Login as" per row (uses test-1234 for seed accounts, prompts for others)
-- ← Admin back button (visible only to admin accountType users)
-- Add user modal, Edit modal, Enable/Disable, Delete with confirm
+ALL data, labels, config, endpoints, passwords, ports, and dashboard routes
+live here. Nothing is hardcoded elsewhere.
 
-admin.html:
-- Purple admin theme
-- Live stats: total users, employees, employers, disabled, active sessions
-- Recent users table
-- Account breakdown bars
-- "View Users" button → users.html
-- Sign Out → /
+const EmophoraConfig = {
+  app: {
+    name: "Emphora",
+    tagline: "Your Professional Intelligence Platform",
+    logoText: "emphora",
+    version: "1.0.0",
+    defaultTheme: "light",
+    defaultView: "login"
+  },
+  server: {
+    port: 3001,
+    portFallbackTries: 10
+  },
+  devTools: {
+    enabled: true,
+    admin: { enabled: true, label: "Admin", icon: "admin_panel_settings" },
+    accounts: [
+      { id:"dev-admin",      label:"Admin",      icon:"shield_person",      email:"admin@emphora.dev",      password:"test-1234", accountType:"admin"      },
+      { id:"dev-employee",   label:"Employee",   icon:"badge",              email:"employee@emphora.dev",   password:"test-1234", accountType:"employee"   },
+      { id:"dev-employer",   label:"Employer",   icon:"business",           email:"employer@emphora.dev",   password:"test-1234", accountType:"employer"   },
+      { id:"dev-researcher", label:"Researcher", icon:"science",            email:"researcher@emphora.dev", password:"test-1234", accountType:"researcher" }
+    ]
+  },
+  accountTag: {
+    show: true,
+    defaultType: "employee",
+    types: {
+      employee:   { label:"Employee",   icon:"badge",                 colorClass:"em-tag--employee"   },
+      employer:   { label:"Employer",   icon:"business",              colorClass:"em-tag--employer"   },
+      researcher: { label:"Researcher", icon:"science",               colorClass:"em-tag--researcher" },
+      admin:      { label:"Admin",      icon:"admin_panel_settings",  colorClass:"em-tag--admin"      }
+    }
+  },
+  dashboards: {
+    employee:   "employee.html",
+    employer:   "employer.html",
+    researcher: "researcher.html",
+    admin:      "admin.html"
+  },
+  api: {
+    baseUrl: "/api",
+    endpoints: {
+      login:    "/auth/login",
+      register: "/auth/register",
+      logout:   "/auth/logout",
+      profile:  "/user/profile"
+    }
+  },
+  login:    { heading, subheading, fields, validation, forgotPassword, switchPrompt },
+  register: { heading, subheading, fields, accountType chips, terms, validation },
+  toast:    { duration: 3800, position: "bottom-center", messages: { loginSuccess, loginError, registerSuccess, registerError, networkError, logoutSuccess } }
+};
 
-Accessibility:
-- Semantic HTML, keyboard accessible, visible focus states, ADA compliant
-- aria-live regions, aria-label, aria-required, aria-invalid throughout
+================================================================================
+EMPHORA.JS — CLASS ARCHITECTURE
+================================================================================
 
-Restrictions:
-- No frameworks in frontend
-- Vanilla JavaScript only
-- No compiled CSS output — SCSS source files only
-- Always remember mtk- prefix convention
-- Always show updated code in FULL
+Class: Emphora
+- Must wait for <emphora> element via MutationObserver (supports wc-include)
+- Methods: _bindNav(), _bindLoginForm(), _bindRegisterForm(), _bindThemeToggle(),
+  _bindPasswordToggles(), _bindChips(), _bindTermsCheckbox(), _bindPasswordStrength(),
+  _bindRipples(), _bindDevBar(), _subscribeToEvents()
+- _onLoginSuccess(user): saves user to sessionStorage('emphora_user'),
+  detects admin by email as fallback, redirects to role dashboard after 600ms
+- _bindNav(): MUST call e.preventDefault() — logo has data-em-goto="login"
+- Logo click: stays on page (data-em-goto="login", never navigates away)
+- All wc.publish() calls must be logged via wc.log() before dispatch
+- 4 events: emphora:login, emphora:register, emphora:logout, emphora:themeChange
+
+Class: EmAdmin (inline admin panel, opened from within emphora.html)
+- Modal overlay with: user list, search/filter, add/edit form drawer
+- Actions: list users, add user, edit user, enable, disable, delete
+- Calls /api/admin/* endpoints
+
+wc bus:
+- Self-contained pub/sub inside emphora.js
+- Defers to _wc.js if present
+- Methods: wc.publish(event, data), wc.subscribe(event, cb), wc.log(event, data)
+
+No quick-login dev bar — login is done via users.html row click.
+
+================================================================================
+SERVER.JS — BACKEND
+================================================================================
+
+Database: sql.js (pure WASM, zero native compilation)
+- Persists to emphora.db via db.export() on every write
+- Periodic flush every 10 seconds
+- Schema: users table + sessions table
+
+Users table columns:
+  id, first_name, last_name, email, password_hash,
+  account_type, emphora_score, is_verified, is_active, created_at
+
+Validation:
+  - validateLogin: password min 4 chars
+  - validateRegister: password min 8 chars
+  - ACCOUNT_TYPES = ['employee', 'employer', 'researcher', 'admin']
+
+Seed accounts — re-synced on EVERY restart (name + password + score + accountType):
+
+  { firstName:'Admin',      lastName:'User',       email:'admin@emphora.dev',      password:'test-1234', accountType:'admin',      emphoraScore:99.0, isVerified:1 }
+  { firstName:'Test',       lastName:'Employee',   email:'employee@emphora.dev',   password:'test-1234', accountType:'employee',   emphoraScore:72.5, isVerified:1 }
+  { firstName:'Test',       lastName:'Employer',   email:'employer@emphora.dev',   password:'test-1234', accountType:'employer',   emphoraScore:85.0, isVerified:1 }
+  { firstName:'Test',       lastName:'Researcher', email:'researcher@emphora.dev', password:'test-1234', accountType:'researcher', emphoraScore:80.0, isVerified:0 }
+  { firstName:'Sarah',      lastName:'Chen',       email:'sarah.chen@emphora.dev',      password:'test-1234', accountType:'employee', emphoraScore:96.4, isVerified:1 }
+  { firstName:'Marcus',     lastName:'Webb',       email:'marcus.webb@emphora.dev',     password:'test-1234', accountType:'employee', emphoraScore:93.8, isVerified:1 }
+  { firstName:'Priya',      lastName:'Sharma',     email:'priya.sharma@emphora.dev',    password:'test-1234', accountType:'employee', emphoraScore:88.2, isVerified:1 }
+  { firstName:'Devon',      lastName:'Okafor',     email:'devon.okafor@emphora.dev',    password:'test-1234', accountType:'employee', emphoraScore:85.7, isVerified:1 }
+  { firstName:'Lin',        lastName:'Xiao',       email:'lin.xiao@emphora.dev',        password:'test-1234', accountType:'employee', emphoraScore:83.1, isVerified:1 }
+  { firstName:'Jordan',     lastName:'Reyes',      email:'jordan.reyes@emphora.dev',    password:'test-1234', accountType:'employee', emphoraScore:78.9, isVerified:1 }
+  { firstName:'Aisha',      lastName:'Patel',      email:'aisha.patel@emphora.dev',     password:'test-1234', accountType:'employee', emphoraScore:75.3, isVerified:0 }
+  { firstName:'Tom',        lastName:'Nakamura',   email:'tom.nakamura@emphora.dev',    password:'test-1234', accountType:'employee', emphoraScore:71.6, isVerified:0 }
+  { firstName:'Zoe',        lastName:'Andersen',   email:'zoe.andersen@emphora.dev',    password:'test-1234', accountType:'employee', emphoraScore:64.2, isVerified:0 }
+  { firstName:'Kai',        lastName:'Osei',       email:'kai.osei@emphora.dev',        password:'test-1234', accountType:'employee', emphoraScore:57.8, isVerified:0 }
+
+API Endpoints:
+  POST   /api/auth/login
+  POST   /api/auth/register
+  POST   /api/auth/logout           (requireAuth)
+  GET    /api/user/profile          (requireAuth)
+  GET    /api/admin/users           (returns users + activeSessions count)
+  GET    /api/admin/users/:id
+  PATCH  /api/admin/users/:id       (firstName, lastName, email, accountType, isVerified, isActive)
+  PATCH  /api/admin/users/:id/activate
+  PATCH  /api/admin/users/:id/deactivate   (also kills all sessions for user)
+  DELETE /api/admin/users/:id
+  POST   /api/admin/users/:id/reset-sessions
+  GET    /health
+
+sanitiseUser() returns: { id, firstName, lastName, email, accountType, emphoraScore, isVerified, isActive, createdAt }
+
+================================================================================
+LOGIN & NAVIGATION FLOW
+================================================================================
+
+1. User opens emphora.html (login form)
+2. Enters credentials and submits
+3. _onLoginSuccess(user):
+   - Check if email matches any admin account in devTools.accounts → override accountType to 'admin'
+   - Save corrected user to sessionStorage('emphora_user')
+   - Read dashboards config: admin→admin.html, employee→employee.html, etc.
+   - Navigate after 600ms delay (toast visible)
+4. Each dashboard on load:
+   - Read sessionStorage('emphora_user')
+   - If null → redirect to '/'
+   - Populate name, initials, role, email
+5. Logo on every page → links to SELF (never to '/' or emphora.html)
+   - employee.html logo → employee.html
+   - employer.html logo → employer.html
+   - researcher.html logo → researcher.html
+   - admin.html logo    → admin.html
+   - skills.html logo   → employee.html
+   - users.html logo    → admin.html
+6. emphora.html logo → data-em-goto="login" with e.preventDefault() in _bindNav
+7. Sign Out on any dashboard:
+   - sessionStorage.removeItem('emphora_user')
+   - POST /api/auth/logout
+   - window.location.href = '/'
+
+================================================================================
+SHARED DASHBOARD BEHAVIOUR (all 4 dashboard pages)
+================================================================================
+
+Every dashboard has:
+- Sticky topbar (height 54px): logo → self, role tag, username, avatar circle,
+  theme toggle button, logout button
+- Hero section: large avatar (56px circle), full name, email, verified status,
+  Sign Out button
+- Light/dark theme toggle (saved to localStorage 'em-theme')
+- Avatar upload (from avatar-upload.js)
+- No "Admin" button except on admin.html
+
+Avatar upload (avatar-upload.js):
+- initAvatar(email, heroEl, topbarEl, initials)
+- Hover hero avatar → shows add_a_photo icon overlay
+- Click → file input (jpg/png/webp/gif, max 5MB)
+- Crop to square from centre, resize to 200×200, clip to circle, JPEG 88%
+- Save to localStorage as 'emphora_avatar_{email}'
+- Apply to both hero and topbar circles immediately
+- Show toast: "Profile picture updated"
+- Restore from localStorage on page load
+
+================================================================================
+ADMIN DASHBOARD — admin.html
+================================================================================
+
+Purple theme (#673AB7)
+- Sticky topbar with role tag "Admin"
+- Hero: admin name, email, "System Administrator" subtitle
+- "View Users" button in hero → users.html
+- Live stats cards (from /api/admin/users):
+  Total Users, Employees, Employers, Disabled accounts, Active Sessions
+- Recent users table (last 8 users, with name/email/type/status/joined)
+- Account type breakdown: progress bars per type (Employee/Employer/Researcher/Admin)
+  showing count/total as percentage, colour-coded
+
+================================================================================
+EMPLOYEE DASHBOARD — employee.html
+================================================================================
+
+Blue theme (#1A6BCC)
+- Role tag: "Professional"
+- Hero: "My Skills" button → skills.html, "Sign Out" button
+- Stats: Emphora Score (live from user.emphoraScore), Profile Complete %, Active Matches, Profile Views
+- Job Matches table: Role, Company (anonymised), Match %, Salary range, Status pill
+- Competency Scores: 4 progress bars (Technical, Communication, Leadership, Problem Solving)
+- Recent Ratings table: From, Type (Verified/Peer/Previous Employer), Score, Date
+
+================================================================================
+EMPLOYER DASHBOARD — employer.html
+================================================================================
+
+Teal theme (#00897B)
+- Role tag: "Employer"
+- Stats: Company Score, Active Jobs, Candidates in pipeline, Hired this month
+- Top Job Postings table: Role, Division, Views, Applied, Matching candidates, Status
+- Top Candidates table: Candidate ID (anonymised), Score, Role Applied, Status, Review button
+- Divisional Scores: progress bars per division with average scores
+
+================================================================================
+RESEARCHER DASHBOARD — researcher.html
+================================================================================
+
+Pink/Red theme (#C2185B)
+- Role tag: "Researcher"
+- Stats: Data Access level, Total Records (live from /api/admin/users), Reports Run, Avg Score
+- Market Trends table: Competency, Avg Score, Demand level, Trend arrow
+- Anonymous User Cohorts table: Cohort name, Count (calculated from live user data), Avg Score, Top Skill
+- Available Reports: list with Export buttons
+
+================================================================================
+USERS.HTML — USER MANAGEMENT TABLE
+================================================================================
+
+- Topbar: logo → admin.html, "← Admin" back button (visible ONLY to admin accountType users)
+- Page title: "All Users", subtitle shows API URL
+- Refresh button, Add User button
+- Filters: text search (name/email), type dropdown, status dropdown, verified dropdown
+- Sortable table columns with sticky thead (top: 50px, just below topbar)
+- Columns: ID, Name, Email, Type (coloured pill), Status, Verified, Sessions bubble, Joined, Actions
+- Row hover: purple tint with pointer cursor
+- CLICK ANY ROW → loginAs():
+  - Seed accounts (admin/employee/employer/researcher @emphora.dev): auto-use 'test-1234'
+  - Other accounts: prompt for password
+  - On success: save to sessionStorage, redirect to role dashboard
+  - admin@emphora.dev always → admin.html
+- Action buttons (stopPropagation so they don't trigger row login):
+  Edit (opens modal), Enable/Disable toggle, Delete (with confirm)
+- Add/Edit modal: firstName, lastName, email, password, accountType, isVerified, isActive checkboxes
+- Debug box: shows raw API response on error
+- API_BASE: auto-detects file:// vs same-origin
+
+================================================================================
+SKILLS.HTML — EMPLOYEE SKILLS SELF-RATING
+================================================================================
+
+Two-panel layout (280px left + 1fr right), min-height 100vh.
+Topbar is sticky (position:sticky; top:0; z-index:200).
+Right panel header is sticky below topbar (top:54px).
+Left panel is sticky (top:54px, height calc(100vh - 54px)).
+No external CSS — fully self-contained styles (NO emphora.css link).
+
+TOPBAR contains:
+- Logo → employee.html
+- Breadcrumb: "My Skills"
+- Search input: "Find a rated skill…" — filters right panel pills live, ✕ clear button, Escape to clear
+- "Auto-saved ✓" tag (fades in/out after save, NO manual Save button)
+- Theme toggle
+- Back arrow → employee.html
+
+LEFT PANEL:
+- "Add Skills" heading
+- Search input: filters category list
+- 12 collapsible categories (chevron toggle), each showing:
+  - Category icon + name + count badge (if skills rated)
+  - Skill rows: name, coloured dot if rated, score badge if rated
+- Click unrated skill → add with score 5, open slider, scroll to pill
+- Click rated skill → scroll to its pill and open slider
+
+12 CATEGORIES AND THEIR SKILLS:
+  Operating Systems:    Windows, macOS, Linux (Ubuntu), Linux (Red Hat), Unix, Android, iOS
+  Devices:              Desktops, Laptops, Tablets, Smartphones, Servers, IoT Devices
+  Productivity & Office: Microsoft Office Suite, Google Workspace, LibreOffice, Adobe Creative Suite, Notion, Slack, Trello
+  Programming Languages: Python, Java, C, C++, C#, Go, Rust, PHP, Ruby, JavaScript, TypeScript, Shell/Bash, PowerShell, SQL
+  Web Technologies:     HTML5, CSS3, Sass/SCSS, JavaScript, TypeScript, Webpack, Node.js, REST APIs, GraphQL, JSON, AJAX
+  Frameworks & Libraries: React, Angular, Vue.js, jQuery, jQuery UI, Bootstrap, Tailwind CSS, Express.js, Django, Flask, Spring Boot
+  Specializations:      Web Components, Progressive Web Apps (PWA), UX/UI Design, Interaction Design, Responsive Design, Hi-Fidelity Prototyping, Mobile App Development, Cloud Architecture
+  Prototyping & Design: Figma, Sketch, Adobe XD, Axure, Miro, InVision, Balsamiq, Canva
+  Databases:            MySQL, PostgreSQL, MongoDB, Redis, Oracle DB, Firebase, Microsoft SQL Server, Cassandra
+  DevOps & Cloud:       AWS, Azure, Google Cloud Platform, Docker, Kubernetes, Jenkins, GitLab CI/CD, Terraform, Ansible
+  Networking & Security: TCP/IP, DNS, VPNs, Firewalls, Penetration Testing, Cybersecurity Tools, Wireshark, SSL/TLS, Encryption
+  Testing & QA:         Selenium, Jest, Mocha, Cypress, JUnit, Postman, TestRail, Load Testing Tools
+
+RIGHT PANEL:
+- Summary strip (hidden when 0 skills): Skills count, Avg Score, Expert (8+) count, Categories count
+- Skills grouped by category, each category shows:
+  - Section header: CATEGORY NAME + progress bar + avg score (colour by level)
+  - Pills: each skill is a pill card with:
+    - Coloured chip (colour = level colour): skill name + score number
+    - × delete button: always visible as grey circle, turns red on hover, removes skill
+    - 3px progress bar at bottom of pill card (filled % = score × 10)
+    - NO overflow:hidden on pill-wrap (this clips the × button)
+  - Click pill row → opens inline slider drawer below that pill
+    - One drawer open at a time (previous closes when new opens)
+    - Drawer: skill name, large score number, level label (both in level colour)
+    - Range slider 0-10 with gradient fill and tick marks 0-10
+    - Slider updates pill colour/score/bar/category bar live
+- Custom entry field: type any skill + Enter or Add button → adds with score 5
+- Auto-save: debounced 800ms after last change → persistRatings() → localStorage
+- Also saves on beforeunload
+- Persisted to localStorage as 'emphora_skills_{email}'
+
+LEVEL LABELS AND COLOURS:
+  0  → No experience      #90A4AE (grey)
+  1-2 → Beginner          #EF5350 (red)
+  3-4 → Elementary        #FF7043 (orange)
+  5   → Intermediate      #FFA726 (amber)
+  6   → Upper-Intermediate #FFCA28 (yellow)
+  7   → Advanced          #9CCC65 (light green)
+  8   → Proficient        #26A69A (teal)
+  9   → Expert            #1A6BCC (blue)
+  10  → Master            #673AB7 (purple)
+
+SCROLL BEHAVIOUR:
+- Click rated skill in left panel → scrollToPill(skill): window.scrollTo with
+  offset = element.getBoundingClientRect().top + scrollY - 54 - 16
+- After adding new skill → scroll to its pill + open drawer after 180ms
+- Header search → scroll to first matching pill on input
+
+================================================================================
+AVATAR-UPLOAD.JS — SHARED MODULE
+================================================================================
+
+window.initAvatar(email, heroEl, topbarEl, initials)
+- Hover heroEl → .em-avatar-upload shows add_a_photo overlay (opacity 0→1)
+- Click → hidden file input (.accept jpg/png/webp/gif, max 5MB)
+- processImage: FileReader → Image → canvas crop+resize:
+  - Crop to square from centre (min(w,h))
+  - clip to circle (arc + clip)
+  - drawImage to 200×200
+  - toDataURL('image/jpeg', 0.88)
+- applyImage(heroEl, topbarEl, dataUrl):
+  - backgroundImage, backgroundSize:cover, backgroundPosition:center, color:transparent
+- saveAvatar: localStorage.setItem('emphora_avatar_{email}', dataUrl)
+  - On storage full: clear other avatar keys first, retry
+- loadAvatar: localStorage.getItem('emphora_avatar_{email}')
+- Toast: fixed bottom-center, border-left colour by type, fade in/out 3s
+- CSS on heroEl: position:relative; cursor:pointer; overflow:hidden; border-radius:50%
+- Overlay span: position:absolute; inset:0; opacity:0; transition; shows on hover
+
+================================================================================
+EMPHORA.SCSS — STYLES
+================================================================================
+
+- All styles scoped to .emphora selector
+- CSS variables for light/dark themes via [data-emphora-theme]
+- Light theme on :root or [data-emphora-theme="light"]
+- Dark theme on [data-emphora-theme="dark"]
+- Key colour variables: --em-primary, --em-secondary, --em-accent,
+  --em-bg-surface, --em-text-primary, --em-text-muted, --em-border,
+  --em-success, --em-error, --em-warning
+- Account tag colours:
+  em-tag--employee (blue), em-tag--employer (teal),
+  em-tag--researcher (pink), em-tag--admin (purple)
+- Dev bar styles (kept even though bar is removed — for future use)
+- Admin panel styles (EmAdmin modal)
+- Dashboard view styles (em-dash-*)
+- Avatar upload overlay styles (em-avatar-upload, em-avatar-overlay)
+- Never provide compiled CSS — SCSS source files only
+
+================================================================================
+GENERAL RULES
+================================================================================
+
+1. SCSS only — never provide .css compiled output
+2. emphora.html contains ONLY <emphora>…</emphora>, nothing else
+3. emphora.config.js is single source of truth for ALL data
+4. All code prefixed with mtk- where applicable (class names, IDs use em- prefix)
+5. Always show updated code in FULL, never in snippets
+6. All dashboard logos link to their own page (never to '/' or emphora.html)
+7. _bindNav() must call e.preventDefault() before switching views
+8. Auto-save on skills page — NO manual Save button
+9. No quick-login dev bar — login via users.html row click
+10. Seed re-syncs names, passwords, scores, and accountType on every restart
+11. Admin is detected by both accountType AND email fallback in _onLoginSuccess
+12. users.html is fully self-contained (no emphora.css link)
+13. skills.html is fully self-contained (no emphora.css link)
+14. × delete on skills pills: always visible, NO overflow:hidden on .em-pill-wrap
+
+================================================================================
+DEPLOYMENT
+================================================================================
+
+Server: Apache reverse proxy at emphora.melify.com → localhost:3001
+Apache config (already in place):
+  ProxyPreserveHost On
+  ProxyPass / http://localhost:3001/
+  ProxyPassReverse / http://localhost:3001/
+
+Start server:
+  cd /Melify/tools/emphora && node server.js
+
+Files go to:
+  /Melify/tools/emphora/server.js
+  /Melify/tools/emphora/public/*.html
+  /Melify/tools/emphora/public/css/emphora.scss
+  /Melify/tools/emphora/public/js/*.js
+
+================================================================================
+END OF PROMPT
+================================================================================

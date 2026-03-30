@@ -75,8 +75,11 @@
     .skills-cat-block{display:flex;flex-direction:column;gap:5px;}
     .skills-cat-name{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
     .skills-cat-items{display:flex;flex-wrap:wrap;gap:6px;}
-    .skill-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:600;border:1px solid transparent;}
+    .skill-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:600;border:1px solid transparent;cursor:default;}
     .skill-chip-score{font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:10px;background:rgba(0,0,0,.08);}
+    .skill-chip-del{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.1);border:none;cursor:pointer;padding:0;transition:background .15s,color .15s;color:inherit;flex-shrink:0;}
+    .skill-chip-del:hover{background:#C62828;color:#fff;}
+    .skill-chip-del .material-icons-round{font-size:.65rem;pointer-events:none;}
     /* score colour bands */
     .lvl-0{background:rgba(176,190,197,.15);color:#607D8B;border-color:rgba(176,190,197,.4);}
     .lvl-1,.lvl-2{background:rgba(239,83,80,.1);color:#C62828;border-color:rgba(239,83,80,.25);}
@@ -106,7 +109,7 @@
 <body>
 
 <nav class="topbar">
-  <a href="/" class="logo">Emph<b>ora</b></a>
+  <a href="employee.html" class="logo">Emph<b>ora</b></a>
   <span class="role-tag"><span class="material-icons-round">badge</span><span id="role-label">Professional</span></span>
   <div class="spacer"></div>
   <div class="user-info"><span id="topbar-name">—</span><div class="avatar" id="topbar-initials">?</div></div>
@@ -307,6 +310,9 @@ if (user) {
     const items = (grouped[cat] || []).map(s =>
       `<span class="skill-chip ${levelClass(s.score)}" title="Score: ${s.score}/10">
         ${esc(s.name)}<span class="skill-chip-score">${s.score}</span>
+        <button class="skill-chip-del" data-skill="${esc(s.name)}" aria-label="Remove ${esc(s.name)}" title="Remove">
+          <span class="material-icons-round">close</span>
+        </button>
       </span>`
     ).join('');
     return `<div class="skills-cat-block">
@@ -315,14 +321,60 @@ if (user) {
     </div>`;
   }).join('');
 
-  panel.innerHTML = `
-    <div class="skills-summary">
-      <div class="skills-summary-item"><span class="skills-summary-val">${keys.length}</span><span class="skills-summary-lbl">Skills</span></div>
-      <div class="skills-summary-item"><span class="skills-summary-val">${avg}</span><span class="skills-summary-lbl">Avg Score</span></div>
-      <div class="skills-summary-item"><span class="skills-summary-val">${expert}</span><span class="skills-summary-lbl">Expert (8+)</span></div>
-      <div class="skills-summary-item"><span class="skills-summary-val">${cats.length}</span><span class="skills-summary-lbl">Categories</span></div>
-    </div>
-    <div class="skills-cat-row">${catBlocks}</div>`;
+  function renderPanel() {
+    const k2  = Object.keys(ratings);
+    if (k2.length === 0) {
+      panel.innerHTML = `<div class="skills-empty"><span class="material-icons-round">psychology</span><span>No skills rated yet — <a href="skills.html" style="color:var(--primary)">add some</a></span></div>`;
+      return;
+    }
+    const avg2    = (k2.reduce((a,k) => a + ratings[k].score, 0) / k2.length).toFixed(1);
+    const expert2 = k2.filter(k => ratings[k].score >= 8).length;
+    const cats2   = [...new Set(k2.map(k => ratings[k].category))];
+    const grouped2 = {};
+    k2.forEach(k => {
+      const cat = ratings[k].category || 'Other';
+      if (!grouped2[cat]) grouped2[cat] = [];
+      grouped2[cat].push({ name: k, score: ratings[k].score });
+    });
+    Object.values(grouped2).forEach(arr => arr.sort((a,b) => b.score - a.score));
+
+    const catBlocks2 = cats2.map(cat => {
+      const items2 = (grouped2[cat] || []).map(s =>
+        `<span class="skill-chip ${levelClass(s.score)}" title="Score: ${s.score}/10">
+          ${esc(s.name)}<span class="skill-chip-score">${s.score}</span>
+          <button class="skill-chip-del" data-skill="${esc(s.name)}" aria-label="Remove ${esc(s.name)}" title="Remove">
+            <span class="material-icons-round">close</span>
+          </button>
+        </span>`
+      ).join('');
+      return `<div class="skills-cat-block">
+        <div class="skills-cat-name">${esc(cat)}</div>
+        <div class="skills-cat-items">${items2}</div>
+      </div>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <div class="skills-summary">
+        <div class="skills-summary-item"><span class="skills-summary-val">${k2.length}</span><span class="skills-summary-lbl">Skills</span></div>
+        <div class="skills-summary-item"><span class="skills-summary-val">${avg2}</span><span class="skills-summary-lbl">Avg Score</span></div>
+        <div class="skills-summary-item"><span class="skills-summary-val">${expert2}</span><span class="skills-summary-lbl">Expert (8+)</span></div>
+        <div class="skills-summary-item"><span class="skills-summary-val">${cats2.length}</span><span class="skills-summary-lbl">Categories</span></div>
+      </div>
+      <div class="skills-cat-row">${catBlocks2}</div>`;
+
+    // Bind × buttons
+    panel.querySelectorAll('.skill-chip-del').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const skill = btn.dataset.skill;
+        delete ratings[skill];
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(ratings)); } catch(_) {}
+        renderPanel();
+      });
+    });
+  }
+
+  renderPanel();
 })();
 
 </script>

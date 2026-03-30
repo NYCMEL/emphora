@@ -286,22 +286,27 @@
     }
     /* thin progress bar inside each pill-wrap, below the pill chip */
     .em-pill-bar-wrap {
-      height: 3px; background: var(--bd); border-radius: 0 0 14px 14px;
-      overflow: hidden; margin: 0;
+      height: 3px; background: var(--bd);
+      border-radius: 0 0 12px 12px;
+      overflow: hidden; margin: 0 1px;
     }
     .em-pill-bar-fill {
       height: 100%; border-radius: 0 0 14px 14px;
       transition: width .4s ease, background .3s;
     }
     .em-pill-remove {
-      padding: 4px 8px 4px 2px;
-      cursor: pointer; background: none; border: none;
-      display: flex; align-items: center;
-      opacity: .55;
-      transition: opacity .15s;
+      width: 22px; height: 22px;
+      cursor: pointer;
+      background: rgba(0,0,0,.07);
+      border: none;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--mu);
+      flex-shrink: 0;
+      transition: background .15s, color .15s;
     }
-    .em-pill-remove:hover { opacity: 1; }
-    .em-pill-remove .material-icons-round { font-size: .75rem; pointer-events: none; }
+    .em-pill-remove:hover { background: var(--er); color: #fff; }
+    .em-pill-remove .material-icons-round { font-size: .78rem; pointer-events: none; }
 
     /* ─── Inline slider drawer ───────────────────────────────────────────── */
     .em-slider-drawer {
@@ -319,14 +324,13 @@
       border: 1.5px solid var(--bd);
       border-radius: 14px;
       margin-bottom: 6px;
-      overflow: hidden;
       transition: border-color .15s;
     }
     .em-pill-wrap.active { border-color: var(--pr); }
 
     .em-pill-row {
       display: flex; align-items: center;
-      padding: 5px 6px 5px 0;
+      padding: 5px 8px 5px 0; gap: 4px;
     }
 
     .em-drawer-inner {
@@ -786,10 +790,11 @@ function pillWrapHTML(skill) {
         <div class="em-pill" style="background:${c}18;border-color:${c}44;color:${c}">
           <span class="em-pill-name">${esc(skill)}</span>
           <span class="em-pill-score">${score}</span>
-          <button class="em-pill-remove" aria-label="Remove ${esc(skill)}" title="Remove">
-            <span class="material-icons-round">close</span>
-          </button>
         </div>
+        <button class="em-pill-remove" data-skill="${esc(skill)}"
+          aria-label="Remove ${esc(skill)}" title="Remove ${esc(skill)}">
+          <span class="material-icons-round">close</span>
+        </button>
       </div>
       <!-- thin progress bar -->
       <div class="em-pill-bar-wrap">
