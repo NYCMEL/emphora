@@ -74,6 +74,7 @@
     tr:last-child td { border-bottom:none; }
     tbody tr { transition:background .1s; }
     tbody tr:hover td { background:rgba(26,107,204,.04); }
+    tr.clickable-row:hover td { background:rgba(103,58,183,.06); cursor:pointer; }
     tbody tr.dim td { opacity:.4; }
     .cell-id { color:var(--muted);font-size:.7rem;font-family:monospace; }
     .cell-name { font-weight:600; }
@@ -104,9 +105,7 @@
     .act-enable:hover   { background:rgba(46,125,50,.1);color:var(--success);border-color:var(--success); }
     .act-disable:hover  { background:rgba(230,81,0,.08);color:var(--warning);border-color:var(--warning); }
     .act-delete:hover   { background:rgba(198,40,40,.08);color:var(--danger);border-color:var(--danger); }
-    .act-login          { background:rgba(103,58,183,.08);color:#673AB7;border-color:rgba(103,58,183,.25);width:auto;padding:0 10px;gap:4px;font-size:.72rem;font-weight:700; }
-    .act-login:hover    { background:rgba(103,58,183,.16);border-color:#673AB7; }
-    .act-login:disabled { opacity:.5;cursor:not-allowed; }
+
 
     /* states */
     .state { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:3rem 1rem;color:var(--muted);font-size:.84rem;text-align:center; }
@@ -393,7 +392,7 @@ function render() {
   const cols = [
     {k:'id',l:'ID'},{k:'firstName',l:'Name'},{k:'email',l:'Email'},
     {k:'accountType',l:'Type'},{k:'isActive',l:'Status'},{k:'isVerified',l:'Verified'},
-    {k:'activeSessions',l:'Sessions'},{k:'createdAt',l:'Joined'},{k:'_login',l:'Login as'},{k:'_',l:''},
+    {k:'activeSessions',l:'Sessions'},{k:'createdAt',l:'Joined'},{k:'_',l:''},
   ];
 
   const arr = k => sortCol !== k
@@ -412,7 +411,9 @@ function render() {
     const verified = Boolean(u.isVerified);
     const sess    = Number(u.activeSessions) || 0;
 
-    return `<tr class="${active?'':'dim'}" style="animation-delay:${i*.02}s">
+    return `<tr class="clickable-row${active?'':' dim'}" style="animation-delay:${i*.02}s;cursor:pointer"
+      data-id="${u.id}" data-email="${esc(u.email)}" data-type="${esc(u.accountType)}"
+      title="Click to login as ${esc(u.firstName)} ${esc(u.lastName)}">
       <td class="cell-id">#${u.id}</td>
       <td class="cell-name">${esc(u.firstName||'')} ${esc(u.lastName||'')}</td>
       <td class="cell-email">${esc(u.email||'')}</td>
@@ -421,13 +422,6 @@ function render() {
       <td>${verified?'<span class="ver-yes">✓ Yes</span>':'<span class="ver-no">— No</span>'}</td>
       <td style="text-align:center"><span class="sess${sess===0?' sess-zero':''}">${sess}</span></td>
       <td class="cell-date">${fmtDate(u.createdAt)}</td>
-      <td>
-        <button class="act act-login" data-a="login" data-id="${u.id}"
-          data-email="${esc(u.email)}" data-type="${esc(u.accountType)}"
-          title="Login as this user">
-          <span class="material-icons-round">login</span>
-        </button>
-      </td>
       <td><div class="acts">
         <button class="act act-edit"    data-a="edit"    data-id="${u.id}" title="Edit"><span class="material-icons-round">edit</span></button>
         ${active
@@ -448,6 +442,16 @@ function render() {
     });
   });
 
+  // Clicking anywhere on a row logs in as that user
+  document.querySelectorAll('tr.clickable-row').forEach(tr => {
+    tr.addEventListener('click', (e) => {
+      // Don't trigger if clicking an action button
+      if (e.target.closest('.acts')) return;
+      const {id, email, type} = tr.dataset;
+      loginAs(Number(id), email, type);
+    });
+  });
+
   document.querySelectorAll('.act[data-a]').forEach(b => {
     b.addEventListener('click', () => {
       const {a, id, email, type} = b.dataset, uid = Number(id);
@@ -455,7 +459,6 @@ function render() {
       if (a==='enable')  toggle(uid, true);
       if (a==='disable') toggle(uid, false);
       if (a==='delete')  del(uid);
-      if (a==='login')   loginAs(uid, email, type);
     });
   });
 }
