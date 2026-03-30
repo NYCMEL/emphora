@@ -138,6 +138,19 @@
     .skills-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:2rem;color:var(--muted);text-align:center;font-size:.82rem;}
     .skills-empty .material-icons-round{font-size:1.8rem;opacity:.3;}
 
+    /* ── Employer Rating — collapsed view ── */
+    .er-collapsed{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+    .er-collapsed-scores{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .er-dim-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:600;border:1.5px solid transparent;}
+    .er-dim-pill .material-icons-round{font-size:.78rem;}
+    .er-dim-pill-unrated{background:var(--surface2);color:var(--muted);border-color:var(--border);}
+    .er-not-rated{font-size:.82rem;color:var(--muted);font-style:italic;}
+    .er-edit-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:9px;border:1.5px solid rgba(26,107,204,.35);background:rgba(26,107,204,.08);color:var(--primary);font:600 .78rem inherit;cursor:pointer;transition:all .15s;}
+    .er-edit-btn:hover{background:rgba(26,107,204,.15);border-color:var(--primary);}
+    .er-edit-btn .material-icons-round{font-size:.85rem;}
+    .er-form-wrap{display:none;}
+    .er-form-wrap.open{display:block;}
+    /* ── Employer Rating ── */
     /* ── Employer Rating ── */
     .er-section{background:linear-gradient(135deg,rgba(26,107,204,.07) 0%,rgba(0,137,123,.07) 100%);border:1.5px solid rgba(26,107,204,.2);border-radius:14px;margin-bottom:1.25rem;overflow:hidden;}
     .er-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1.5px solid rgba(26,107,204,.15);flex-wrap:wrap;gap:8px;}
@@ -790,100 +803,141 @@ if (user) {
     return (vals.reduce((a,b) => a+b, 0) / vals.length);
   }
 
+  let erEditing = false;
+
   function renderER() {
     const body = document.getElementById('er-body');
     if (!body) return;
-
     const overall = overallScore();
     const ini     = empName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const hasAny  = DIMENSIONS.some(d => rating[d.key] > 0) || rating.recommendation;
 
-    body.innerHTML = `
-      <!-- Company row -->
-      <div class="er-company-row">
+    // ── COLLAPSED VIEW ───────────────────────────────────────────────────────
+    const collapsedHTML = `
+      <div class="er-company-row" style="margin-bottom:.75rem">
         <div class="er-company-logo">${ini}</div>
-        <div>
+        <div style="flex:1;min-width:0">
           <div class="er-company-name">${esc(empName)}</div>
           <div class="er-company-sub">Your current employer · ratings are anonymous</div>
         </div>
       </div>
-
-      <!-- Overall score -->
-      ${overall > 0 ? `
-      <div class="er-overall">
-        <div class="er-overall-score" style="color:${scoreColor(overall)}">${overall.toFixed(1)}</div>
-        <div class="er-overall-bar">
-          <div class="er-overall-label">Overall Rating</div>
-          <div class="er-bar" style="margin-top:6px">
-            <div class="er-bar-fill" style="width:${overall*10}%;background:${scoreColor(overall)}"></div>
-          </div>
-          <div style="font-size:.7rem;color:var(--muted);margin-top:3px">${STAR_LABELS[Math.round(overall)]||''}</div>
+      <div class="er-collapsed">
+        <div class="er-collapsed-scores">
+          ${hasAny ? `
+            ${DIMENSIONS.map(d => {
+              const val = rating[d.key] || 0;
+              const c   = val > 0 ? scoreColor(val) : null;
+              return val > 0
+                ? `<span class="er-dim-pill" style="background:${c}18;border-color:${c}44;color:${c}">
+                    <span class="material-icons-round">${d.icon}</span>${d.label}
+                    <strong>${val}/10</strong>
+                   </span>`
+                : `<span class="er-dim-pill er-dim-pill-unrated">
+                    <span class="material-icons-round">${d.icon}</span>${d.label}
+                    <span>—</span>
+                   </span>`;
+            }).join('')}
+            ${rating.recommendation ? `
+              <span class="er-dim-pill" style="background:rgba(46,125,50,.1);border-color:rgba(46,125,50,.3);color:#2E7D32">
+                <span class="material-icons-round">recommend</span>
+                ${REC_OPTIONS.find(o=>o.val===rating.recommendation)?.label || ''}
+              </span>` : ''}
+            ${overall > 0 ? `
+              <span class="er-dim-pill" style="background:rgba(26,107,204,.12);border-color:rgba(26,107,204,.3);color:var(--primary)">
+                <span class="material-icons-round">stars</span>Overall ${overall.toFixed(1)}/10
+              </span>` : ''}
+          ` : `<span class="er-not-rated">No rating submitted yet</span>`}
         </div>
-      </div>` : ''}
-
-      <!-- Star rating dimensions -->
-      <div class="er-ratings">
-        ${DIMENSIONS.map(d => {
-          const val = rating[d.key] || 0;
-          const c   = scoreColor(val);
-          return `
-          <div class="er-rating-row">
-            <div class="er-rating-top">
-              <div class="er-rating-label">
-                <span class="material-icons-round">${d.icon}</span>${d.label}
-              </div>
-              <span class="er-rating-val" id="erv-${d.key}" style="color:${val>0?c:'var(--muted)'}">
-                ${val > 0 ? val : '—'}
-              </span>
-            </div>
-            <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">${d.desc}</div>
-            <div class="er-nums" data-dim="${d.key}">
-              ${[1,2,3,4,5,6,7,8,9,10].map(n => {
-                const isActive = val >= n;
-                const bg = isActive ? scoreColor(val) : '';
-                return `<button class="er-num${isActive?' active':''}" data-val="${n}"
-                  title="${STAR_LABELS[n]||n}" style="${isActive?'background:'+bg+';border-color:'+bg+';':''}">${n}</button>`;
-              }).join('')}
-            </div>
-            <div class="er-bar" style="margin-top:5px">
-              <div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div>
-            </div>
-            <div id="erl-${d.key}" style="font-size:.7rem;color:${val>0?c:'transparent'};margin-top:3px;font-weight:600;min-height:1em">${val > 0 ? (STAR_LABELS[val]||val+'/10') : ''}</div>
-          </div>`;
-        }).join('')}
-      </div>
-
-      <!-- Recommendation -->
-      <div class="er-rating-row" style="margin-bottom:1rem">
-        <div class="er-rating-label" style="margin-bottom:.5rem">
-          <span class="material-icons-round" style="color:var(--primary);font-size:.95rem">recommend</span>
-          Would you recommend this employer?
-        </div>
-        <div class="er-rec-options">
-          ${REC_OPTIONS.map(o => `
-            <button class="er-rec-btn${rating.recommendation===o.val?' '+o.cls:''}"
-              data-rec="${o.val}">
-              <span class="material-icons-round">${o.icon}</span>${o.label}
-            </button>`).join('')}
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="er-rating-row" style="margin-bottom:1rem">
-        <div class="er-rating-label" style="margin-bottom:.4rem">
-          <span class="material-icons-round" style="color:var(--primary);font-size:.95rem">edit_note</span>
-          Additional Comments <span style="font-weight:400;color:var(--muted)">(optional · anonymous)</span>
-        </div>
-        <textarea class="er-textarea" id="er-notes" placeholder="Share your experience — what's great, what could be better…">${esc(rating.notes||'')}</textarea>
-      </div>
-
-      <!-- Actions -->
-      <div class="er-actions">
-        <button class="er-submit-btn" id="er-submit-btn">
-          <span class="material-icons-round">send</span>Save Rating
+        <button class="er-edit-btn" id="er-edit-btn">
+          <span class="material-icons-round">${hasAny ? 'edit' : 'rate_review'}</span>
+          ${hasAny ? 'Edit Rating' : 'Rate Now'}
         </button>
-        <button class="profile-cancel-btn" id="er-clear-btn" style="font-size:.76rem">Clear</button>
-        <span style="font-size:.72rem;color:var(--muted)">Anonymous · only aggregate scores are shared</span>
       </div>`;
+
+    // ── EXPANDED FORM ────────────────────────────────────────────────────────
+    const formHTML = `
+      <div class="er-form-wrap${erEditing ? ' open' : ''}" id="er-form-wrap">
+
+        <!-- Overall score (if any) -->
+        ${overall > 0 ? `
+        <div class="er-overall" style="margin-top:.75rem">
+          <div class="er-overall-score" style="color:${scoreColor(overall)}">${overall.toFixed(1)}</div>
+          <div class="er-overall-bar">
+            <div class="er-overall-label">Overall Rating</div>
+            <div class="er-bar" style="margin-top:6px">
+              <div class="er-bar-fill" style="width:${overall*10}%;background:${scoreColor(overall)}"></div>
+            </div>
+            <div style="font-size:.7rem;color:var(--muted);margin-top:3px">${STAR_LABELS[Math.round(overall)]||''}</div>
+          </div>
+        </div>` : ''}
+
+        <!-- Dimensions -->
+        <div class="er-ratings" style="margin-top:.85rem">
+          ${DIMENSIONS.map(d => {
+            const val = rating[d.key] || 0;
+            const c   = scoreColor(val);
+            return `
+            <div class="er-rating-row">
+              <div class="er-rating-top">
+                <div class="er-rating-label">
+                  <span class="material-icons-round">${d.icon}</span>${d.label}
+                </div>
+                <span class="er-rating-val" id="erv-${d.key}" style="color:${val>0?c:'var(--muted)'}">
+                  ${val > 0 ? val : '—'}
+                </span>
+              </div>
+              <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">${d.desc}</div>
+              <div class="er-nums" data-dim="${d.key}">
+                ${[1,2,3,4,5,6,7,8,9,10].map(n => {
+                  const isActive = val >= n;
+                  const bg = isActive ? scoreColor(val) : '';
+                  return `<button class="er-num${isActive?' active':''}" data-val="${n}"
+                    title="${STAR_LABELS[n]||n}" style="${isActive?'background:'+bg+';border-color:'+bg+';':''}">${n}</button>`;
+                }).join('')}
+              </div>
+              <div class="er-bar" style="margin-top:5px">
+                <div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div>
+              </div>
+              <div id="erl-${d.key}" style="font-size:.7rem;color:${val>0?c:'transparent'};margin-top:3px;font-weight:600;min-height:1em">${val > 0 ? (STAR_LABELS[val]||val+'/10') : ''}</div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- Recommendation -->
+        <div class="er-rating-row" style="margin-bottom:1rem">
+          <div class="er-rating-label" style="margin-bottom:.5rem">
+            <span class="material-icons-round" style="color:var(--primary);font-size:.95rem">recommend</span>
+            Would you recommend this employer?
+          </div>
+          <div class="er-rec-options">
+            ${REC_OPTIONS.map(o => `
+              <button class="er-rec-btn${rating.recommendation===o.val?' '+o.cls:''}" data-rec="${o.val}">
+                <span class="material-icons-round">${o.icon}</span>${o.label}
+              </button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="er-rating-row" style="margin-bottom:1rem">
+          <div class="er-rating-label" style="margin-bottom:.4rem">
+            <span class="material-icons-round" style="color:var(--primary);font-size:.95rem">edit_note</span>
+            Additional Comments <span style="font-weight:400;color:var(--muted)">(optional · anonymous)</span>
+          </div>
+          <textarea class="er-textarea" id="er-notes" placeholder="Share your experience — what's great, what could be better…">${esc(rating.notes||'')}</textarea>
+        </div>
+
+        <!-- Form actions -->
+        <div class="er-actions">
+          <button class="er-submit-btn" id="er-submit-btn">
+            <span class="material-icons-round">save</span>Save Rating
+          </button>
+          <button class="profile-cancel-btn" id="er-cancel-btn">Cancel</button>
+          <button class="profile-cancel-btn" id="er-clear-btn" style="color:var(--danger);border-color:rgba(198,40,40,.25)">Clear all</button>
+          <span style="font-size:.72rem;color:var(--muted)">Anonymous · only aggregate scores are shared</span>
+        </div>
+      </div>`;
+
+    body.innerHTML = collapsedHTML + formHTML;
 
     // ── Bind number-button clicks ────────────────────────────────────────────
     body.querySelectorAll('.er-nums').forEach(numsEl => {
@@ -939,6 +993,25 @@ if (user) {
       });
     });
 
+    // ── Edit / Cancel buttons ────────────────────────────────────────────────
+    const editBtn = body.querySelector('#er-edit-btn');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => {
+        erEditing = true;
+        const wrap = body.querySelector('#er-form-wrap');
+        if (wrap) wrap.classList.add('open');
+        editBtn.style.display = 'none';
+      });
+    }
+
+    const cancelBtn = body.querySelector('#er-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        erEditing = false;
+        renderER();
+      });
+    }
+
     // ── Recommendation buttons ────────────────────────────────────────────────
     body.querySelectorAll('.er-rec-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -955,18 +1028,21 @@ if (user) {
     });
 
     // ── Submit ────────────────────────────────────────────────────────────────
-    document.getElementById('er-submit-btn')?.addEventListener('click', () => {
-      rating.notes = document.getElementById('er-notes')?.value.trim() || '';
+    body.querySelector('#er-submit-btn')?.addEventListener('click', () => {
+      rating.notes = body.querySelector('#er-notes')?.value.trim() || '';
       try { localStorage.setItem(RKEY, JSON.stringify(rating)); } catch(_) {}
       const tag = document.getElementById('er-saved-tag');
       if (tag) { tag.classList.add('show'); setTimeout(() => tag.classList.remove('show'), 2500); }
+      erEditing = false;
+      renderER();
     });
 
     // ── Clear ─────────────────────────────────────────────────────────────────
-    document.getElementById('er-clear-btn')?.addEventListener('click', () => {
+    body.querySelector('#er-clear-btn')?.addEventListener('click', () => {
       if (!confirm('Clear your employer rating?')) return;
       rating = { ...DEFAULTS };
       try { localStorage.removeItem(RKEY); } catch(_) {}
+      erEditing = false;
       renderER();
     });
   }
