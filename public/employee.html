@@ -282,12 +282,8 @@
         <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit History</button>
       </div>
     </div>
-    <!-- Employment list -->
-    <div style="padding:1rem 1.1rem 0" id="employment-body"><!-- populated by JS --></div>
-    <!-- Divider -->
-    <div style="margin:0 1.1rem;border-top:1px solid rgba(26,107,204,.15)"></div>
-    <!-- Employer rating collapsed/form -->
-    <div class="er-body" id="er-body" style="padding:1rem 1.1rem 1.1rem"><!-- populated by JS --></div>
+    <!-- Combined employment + rating (rendered by initEmployerRating) -->
+    <div class="er-body" id="er-body"><!-- populated by JS --></div>
   </div>
 
   <!-- ── JOBS APPLIED ── -->
@@ -585,7 +581,7 @@ if (user) {
   }
 
   function renderView() {
-    if (!body) return;
+    if (!body) return; // employment-body no longer in DOM; view handled by renderER
     const c = emp.current;
     let html = '';
 
@@ -866,6 +862,17 @@ if (user) {
     const ovLabel = overall > 0 ? (STAR_LABELS[Math.round(overall)] || '') : '';
     const recObj  = REC_OPTIONS.find(o => o.val === rating.recommendation);
 
+    // Pull employment data for the collapsed view
+    let empData = { current:{ company:'', title:'', from:'' }, previous:[] };
+    try {
+      const saved = localStorage.getItem(`emphora_employment_${user?.email||''}`);
+      if (saved) empData = { ...empData, ...JSON.parse(saved) };
+    } catch(_) {}
+    const cur      = empData.current;
+    const curFrom  = cur.from ? new Date(cur.from).toLocaleDateString(undefined,{year:'numeric',month:'short'}) : '';
+    const curYrs   = cur.from ? (((Date.now()-new Date(cur.from))/(1000*60*60*24*365.25)).toFixed(1)+' yrs') : '';
+    const prevList = (empData.previous||[]).filter(p => p.company||p.title);
+
     const collapsedHTML = `
       <div style="display:flex;align-items:stretch;gap:0;flex-wrap:wrap">
 
@@ -874,45 +881,57 @@ if (user) {
           display:flex;flex-direction:column;align-items:center;justify-content:center;
           padding:1.25rem 1.5rem;
           border-right:1px solid rgba(26,107,204,.15);
-          min-width:120px;flex-shrink:0;
+          min-width:110px;flex-shrink:0;
           background:${overall>0?ovC+'12':'rgba(26,107,204,.04)'};
           text-align:center;
         ">
-          <div style="
-            font-family:'DM Serif Display',Georgia,serif;
-            font-size:${overall>0?'3.2rem':'2rem'};
-            font-weight:400;
-            line-height:1;
-            letter-spacing:-.04em;
-            color:${overall>0?ovC:'var(--muted)'};
-          ">${overall > 0 ? overall.toFixed(1) : '—'}</div>
-          <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${overall>0?ovC:'var(--muted)'};margin-top:5px;opacity:.8">
-            Overall
+          <div style="font-family:'DM Serif Display',Georgia,serif;font-size:${overall>0?'3.2rem':'2rem'};font-weight:400;line-height:1;letter-spacing:-.04em;color:${overall>0?ovC:'var(--muted)'}">
+            ${overall > 0 ? overall.toFixed(1) : '—'}
           </div>
+          <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${overall>0?ovC:'var(--muted)'};margin-top:5px;opacity:.8">Overall</div>
           ${ovLabel ? `<div style="font-size:.68rem;font-weight:600;color:${ovC};margin-top:3px">${ovLabel}</div>` : ''}
         </div>
 
-        <!-- RIGHT: company + breakdown + actions -->
-        <div style="flex:1;min-width:200px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.65rem;">
+        <!-- RIGHT: employer info + rating pills + actions -->
+        <div style="flex:1;min-width:200px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.6rem;">
 
-          <!-- Company row -->
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="er-company-logo" style="width:32px;height:32px;font-size:.7rem">${ini}</div>
-            <div>
-              <div class="er-company-name" style="font-size:.88rem">${esc(empName)}</div>
-              <div class="er-company-sub">Anonymous · helps the Emphora community</div>
+          <!-- Current employer row — matches screenshot layout -->
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+              <div class="er-company-logo" style="width:34px;height:34px;font-size:.72rem;flex-shrink:0">${ini}</div>
+              <div style="min-width:0">
+                <div class="er-company-name" style="font-size:.92rem">${esc(cur.company||empName)}</div>
+                ${cur.title ? `<div class="er-company-sub">${esc(cur.title)}</div>` : ''}
+              </div>
             </div>
+            ${(curFrom||curYrs) ? `
+            <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;flex-wrap:wrap">
+              ${curFrom ? `<span class="employer-card-badge">${curFrom} – Present</span>` : ''}
+              ${curYrs  ? `<span class="employer-card-badge">${curYrs}</span>` : ''}
+            </div>` : ''}
           </div>
 
-          <!-- Per-dimension mini scores -->
+          ${prevList.length > 0 ? `
+          <div style="display:flex;flex-direction:column;gap:4px;padding-left:42px">
+            ${prevList.map(p => {
+              const pFrom = p.from ? new Date(p.from).toLocaleDateString(undefined,{year:'numeric',month:'short'}) : '';
+              const pTo   = p.to   ? new Date(p.to).toLocaleDateString(undefined,{year:'numeric',month:'short'})   : '';
+              return `<div style="font-size:.76rem;color:var(--muted)">
+                <strong style="color:var(--text)">${esc(p.company)}</strong>
+                ${p.title ? ` · ${esc(p.title)}` : ''}
+                ${(pFrom||pTo) ? `<span style="opacity:.6"> · ${[pFrom,pTo||'Present'].filter(Boolean).join(' – ')}</span>` : ''}
+              </div>`;
+            }).join('')}
+          </div>` : ''}
+
+          <!-- Rating pills -->
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             ${DIMENSIONS.map(d => {
               const val = rating[d.key] || 0;
               const c   = val > 0 ? scoreColor(val) : null;
               return `<span class="er-dim-pill${val>0?'':' er-dim-pill-unrated'}"
                 style="${val>0?'background:'+c+'18;border-color:'+c+'44;color:'+c:''}">
-                <span class="material-icons-round">${d.icon}</span>
-                ${d.label}
+                <span class="material-icons-round">${d.icon}</span>${d.label}
                 <strong>${val > 0 ? val : '—'}</strong>
               </span>`;
             }).join('')}
@@ -920,14 +939,14 @@ if (user) {
               <span class="er-dim-pill" style="background:rgba(46,125,50,.1);border-color:rgba(46,125,50,.3);color:#2E7D32">
                 <span class="material-icons-round">${recObj.icon}</span>${recObj.label}
               </span>` : ''}
-            ${!hasAny ? `<span class="er-not-rated">No rating submitted yet — click Rate Now to share your experience</span>` : ''}
+            ${!hasAny ? `<span class="er-not-rated">No rating yet</span>` : ''}
           </div>
 
-          <!-- Edit button -->
-          <div>
+          <!-- Actions row -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="er-edit-btn" id="er-edit-btn">
-              <span class="material-icons-round">${hasAny ? 'edit' : 'rate_review'}</span>
-              ${hasAny ? 'Edit Rating' : 'Rate Now'}
+              <span class="material-icons-round">${hasAny?'edit':'rate_review'}</span>
+              ${hasAny?'Edit Rating':'Rate Now'}
             </button>
           </div>
         </div>
