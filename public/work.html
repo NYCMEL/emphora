@@ -1,0 +1,455 @@
+<!--
+  Place at: public/work.html
+  Emphora — Work History & Employer Rating (employees only)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Emphora — Work & Ratings</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --primary:#1A6BCC; --bg:#F0F4F8; --surface:#fff; --surface2:#F8FAFC;
+      --border:#D0DCE8; --text:#0D1B2A; --muted:#7A8FA6;
+      --success:#2E7D32; --warning:#E65100; --danger:#C62828;
+    }
+    [data-theme="dark"] {
+      --bg:#0A0F1A; --surface:#111827; --surface2:#1A2236;
+      --border:rgba(255,255,255,.10); --text:#E8F1FF; --muted:#5C7389;
+    }
+    body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-size:14px; background:var(--bg); color:var(--text); min-height:100vh; transition:background .2s,color .2s; }
+
+    /* ── TOPBAR ── */
+    .topbar { position:sticky; top:0; z-index:100; height:54px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1.25rem; gap:10px; }
+    .logo { font-family:'DM Serif Display',Georgia,serif; font-style:italic; font-size:1.3rem; color:var(--primary); text-decoration:none; }
+    .logo b { color:#00897B; font-weight:400; }
+    .spacer { flex:1; }
+    .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; text-decoration:none; }
+    .icon-btn:hover { color:var(--primary); border-color:var(--primary); }
+    .icon-btn .material-icons-round { font-size:1rem; }
+
+    /* ── PAGE ── */
+    .page { max-width:780px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    .page-title { font-family:'DM Serif Display',Georgia,serif; font-size:1.5rem; font-weight:400; margin-bottom:1.25rem; display:flex; align-items:center; gap:10px; }
+    .page-title .material-icons-round { font-size:1.4rem; color:var(--primary); }
+
+    /* ── SECTIONS ── */
+    .section { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:1.1rem; overflow:hidden; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; padding:.8rem 1.1rem; border-bottom:1px solid var(--border); }
+    .section-title { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:6px; }
+    .section-title .material-icons-round { font-size:1rem; color:var(--primary); }
+    .section-body { padding:1.1rem; }
+
+    /* ── EMPLOYMENT ── */
+    .employer-card { display:flex; flex-direction:column; gap:4px; padding:.85rem 1rem; background:var(--surface2); border:1px solid var(--border); border-radius:10px; margin-bottom:8px; }
+    .employer-card:last-child { margin-bottom:0; }
+    .employer-card.current { border-left:3px solid var(--primary); }
+    .employer-card-title { font-size:.88rem; font-weight:700; color:var(--text); }
+    .employer-card-sub { font-size:.78rem; color:var(--muted); }
+    .employer-card-badge { font-size:.66rem; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2); }
+    .employer-card-badge.past { background:var(--surface2); color:var(--muted); border-color:var(--border); }
+
+    /* ── EMPLOYER RATING ── */
+    .er-section { background:linear-gradient(135deg,rgba(26,107,204,.07),rgba(0,137,123,.07)); border:1.5px solid rgba(26,107,204,.2); border-radius:14px; margin-bottom:1.1rem; overflow:hidden; }
+    .er-header { display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.1rem; border-bottom:1.5px solid rgba(26,107,204,.15); flex-wrap:wrap; gap:8px; }
+    .er-header-left { display:flex; align-items:center; gap:10px; }
+    .er-icon { width:36px; height:36px; border-radius:9px; background:linear-gradient(135deg,#1A6BCC,#00897B); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .er-icon .material-icons-round { font-size:1rem; color:#fff; }
+    .er-title { font-family:'DM Serif Display',Georgia,serif; font-size:1rem; font-weight:400; color:var(--text); }
+    .er-subtitle { font-size:.72rem; color:var(--muted); }
+    .er-body { padding:1.1rem; }
+
+    /* collapsed view */
+    .er-collapsed { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
+    .er-score-panel { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.1rem 1.4rem; border-right:1px solid rgba(26,107,204,.15); min-width:100px; flex-shrink:0; text-align:center; }
+    .er-score-num { font-family:'DM Serif Display',Georgia,serif; font-size:3rem; font-weight:400; line-height:1; letter-spacing:-.04em; }
+    .er-score-lbl { font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-top:4px; opacity:.8; }
+    .er-score-sub { font-size:.68rem; font-weight:600; margin-top:2px; }
+    .er-right-panel { flex:1; min-width:180px; padding:.9rem 1.1rem; display:flex; flex-direction:column; gap:.55rem; }
+    .er-dim-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:.74rem; font-weight:600; border:1.5px solid transparent; }
+    .er-dim-pill .material-icons-round { font-size:.78rem; }
+    .er-dim-pill-unrated { background:var(--surface2); color:var(--muted); border-color:var(--border); }
+    .er-not-rated { font-size:.82rem; color:var(--muted); font-style:italic; }
+    .er-edit-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 14px; border-radius:9px; border:1.5px solid rgba(26,107,204,.35); background:rgba(26,107,204,.08); color:var(--primary); font:600 .78rem inherit; cursor:pointer; transition:all .15s; }
+    .er-edit-btn:hover { background:rgba(26,107,204,.15); border-color:var(--primary); }
+    .er-edit-btn .material-icons-round { font-size:.85rem; }
+
+    /* form */
+    .er-form-wrap { display:none; }
+    .er-form-wrap.open { display:block; }
+    .er-nums { display:flex; gap:4px; flex-wrap:wrap; }
+    .er-num { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); color:var(--muted); font:700 .78rem inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; user-select:none; }
+    .er-num:hover { border-color:var(--primary); color:var(--primary); background:rgba(26,107,204,.08); }
+    .er-num.active { border-color:transparent; color:#fff; }
+    .er-rec-options { display:flex; flex-wrap:wrap; gap:8px; margin-top:.4rem; }
+    .er-rec-btn { padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--surface); color:var(--muted); font:600 .78rem inherit; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:5px; }
+    .er-rec-btn .material-icons-round { font-size:.85rem; }
+    .er-rec-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .er-rec-btn.selected-yes { background:rgba(46,125,50,.1); border-color:#2E7D32; color:#2E7D32; }
+    .er-rec-btn.selected-res { background:rgba(230,81,0,.08); border-color:#E65100; color:#E65100; }
+    .er-rec-btn.selected-no  { background:rgba(198,40,40,.08); border-color:#C62828; color:#C62828; }
+    .er-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:4px; }
+    .er-bar-fill { height:100%; border-radius:3px; transition:width .4s, background .3s; }
+    .er-textarea { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); font:inherit; font-size:.82rem; resize:vertical; outline:none; min-height:72px; }
+    .er-textarea:focus { border-color:var(--primary); }
+    .er-submit-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:9px; background:linear-gradient(135deg,#1A6BCC,#00897B); border:none; color:#fff; font:700 .82rem inherit; cursor:pointer; transition:filter .15s; }
+    .er-submit-btn:hover { filter:brightness(1.1); }
+    .er-submit-btn .material-icons-round { font-size:.9rem; }
+    .er-saved-tag { font-size:.74rem; color:var(--success); display:flex; align-items:center; gap:3px; opacity:0; transition:opacity .3s; }
+    .er-saved-tag.show { opacity:1; }
+
+    /* ── PROFILE HELPERS ── */
+    .profile-edit-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font:600 .76rem inherit; cursor:pointer; transition:all .15s; }
+    .profile-edit-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .profile-edit-btn .material-icons-round { font-size:.85rem; }
+    .profile-save-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 14px; border-radius:8px; border:none; background:var(--primary); color:#fff; font:600 .76rem inherit; cursor:pointer; }
+    .profile-cancel-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font:600 .76rem inherit; cursor:pointer; }
+    .profile-input { padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); font:inherit; font-size:.84rem; outline:none; width:100%; }
+    .profile-input:focus { border-color:var(--primary); }
+    .profile-label { font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:3px; }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="employee.html" class="logo">Emph<b>ora</b></a>
+  <span class="material-icons-round" style="font-size:.9rem;color:var(--muted)">chevron_right</span>
+  <span style="font-size:.82rem;color:var(--muted)">Work &amp; Ratings</span>
+  <div class="spacer"></div>
+  <span class="er-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Rating saved</span>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <a href="employee.html" class="icon-btn" title="Back to dashboard"><span class="material-icons-round">arrow_back</span></a>
+</nav>
+
+<div class="page">
+  <div class="page-title"><span class="material-icons-round">business_center</span>Work &amp; Ratings</div>
+
+  <!-- EMPLOYMENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">business_center</span>Employment History</div>
+      <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
+    </div>
+    <div class="section-body" id="employment-body"></div>
+  </div>
+
+  <!-- EMPLOYER RATING -->
+  <div class="er-section">
+    <div class="er-header">
+      <div class="er-header-left">
+        <div class="er-icon"><span class="material-icons-round">rate_review</span></div>
+        <div>
+          <div class="er-title">Rate Your Employer</div>
+          <div class="er-subtitle">Anonymous · helps the Emphora community</div>
+        </div>
+      </div>
+    </div>
+    <div class="er-body" id="er-body"></div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch { return null; } })();
+if (!user || user.accountType !== 'employee') window.location.href = '/';
+
+// Theme
+let theme = localStorage.getItem('em-theme') || 'light';
+function applyTheme(t) {
+  theme=t; document.body.dataset.theme=t;
+  document.querySelector('#theme-btn .material-icons-round').textContent = t==='dark'?'dark_mode':'light_mode';
+  localStorage.setItem('em-theme',t);
+}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick = () => applyTheme(theme==='dark'?'light':'dark');
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Employment ────────────────────────────────────────────────────────────────
+const EKEY = `emphora_employment_${user.email}`;
+let emp = { current:{ company:'', title:'', from:'', description:'' }, previous:[] };
+try { const s=localStorage.getItem(EKEY); if(s) emp={...emp,...JSON.parse(s)}; } catch(_) {}
+
+const empBody  = document.getElementById('employment-body');
+const empEditBtn = document.getElementById('employment-edit-btn');
+
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short'}) : ''; }
+function yearsAt(from) {
+  if (!from) return '';
+  const y = ((Date.now()-new Date(from))/(1000*60*60*24*365.25)).toFixed(1);
+  return `${y} yrs`;
+}
+
+function renderEmpView() {
+  if (!empBody) return;
+  const c = emp.current;
+  let html = `<div class="employer-card current">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+      <div>
+        <div class="employer-card-title">${esc(c.company)||'<span style="color:var(--muted);font-style:italic;font-weight:400">Not set</span>'}</div>
+        ${c.title?`<div class="employer-card-sub">${esc(c.title)}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${c.from?`<span class="employer-card-badge">${fmtDate(c.from)} – Present</span>`:''}
+        ${c.from?`<span class="employer-card-badge">${yearsAt(c.from)}</span>`:''}
+      </div>
+    </div>
+    ${c.description?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(c.description)}</div>`:''}
+  </div>`;
+  (emp.previous||[]).filter(p=>p.company||p.title).forEach(p => {
+    const pf=fmtDate(p.from), pt=p.to?fmtDate(p.to):'Present';
+    html += `<div class="employer-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div>
+          <div class="employer-card-title">${esc(p.company)}</div>
+          ${p.title?`<div class="employer-card-sub">${esc(p.title)}</div>`:''}
+        </div>
+        ${pf?`<span class="employer-card-badge past">${pf} – ${pt}</span>`:''}
+      </div>
+      ${p.description?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(p.description)}</div>`:''}
+    </div>`;
+  });
+  empBody.innerHTML = html;
+}
+
+function renderEmpEdit() {
+  if (!empBody) return;
+  const EMPTY = () => ({company:'',title:'',from:'',to:'',description:''});
+
+  function fieldBlock(label, obj, idx, isCurrent) {
+    return `<div style="margin-bottom:.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">${label}</div>
+        ${!isCurrent?`<button class="profile-cancel-btn" data-remove="${idx}" style="font-size:.7rem;padding:3px 8px;color:var(--danger);border-color:rgba(198,40,40,.25)"><span class="material-icons-round" style="font-size:.75rem">delete</span>Remove</button>`:''}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="profile-label">Company</label><input class="profile-input" id="emp-${idx}-company" type="text" value="${esc(obj.company||'')}" placeholder="Company name"/></div>
+        <div><label class="profile-label">Job Title</label><input class="profile-input" id="emp-${idx}-title" type="text" value="${esc(obj.title||'')}" placeholder="Your title"/></div>
+        <div><label class="profile-label">From</label><input class="profile-input" id="emp-${idx}-from" type="month" value="${esc(obj.from||'')}"/></div>
+        ${!isCurrent?`<div><label class="profile-label">To</label><input class="profile-input" id="emp-${idx}-to" type="month" value="${esc(obj.to||'')}"/></div>`:''}
+        <div style="grid-column:1/-1"><label class="profile-label">Description</label><textarea class="profile-input" id="emp-${idx}-desc" rows="2" placeholder="Brief description">${esc(obj.description||'')}</textarea></div>
+      </div>
+    </div>`;
+  }
+
+  function collect() {
+    emp.current = { company:document.getElementById('emp-cur-company')?.value.trim()||'', title:document.getElementById('emp-cur-title')?.value.trim()||'', from:document.getElementById('emp-cur-from')?.value||'', description:document.getElementById('emp-cur-desc')?.value.trim()||'' };
+    emp.previous = (emp.previous||[]).map((_,i) => ({ company:document.getElementById(`emp-${i}-company`)?.value.trim()||'', title:document.getElementById(`emp-${i}-title`)?.value.trim()||'', from:document.getElementById(`emp-${i}-from`)?.value||'', to:document.getElementById(`emp-${i}-to`)?.value||'', description:document.getElementById(`emp-${i}-desc`)?.value.trim()||'' }));
+  }
+
+  function rebuild() {
+    empBody.innerHTML = fieldBlock('Current Employer', emp.current, 'cur', true)
+      + (emp.previous||[]).map((p,i) => fieldBlock(`Previous Employer ${i+1}`, p, i, false)).join('')
+      + `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.25rem">
+          <button class="profile-save-btn" id="emp-save-btn"><span class="material-icons-round">save</span>Save</button>
+          <button class="profile-edit-btn" id="emp-add-btn"><span class="material-icons-round">add</span>Add Previous Employer</button>
+          <button class="profile-cancel-btn" id="emp-cancel-btn">Cancel</button>
+        </div>`;
+    empBody.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => { collect(); emp.previous.splice(Number(btn.dataset.remove),1); rebuild(); });
+    });
+    document.getElementById('emp-add-btn')?.addEventListener('click', () => { collect(); emp.previous.push(EMPTY()); rebuild(); });
+    document.getElementById('emp-save-btn')?.addEventListener('click', () => {
+      collect();
+      emp.previous = emp.previous.filter(p=>p.company||p.title);
+      try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_) {}
+      if (empEditBtn) empEditBtn.style.display='';
+      renderEmpView();
+      renderER(); // refresh rating view with updated company name
+    });
+    document.getElementById('emp-cancel-btn')?.addEventListener('click', () => { if(empEditBtn) empEditBtn.style.display=''; renderEmpView(); });
+  }
+  rebuild();
+}
+
+empEditBtn?.addEventListener('click', () => { empEditBtn.style.display='none'; renderEmpEdit(); });
+renderEmpView();
+
+// ── Employer Rating ───────────────────────────────────────────────────────────
+const RKEY = `emphora_employer_rating_${user.email}`;
+const DEFAULTS = { manager:0, company:0, environment:0, recommendation:'', notes:'' };
+let rating = { ...DEFAULTS };
+try { Object.assign(rating, JSON.parse(localStorage.getItem(RKEY)||'{}')); } catch(_) {}
+
+const DIMENSIONS = [
+  { key:'manager',     label:'My Manager',       icon:'supervisor_account', desc:'Leadership, communication, support & fairness'      },
+  { key:'company',     label:'The Company',      icon:'domain',             desc:'Culture, values, transparency & strategic direction' },
+  { key:'environment', label:'Work Environment', icon:'home_work',          desc:'Team dynamics, tools, work-life balance & wellbeing' },
+];
+const REC_OPTIONS = [
+  { val:'yes',          label:'Yes, I recommend',    icon:'thumb_up',       cls:'selected-yes' },
+  { val:'reservations', label:'With Reservations',   icon:'thumbs_up_down', cls:'selected-res' },
+  { val:'no',           label:'Would Not Recommend', icon:'thumb_down',     cls:'selected-no'  },
+];
+const STAR_LABELS = ['','Poor','Fair','Average','Good','Excellent','Outstanding','Impressive','Exceptional','Elite','World-Class'];
+
+function scoreColor(s) {
+  if(s<=0) return 'var(--muted)';
+  if(s<=3) return '#EF5350'; if(s<=5) return '#FFA726';
+  if(s<=7) return '#9CCC65'; return '#1A6BCC';
+}
+function overallScore() {
+  const v = DIMENSIONS.map(d=>rating[d.key]).filter(x=>x>0);
+  return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
+}
+
+let erEditing = false;
+
+function renderER() {
+  const body = document.getElementById('er-body');
+  if (!body) return;
+
+  // Get current employer name (may have just been updated)
+  let empName = 'Your Current Employer';
+  try { const e=JSON.parse(localStorage.getItem(EKEY)||'{}'); if(e.current?.company) empName=e.current.company; } catch(_) {}
+
+  const ov   = overallScore();
+  const ovC  = ov>0 ? scoreColor(ov) : 'var(--muted)';
+  const ovLbl= ov>0 ? (STAR_LABELS[Math.round(ov)]||'') : '';
+  const ini  = empName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const hasAny = DIMENSIONS.some(d=>rating[d.key]>0) || rating.recommendation;
+  const recObj = REC_OPTIONS.find(o=>o.val===rating.recommendation);
+
+  // ── Collapsed ──
+  const collapsed = `
+    <div class="er-collapsed">
+      <div class="er-score-panel" style="background:${ov>0?ovC+'12':'rgba(26,107,204,.04)'}">
+        <div class="er-score-num" style="color:${ov>0?ovC:'var(--muted)'}">${ov>0?ov.toFixed(1):'—'}</div>
+        <div class="er-score-lbl" style="color:${ov>0?ovC:'var(--muted)'}">Overall</div>
+        ${ovLbl?`<div class="er-score-sub" style="color:${ovC}">${ovLbl}</div>`:''}
+      </div>
+      <div style="flex:1;min-width:180px;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.55rem">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,#1A6BCC,#00897B);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
+          <div>
+            <div style="font-size:.88rem;font-weight:600;color:var(--text)">${esc(empName)}</div>
+            <div style="font-size:.7rem;color:var(--muted)">Anonymous · community data</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${DIMENSIONS.map(d=>{
+            const val=rating[d.key]||0, c=val>0?scoreColor(val):null;
+            return `<span class="er-dim-pill${val>0?'':' er-dim-pill-unrated'}" style="${val>0?'background:'+c+'18;border-color:'+c+'44;color:'+c:''}">
+              <span class="material-icons-round">${d.icon}</span>${d.label}<strong>${val>0?val:'—'}</strong>
+            </span>`;
+          }).join('')}
+          ${recObj?`<span class="er-dim-pill" style="background:rgba(46,125,50,.1);border-color:rgba(46,125,50,.3);color:#2E7D32"><span class="material-icons-round">${recObj.icon}</span>${recObj.label}</span>`:''}
+          ${!hasAny?`<span class="er-not-rated">No rating yet — click Rate Now</span>`:''}
+        </div>
+        <div><button class="er-edit-btn" id="er-edit-btn"><span class="material-icons-round">${hasAny?'edit':'rate_review'}</span>${hasAny?'Edit Rating':'Rate Now'}</button></div>
+      </div>
+    </div>`;
+
+  // ── Form ──
+  const form = `
+    <div class="er-form-wrap${erEditing?' open':''}" id="er-form-wrap" style="margin-top:.25rem">
+      ${DIMENSIONS.map(d=>{
+        const val=rating[d.key]||0, c=scoreColor(val);
+        return `<div style="margin-bottom:.9rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600">
+              <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">${d.icon}</span>${d.label}
+            </div>
+            <span id="erv-${d.key}" style="font-size:.95rem;font-weight:700;color:${val>0?c:'var(--muted)'}">${val>0?val:'—'}</span>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">${d.desc}</div>
+          <div class="er-nums" data-dim="${d.key}">
+            ${[1,2,3,4,5,6,7,8,9,10].map(n=>{
+              const on=val>=n;
+              return `<button class="er-num${on?' active':''}" data-val="${n}" style="${on?'background:'+c+';border-color:'+c+';':''}">${n}</button>`;
+            }).join('')}
+          </div>
+          <div class="er-bar" style="margin-top:5px"><div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div></div>
+          <div id="erl-${d.key}" style="font-size:.7rem;font-weight:600;margin-top:2px;min-height:1em;color:${val>0?c:'transparent'}">${val>0?(STAR_LABELS[val]||''):''}</div>
+        </div>`;
+      }).join('')}
+      <div style="margin-bottom:.85rem">
+        <div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem;display:flex;align-items:center;gap:5px">
+          <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">recommend</span>Would you recommend?
+        </div>
+        <div class="er-rec-options">
+          ${REC_OPTIONS.map(o=>`<button class="er-rec-btn${rating.recommendation===o.val?' '+o.cls:''}" data-rec="${o.val}"><span class="material-icons-round">${o.icon}</span>${o.label}</button>`).join('')}
+        </div>
+      </div>
+      <div style="margin-bottom:.85rem">
+        <div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem;display:flex;align-items:center;gap:5px">
+          <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">edit_note</span>Comments <span style="font-weight:400;color:var(--muted)">(optional · anonymous)</span>
+        </div>
+        <textarea class="er-textarea" id="er-notes" placeholder="Share your experience…">${esc(rating.notes||'')}</textarea>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;padding-top:.5rem;border-top:1px solid var(--border);flex-wrap:wrap">
+        <button class="er-submit-btn" id="er-save-btn"><span class="material-icons-round">save</span>Save Rating</button>
+        <button class="profile-cancel-btn" id="er-cancel-btn">Cancel</button>
+        <button class="profile-cancel-btn" id="er-clear-btn" style="color:var(--danger);border-color:rgba(198,40,40,.25)">Clear all</button>
+      </div>
+    </div>`;
+
+  body.innerHTML = collapsed + form;
+
+  // Edit btn
+  body.querySelector('#er-edit-btn')?.addEventListener('click', () => {
+    erEditing=true;
+    body.querySelector('#er-form-wrap')?.classList.add('open');
+    body.querySelector('#er-edit-btn').style.display='none';
+  });
+
+  // Cancel
+  body.querySelector('#er-cancel-btn')?.addEventListener('click', () => { erEditing=false; renderER(); });
+
+  // Number buttons
+  body.querySelectorAll('.er-nums').forEach(numsEl => {
+    const dim=numsEl.dataset.dim, btns=numsEl.querySelectorAll('.er-num');
+    function applyActive(val) {
+      const c=scoreColor(val);
+      btns.forEach(b=>{ const on=val>0&&Number(b.dataset.val)<=val; b.classList.toggle('active',on); b.style.background=on?c:''; b.style.borderColor=on?c:''; b.style.color=on?'#fff':''; });
+    }
+    numsEl.addEventListener('mouseover', e=>{ const b=e.target.closest('.er-num'); if(b) applyActive(Number(b.dataset.val)); });
+    numsEl.addEventListener('mouseleave', ()=>applyActive(rating[dim]||0));
+    numsEl.addEventListener('click', e=>{
+      const b=e.target.closest('.er-num'); if(!b) return;
+      const n=Number(b.dataset.val);
+      rating[dim]=rating[dim]===n?0:n;
+      applyActive(rating[dim]);
+      const c=scoreColor(rating[dim]);
+      const vEl=document.getElementById(`erv-${dim}`), barEl=document.getElementById(`erb-${dim}`), lblEl=document.getElementById(`erl-${dim}`);
+      if(vEl){ vEl.textContent=rating[dim]>0?rating[dim]:'—'; vEl.style.color=rating[dim]>0?c:'var(--muted)'; }
+      if(barEl){ barEl.style.width=`${rating[dim]*10}%`; barEl.style.background=rating[dim]>0?c:'var(--border)'; }
+      if(lblEl){ lblEl.textContent=rating[dim]>0?(STAR_LABELS[rating[dim]]||''):''; lblEl.style.color=rating[dim]>0?c:'transparent'; }
+    });
+  });
+
+  // Recommendation
+  body.querySelectorAll('.er-rec-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      rating.recommendation=rating.recommendation===btn.dataset.rec?'':btn.dataset.rec;
+      body.querySelectorAll('.er-rec-btn').forEach(b=>{ b.className='er-rec-btn'; if(rating.recommendation===b.dataset.rec){ const o=REC_OPTIONS.find(x=>x.val===b.dataset.rec); if(o) b.classList.add(o.cls); } });
+    });
+  });
+
+  // Save
+  body.querySelector('#er-save-btn')?.addEventListener('click',()=>{
+    rating.notes=body.querySelector('#er-notes')?.value.trim()||'';
+    try { localStorage.setItem(RKEY, JSON.stringify(rating)); } catch(_) {}
+    const tag=document.getElementById('er-saved-tag');
+    if(tag){ tag.classList.add('show'); setTimeout(()=>tag.classList.remove('show'),2200); }
+    erEditing=false; renderER();
+  });
+
+  // Clear
+  body.querySelector('#er-clear-btn')?.addEventListener('click',()=>{
+    if(!confirm('Clear your employer rating?')) return;
+    rating={...DEFAULTS};
+    try { localStorage.removeItem(RKEY); } catch(_) {}
+    erEditing=false; renderER();
+  });
+}
+
+renderER();
+</script>
+</body>
+</html>
