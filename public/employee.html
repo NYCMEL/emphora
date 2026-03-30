@@ -65,6 +65,31 @@
     .progress-fill{height:100%;border-radius:3px;background:var(--primary);transition:width .6s ease;}
     @media(max-width:600px){.page-hero{flex-wrap:wrap;}.hero-actions{width:100%;}.stats{grid-template-columns:1fr 1fr;}}
 
+    /* ── Skills panel ── */
+    .skills-summary{display:flex;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1rem;}
+    .skills-summary-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:.75rem .5rem;border-right:1px solid var(--border);text-align:center;}
+    .skills-summary-item:last-child{border-right:none;}
+    .skills-summary-val{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;color:var(--primary);}
+    .skills-summary-lbl{font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+    .skills-cat-row{display:flex;flex-direction:column;gap:10px;}
+    .skills-cat-block{display:flex;flex-direction:column;gap:5px;}
+    .skills-cat-name{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);}
+    .skills-cat-items{display:flex;flex-wrap:wrap;gap:6px;}
+    .skill-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:600;border:1px solid transparent;}
+    .skill-chip-score{font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:10px;background:rgba(0,0,0,.08);}
+    /* score colour bands */
+    .lvl-0{background:rgba(176,190,197,.15);color:#607D8B;border-color:rgba(176,190,197,.4);}
+    .lvl-1,.lvl-2{background:rgba(239,83,80,.1);color:#C62828;border-color:rgba(239,83,80,.25);}
+    .lvl-3,.lvl-4{background:rgba(255,112,67,.1);color:#BF360C;border-color:rgba(255,112,67,.25);}
+    .lvl-5{background:rgba(255,167,38,.1);color:#E65100;border-color:rgba(255,167,38,.25);}
+    .lvl-6{background:rgba(255,202,40,.12);color:#F57F17;border-color:rgba(255,202,40,.3);}
+    .lvl-7{background:rgba(156,204,101,.12);color:#2E7D32;border-color:rgba(156,204,101,.3);}
+    .lvl-8{background:rgba(38,166,154,.12);color:#00695C;border-color:rgba(38,166,154,.3);}
+    .lvl-9{background:rgba(26,107,204,.12);color:#1A6BCC;border-color:rgba(26,107,204,.28);}
+    .lvl-10{background:rgba(103,58,183,.12);color:#673AB7;border-color:rgba(103,58,183,.28);}
+    .skills-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:2rem;color:var(--muted);text-align:center;font-size:.82rem;}
+    .skills-empty .material-icons-round{font-size:1.8rem;opacity:.3;}
+
     /* ── Avatar upload ── */
     .em-avatar-upload { position:relative; cursor:pointer; transition:filter .2s; overflow:hidden; }
     .em-avatar-upload:hover { filter:brightness(.75); }
@@ -97,6 +122,7 @@
       <div class="hero-sub" id="hero-sub">—</div>
     </div>
     <div class="hero-actions">
+      <a href="skills.html" class="btn btn-primary"><span class="material-icons-round">psychology</span>My Skills</a>
       <button class="btn btn-danger" id="logout-btn2"><span class="material-icons-round">logout</span>Sign Out</button>
     </div>
   </div>
@@ -171,6 +197,24 @@
       </table>
     </div>
   </div>
+
+  <!-- ── SKILLS PANEL ── -->
+  <div class="section" id="skills-section">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">psychology</span>My Skills</div>
+      <a href="skills.html" class="btn btn-primary" style="font-size:.76rem;padding:5px 12px">
+        <span class="material-icons-round">edit</span>Edit Skills
+      </a>
+    </div>
+    <div class="section-body">
+      <div id="skills-panel-inner">
+        <div class="skills-empty">
+          <span class="material-icons-round">psychology</span>
+          <span>No skills rated yet — <a href="skills.html" style="color:var(--primary)">add your skills</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -222,6 +266,64 @@ if (user) {
   const scoreEl = document.getElementById('s-score');
   if (scoreEl) scoreEl.textContent = user.emphoraScore > 0 ? user.emphoraScore.toFixed(1) : '0.0';
 }
+
+// ── Skills panel ───────────────────────────────────────────────────────────────
+(function loadSkillsPanel() {
+  if (!user) return;
+  const STORAGE_KEY = `emphora_skills_${user.email}`;
+  let ratings = {};
+  try { ratings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(_) {}
+
+  const keys = Object.keys(ratings);
+  const panel = document.getElementById('skills-panel-inner');
+  if (!panel) return;
+
+  if (keys.length === 0) return; // keep empty state
+
+  // Level colour by score
+  const LEVELS = [
+    {max:0,color:'#B0BEC5'},{max:2,color:'#EF5350'},{max:4,color:'#FF7043'},
+    {max:5,color:'#FFA726'},{max:6,color:'#FFCA28'},{max:7,color:'#9CCC65'},
+    {max:8,color:'#26A69A'},{max:9,color:'#1A6BCC'},{max:10,color:'#673AB7'},
+  ];
+  function levelClass(s) { return 'lvl-'+Math.min(10,Math.max(0,Math.round(s))); }
+
+  // Summary stats
+  const avg    = (keys.reduce((a,k) => a + ratings[k].score, 0) / keys.length).toFixed(1);
+  const expert = keys.filter(k => ratings[k].score >= 8).length;
+  const cats   = [...new Set(keys.map(k => ratings[k].category))];
+
+  // Group by category
+  const grouped = {};
+  keys.forEach(k => {
+    const cat = ratings[k].category || 'Other';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push({ name: k, score: ratings[k].score });
+  });
+  // Sort each category by score desc
+  Object.values(grouped).forEach(arr => arr.sort((a,b) => b.score - a.score));
+
+  const catBlocks = cats.map(cat => {
+    const items = (grouped[cat] || []).map(s =>
+      `<span class="skill-chip ${levelClass(s.score)}" title="Score: ${s.score}/10">
+        ${esc(s.name)}<span class="skill-chip-score">${s.score}</span>
+      </span>`
+    ).join('');
+    return `<div class="skills-cat-block">
+      <div class="skills-cat-name">${esc(cat)}</div>
+      <div class="skills-cat-items">${items}</div>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="skills-summary">
+      <div class="skills-summary-item"><span class="skills-summary-val">${keys.length}</span><span class="skills-summary-lbl">Skills</span></div>
+      <div class="skills-summary-item"><span class="skills-summary-val">${avg}</span><span class="skills-summary-lbl">Avg Score</span></div>
+      <div class="skills-summary-item"><span class="skills-summary-val">${expert}</span><span class="skills-summary-lbl">Expert (8+)</span></div>
+      <div class="skills-summary-item"><span class="skills-summary-val">${cats.length}</span><span class="skills-summary-lbl">Categories</span></div>
+    </div>
+    <div class="skills-cat-row">${catBlocks}</div>`;
+})();
 
 </script>
 
