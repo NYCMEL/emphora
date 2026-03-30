@@ -192,8 +192,9 @@
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="er-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Rating saved</span>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center">
           <a href="employer-entry.html?mode=new" class="profile-edit-btn" style="color:var(--primary);border-color:rgba(26,107,204,.35);background:rgba(26,107,204,.06);text-decoration:none"><span class="material-icons-round">add_business</span>Add Another</a>
+          <a id="rate-now-btn" href="work.html" class="profile-edit-btn" style="text-decoration:none" title="Set your current employer first"><span class="material-icons-round">rate_review</span>Rate Now</a>
           <a href="work.html" class="profile-edit-btn" style="text-decoration:none"><span class="material-icons-round">edit</span>Edit History</a>
         </div>
       </div>
@@ -424,12 +425,35 @@ function renderErBody(){
         ${recObj?`<span class="er-dim-pill" style="background:rgba(46,125,50,.1);border-color:rgba(46,125,50,.3);color:#2E7D32"><span class="material-icons-round">${recObj.icon}</span>${recObj.label}</span>`:''}
         ${!hasAny?`<span class="er-not-rated">No rating yet</span>`:''}
       </div>
-      <div><a href="work.html" class="er-edit-btn"><span class="material-icons-round">${hasAny?'edit':'rate_review'}</span>${hasAny?'Edit Rating':'Rate Now'}</a></div>
+
     </div>
   </div>`;
 
-  // Wire employment edit button
-
+  // Update Rate Now button state based on whether employer is set
+  const rateBtn = document.getElementById('rate-now-btn');
+  if (rateBtn) {
+    const hasEmployer = !!(c.company && c.company.trim());
+    const rateLabel   = hasAny ? 'Edit Rating' : 'Rate Now';
+    const rateIcon    = hasAny ? 'edit' : 'rate_review';
+    rateBtn.innerHTML = `<span class="material-icons-round">${rateIcon}</span>${rateLabel}`;
+    if (hasEmployer) {
+      // Active — link to work.html
+      rateBtn.href   = 'work.html';
+      rateBtn.style.opacity     = '1';
+      rateBtn.style.pointerEvents = 'auto';
+      rateBtn.style.cursor      = 'pointer';
+      rateBtn.style.color       = '';
+      rateBtn.style.borderColor = '';
+      rateBtn.title = '';
+    } else {
+      // Disabled — no employer set yet
+      rateBtn.removeAttribute('href');
+      rateBtn.style.opacity      = '.4';
+      rateBtn.style.pointerEvents = 'none';
+      rateBtn.style.cursor       = 'not-allowed';
+      rateBtn.title = 'Set your current employer first';
+    }
+  }
 }
 renderErBody();
 
