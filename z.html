@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Job Selector</title>
+	<style>
+	 body {
+	     font-family: Arial, sans-serif;
+	     padding: 20px;
+	 }
+	 select {
+	     width: 300px;
+	     padding: 10px;
+	     margin: 10px 0;
+	     display: block;
+	 }
+	 label {
+	     font-weight: bold;
+	 }
+	</style>
+    </head>
+    <body>
+
+	<h2>Job Selector</h2>
+
+	<label for="category">Category:</label>
+	<select id="category">
+	    <option value="">Select Category</option>
+	</select>
+
+	<label for="subcategory">Subcategory:</label>
+	<select id="subcategory" disabled>
+	    <option value="">Select Subcategory</option>
+	</select>
+
+	<script>
+	 // JSON Data
+	 const data = {
+	     "jobCategories": [
+		 {
+		     "name": "Agriculture & Natural Resources",
+		     "subcategories": [
+			 "Agribusiness",
+			 "Farming",
+			 "Fishing",
+			 "Forestry"
+		     ]
+		 },
+		 {
+		     "name": "Administrative & Office Support",
+		     "subcategories": [
+			 "Clerical Work",
+			 "Data Entry",
+			 "Executive Assistance",
+			 "Office Management"
+		     ]
+		 },
+		 {
+		     "name": "Aviation & Aerospace",
+		     "subcategories": [
+			 "Aerospace Engineering",
+			 "Aircraft Maintenance",
+			 "Pilots"
+		     ]
+		 },
+		 {
+		     "name": "Beauty, Wellness & Personal Care",
+		     "subcategories": [
+			 "Cosmetology",
+			 "Fitness & Nutrition",
+			 "Spa & Wellness"
+		     ]
+		 },
+		 {
+		     "name": "Construction & Real Estate",
+		     "subcategories": [
+			 "Architecture",
+			 "Construction Management",
+			 "Property Management",
+			 "Real Estate Sales",
+			 "Surveying"
+		     ]
+		 },
+		 {
+		     "name": "Consulting & Strategy",
+		     "subcategories": [
+			 "Financial Consulting",
+			 "IT Consulting",
+			 "Management Consulting",
+			 "Strategy Consulting"
+		     ]
+		 },
+		 {
+		     "name": "Data, AI & Analytics",
+		     "subcategories": [
+			 "Business Intelligence",
+			 "Data Analysis",
+			 "Data Engineering",
+			 "Data Science",
+			 "Machine Learning / AI"
+		     ]
+		 },
+		 {
+		     "name": "Design & Creative",
+		     "subcategories": [
+			 "Graphic Design",
+			 "Industrial Design",
+			 "Motion Graphics",
+			 "Product Design",
+			 "UI/UX Design"
+		     ]
+		 },
+		 {
+		     "name": "Education & Training",
+		     "subcategories": [
+			 "Corporate Training",
+			 "E-learning Development",
+			 "Higher Education",
+			 "Instructional Design",
+			 "K-12 Education"
+		     ]
+		 },
+		 {
+		     "name": "Engineering & Manufacturing",
+		     "subcategories": [
+			 "Chemical Engineering",
+			 "Civil Engineering",
+			 "Electrical Engineering",
+			 "Industrial Engineering",
+			 "Manufacturing & Production",
+			 "Mechanical Engineering",
+			 "Process Engineering",
+			 "Quality Control / Assurance"
+		     ]
+		 }
+	     ]
+	 };
+
+	 const categoryEl = document.getElementById("category");
+	 const subcategoryEl = document.getElementById("subcategory");
+
+	 // Populate Categories
+	 data.jobCategories.forEach(cat => {
+	     const option = document.createElement("option");
+	     option.value = cat.name;
+	     option.textContent = cat.name;
+	     categoryEl.appendChild(option);
+	 });
+
+	 // Category change
+	 categoryEl.addEventListener("change", () => {
+	     subcategoryEl.innerHTML = '<option value="">Select Subcategory</option>';
+	     subcategoryEl.disabled = true;
+
+	     if (!categoryEl.value) return;
+
+	     const selectedCat = data.jobCategories.find(cat => cat.name === categoryEl.value);
+	     if (selectedCat && selectedCat.subcategories) {
+		 selectedCat.subcategories.forEach(sub => {
+		     const option = document.createElement("option");
+		     option.value = sub;
+		     option.textContent = sub;
+		     subcategoryEl.appendChild(option);
+		 });
+		 subcategoryEl.disabled = false;
+	     }
+	 });
+	</script>
+
+    </body>
+</html>
