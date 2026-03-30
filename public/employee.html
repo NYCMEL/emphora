@@ -813,45 +813,75 @@ if (user) {
     const hasAny  = DIMENSIONS.some(d => rating[d.key] > 0) || rating.recommendation;
 
     // ── COLLAPSED VIEW ───────────────────────────────────────────────────────
+    const ovC     = overall > 0 ? scoreColor(overall) : 'var(--muted)';
+    const ovLabel = overall > 0 ? (STAR_LABELS[Math.round(overall)] || '') : '';
+    const recObj  = REC_OPTIONS.find(o => o.val === rating.recommendation);
+
     const collapsedHTML = `
-      <div class="er-company-row" style="margin-bottom:.75rem">
-        <div class="er-company-logo">${ini}</div>
-        <div style="flex:1;min-width:0">
-          <div class="er-company-name">${esc(empName)}</div>
-          <div class="er-company-sub">Your current employer · ratings are anonymous</div>
+      <div style="display:flex;align-items:stretch;gap:0;flex-wrap:wrap">
+
+        <!-- LEFT: big overall score -->
+        <div style="
+          display:flex;flex-direction:column;align-items:center;justify-content:center;
+          padding:1.25rem 1.5rem;
+          border-right:1px solid rgba(26,107,204,.15);
+          min-width:120px;flex-shrink:0;
+          background:${overall>0?ovC+'12':'rgba(26,107,204,.04)'};
+          text-align:center;
+        ">
+          <div style="
+            font-family:'DM Serif Display',Georgia,serif;
+            font-size:${overall>0?'3.2rem':'2rem'};
+            font-weight:400;
+            line-height:1;
+            letter-spacing:-.04em;
+            color:${overall>0?ovC:'var(--muted)'};
+          ">${overall > 0 ? overall.toFixed(1) : '—'}</div>
+          <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${overall>0?ovC:'var(--muted)'};margin-top:5px;opacity:.8">
+            Overall
+          </div>
+          ${ovLabel ? `<div style="font-size:.68rem;font-weight:600;color:${ovC};margin-top:3px">${ovLabel}</div>` : ''}
         </div>
-      </div>
-      <div class="er-collapsed">
-        <div class="er-collapsed-scores">
-          ${hasAny ? `
+
+        <!-- RIGHT: company + breakdown + actions -->
+        <div style="flex:1;min-width:200px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.65rem;">
+
+          <!-- Company row -->
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="er-company-logo" style="width:32px;height:32px;font-size:.7rem">${ini}</div>
+            <div>
+              <div class="er-company-name" style="font-size:.88rem">${esc(empName)}</div>
+              <div class="er-company-sub">Anonymous · helps the Emphora community</div>
+            </div>
+          </div>
+
+          <!-- Per-dimension mini scores -->
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
             ${DIMENSIONS.map(d => {
               const val = rating[d.key] || 0;
               const c   = val > 0 ? scoreColor(val) : null;
-              return val > 0
-                ? `<span class="er-dim-pill" style="background:${c}18;border-color:${c}44;color:${c}">
-                    <span class="material-icons-round">${d.icon}</span>${d.label}
-                    <strong>${val}/10</strong>
-                   </span>`
-                : `<span class="er-dim-pill er-dim-pill-unrated">
-                    <span class="material-icons-round">${d.icon}</span>${d.label}
-                    <span>—</span>
-                   </span>`;
+              return `<span class="er-dim-pill${val>0?'':' er-dim-pill-unrated'}"
+                style="${val>0?'background:'+c+'18;border-color:'+c+'44;color:'+c:''}">
+                <span class="material-icons-round">${d.icon}</span>
+                ${d.label}
+                <strong>${val > 0 ? val : '—'}</strong>
+              </span>`;
             }).join('')}
-            ${rating.recommendation ? `
+            ${recObj ? `
               <span class="er-dim-pill" style="background:rgba(46,125,50,.1);border-color:rgba(46,125,50,.3);color:#2E7D32">
-                <span class="material-icons-round">recommend</span>
-                ${REC_OPTIONS.find(o=>o.val===rating.recommendation)?.label || ''}
+                <span class="material-icons-round">${recObj.icon}</span>${recObj.label}
               </span>` : ''}
-            ${overall > 0 ? `
-              <span class="er-dim-pill" style="background:rgba(26,107,204,.12);border-color:rgba(26,107,204,.3);color:var(--primary)">
-                <span class="material-icons-round">stars</span>Overall ${overall.toFixed(1)}/10
-              </span>` : ''}
-          ` : `<span class="er-not-rated">No rating submitted yet</span>`}
+            ${!hasAny ? `<span class="er-not-rated">No rating submitted yet — click Rate Now to share your experience</span>` : ''}
+          </div>
+
+          <!-- Edit button -->
+          <div>
+            <button class="er-edit-btn" id="er-edit-btn">
+              <span class="material-icons-round">${hasAny ? 'edit' : 'rate_review'}</span>
+              ${hasAny ? 'Edit Rating' : 'Rate Now'}
+            </button>
+          </div>
         </div>
-        <button class="er-edit-btn" id="er-edit-btn">
-          <span class="material-icons-round">${hasAny ? 'edit' : 'rate_review'}</span>
-          ${hasAny ? 'Edit Rating' : 'Rate Now'}
-        </button>
       </div>`;
 
     // ── EXPANDED FORM ────────────────────────────────────────────────────────
