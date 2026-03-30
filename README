@@ -1,141 +1,394 @@
-IT Hiring Skills Dropdown List
------------------------------
-Operating Systems
-
-Windows
-macOS
-Linux (Ubuntu, Red Hat)
-Unix
-Android
-iOS
-
-Devices
-
-Desktops
-Laptops
-Tablets
-Smartphones
-Servers
-IoT Devices
-
-Productivity & Office Software
-
-Microsoft Office Suite
-Google Workspace
-LibreOffice
-Adobe Creative Suite
-Notion
-Slack
-Trello
-
-Programming & Scripting Languages
-
-Python
-Java
-C/C++
-C#
-Go
-Rust
-PHP
-Ruby
-JavaScript
-TypeScript
-Shell/Bash
-PowerShell
-SQL
-
-Web Technologies
-
-HTML5
-CSS3
-Sass/SCSS
-JavaScript
-TypeScript
-Webpack
-Node.js
-REST APIs
-GraphQL
-JSON
-AJAX
-
-Frameworks & Libraries
-
-React
-Angular
-Vue.js
-jQuery
-jQuery-UI
-Bootstrap
-Tailwind CSS
-Express.js
-Django
-Flask
-Spring Boot
-
-Specializations
-
-Web Components
-Progressive Web Apps (PWA)
-UX/UI Design
-Interaction Design
-Responsive Design
-Hi-Fidelity Prototyping
-Mobile App Development
-Cloud Architecture
-
-Prototyping & Design Tools
-
-Figma
-Sketch
-Adobe XD
-Axure
-Miro
-InVision
-Balsamiq
-Canva
-
-Databases & Data Management
-
-MySQL
-PostgreSQL
-MongoDB
-Redis
-Oracle DB
-Firebase
-Microsoft SQL Server
-Cassandra
-
-DevOps & Cloud
-
-AWS
-Azure
-Google Cloud Platform
-Docker
-Kubernetes
-Jenkins
-GitLab CI/CD
-Terraform
-Ansible
-
-Networking & Security
-
-TCP/IP
-DNS
-VPNs
-Firewalls
-Penetration Testing
-Cybersecurity Tools
-Wireshark
-SSL/TLS
-Encryption
-
-Testing & QA
-
-Selenium
-Jest
-Mocha
-Cypress
-JUnit
-Postman
-TestRail
-Load Testing Tools
+{
+  "jobCategories": [
+    {
+      "name": "Information Technology (IT) & Software",
+      "subcategories": [
+        "Software Development (Frontend, Backend, Full-Stack)",
+        "Mobile Development (iOS, Android)",
+        "DevOps & Cloud Engineering",
+        "System Administration",
+        "Network Engineering",
+        "Database Administration",
+        "IT Support & Help Desk",
+        "Cybersecurity",
+        "QA / Testing Automation",
+        "AI / Machine Learning"
+      ]
+    },
+    {
+      "name": "Engineering & Manufacturing",
+      "subcategories": [
+        "Mechanical Engineering",
+        "Electrical Engineering",
+        "Civil Engineering",
+        "Industrial Engineering",
+        "Chemical Engineering",
+        "Manufacturing & Production",
+        "Quality Control / Assurance",
+        "Process Engineering"
+      ]
+    },
+    {
+      "name": "Healthcare & Medical",
+      "subcategories": [
+        "Physicians & Surgeons",
+        "Nursing",
+        "Allied Health (Therapists, Technicians)",
+        "Pharmacy",
+        "Medical Research",
+        "Healthcare Administration",
+        "Mental Health Services"
+      ]
+    },
+    {
+      "name": "Finance, Banking & Accounting",
+      "subcategories": [
+        "Accounting",
+        "Financial Analysis",
+        "Auditing",
+        "Taxation",
+        "Investment Banking",
+        "Asset / Wealth Management",
+        "Risk & Compliance"
+      ]
+    },
+    {
+      "name": "Sales & Business Development",
+      "subcategories": [
+        "B2B Sales",
+        "B2C Sales",
+        "Account Management",
+        "Inside Sales",
+        "Outside Sales",
+        "Partnerships & Alliances"
+      ]
+    },
+    {
+      "name": "Marketing, Advertising & PR",
+      "subcategories": [
+        "Digital Marketing",
+        "Content Marketing",
+        "SEO / SEM",
+        "Social Media Management",
+        "Brand Management",
+        "Public Relations",
+        "Market Research"
+      ]
+    },
+    {
+      "name": "Human Resources (HR) & Recruiting",
+      "subcategories": [
+        "Talent Acquisition / Recruiting",
+        "HR Operations",
+        "Learning & Development",
+        "Compensation & Benefits",
+        "Employee Relations"
+      ]
+    },
+    {
+      "name": "Customer Service & Support",
+      "subcategories": [
+        "Call Center Support",
+        "Technical Support",
+        "Customer Success",
+        "Client Services"
+      ]
+    },
+    {
+      "name": "Operations & Project Management",
+      "subcategories": [
+        "Project Management",
+        "Program Management",
+        "Business Operations",
+        "Process Improvement",
+        "Supply Chain Operations"
+      ]
+    },
+    {
+      "name": "Education & Training",
+      "subcategories": [
+        "K-12 Education",
+        "Higher Education",
+        "Corporate Training",
+        "Instructional Design",
+        "E-learning Development"
+      ]
+    },
+    {
+      "name": "Legal & Compliance",
+      "subcategories": [
+        "Corporate Law",
+        "Litigation",
+        "Compliance",
+        "Paralegal Services",
+        "Contract Management"
+      ]
+    },
+    {
+      "name": "Government & Public Administration",
+      "subcategories": [
+        "Public Policy",
+        "Administration",
+        "Urban Planning",
+        "Public Safety"
+      ]
+    },
+    {
+      "name": "Nonprofit & Social Services",
+      "subcategories": [
+        "Social Work",
+        "Community Outreach",
+        "Program Management",
+        "Fundraising & Development"
+      ]
+    },
+    {
+      "name": "Science & Research",
+      "subcategories": [
+        "Biology / Life Sciences",
+        "Chemistry",
+        "Physics",
+        "Environmental Science",
+        "Laboratory Research"
+      ]
+    },
+    {
+      "name": "Data, AI & Analytics",
+      "subcategories": [
+        "Data Analysis",
+        "Data Engineering",
+        "Data Science",
+        "Business Intelligence",
+        "Machine Learning / AI"
+      ]
+    },
+    {
+      "name": "Design & Creative",
+      "subcategories": [
+        "Graphic Design",
+        "UI/UX Design",
+        "Product Design",
+        "Motion Graphics",
+        "Industrial Design"
+      ]
+    },
+    {
+      "name": "Media, Entertainment & Publishing",
+      "subcategories": [
+        "Film & TV Production",
+        "Journalism",
+        "Editing & Publishing",
+        "Broadcasting",
+        "Content Creation"
+      ]
+    },
+    {
+      "name": "Hospitality & Tourism",
+      "subcategories": [
+        "Hotel Management",
+        "Travel & Tourism",
+        "Event Planning",
+        "Guest Services"
+      ]
+    },
+    {
+      "name": "Food Service & Culinary",
+      "subcategories": [
+        "Cooking / Chef Roles",
+        "Food Preparation",
+        "Restaurant Management",
+        "Catering"
+      ]
+    },
+    {
+      "name": "Retail & E-commerce",
+      "subcategories": [
+        "Store Operations",
+        "Merchandising",
+        "E-commerce Management",
+        "Inventory Control"
+      ]
+    },
+    {
+      "name": "Transportation & Logistics",
+      "subcategories": [
+        "Logistics Coordination",
+        "Warehousing",
+        "Distribution",
+        "Trucking / Driving",
+        "Fleet Management"
+      ]
+    },
+    {
+      "name": "Construction & Real Estate",
+      "subcategories": [
+        "Construction Management",
+        "Architecture",
+        "Real Estate Sales",
+        "Property Management",
+        "Surveying"
+      ]
+    },
+    {
+      "name": "Agriculture & Natural Resources",
+      "subcategories": [
+        "Farming",
+        "Forestry",
+        "Fishing",
+        "Agribusiness"
+      ]
+    },
+    {
+      "name": "Energy & Utilities",
+      "subcategories": [
+        "Oil & Gas",
+        "Renewable Energy",
+        "Utilities Management",
+        "Power Generation"
+      ]
+    },
+    {
+      "name": "Telecommunications",
+      "subcategories": [
+        "Network Infrastructure",
+        "Wireless Communication",
+        "Telecom Engineering",
+        "Support Services"
+      ]
+    },
+    {
+      "name": "Consulting & Strategy",
+      "subcategories": [
+        "Management Consulting",
+        "Strategy Consulting",
+        "IT Consulting",
+        "Financial Consulting"
+      ]
+    },
+    {
+      "name": "Administrative & Office Support",
+      "subcategories": [
+        "Executive Assistance",
+        "Office Management",
+        "Data Entry",
+        "Clerical Work"
+      ]
+    },
+    {
+      "name": "Skilled Trades & Labor",
+      "subcategories": [
+        "Electrical Work",
+        "Plumbing",
+        "Carpentry",
+        "Welding",
+        "HVAC"
+      ]
+    },
+    {
+      "name": "Maintenance & Repair",
+      "subcategories": [
+        "Equipment Maintenance",
+        "Facility Maintenance",
+        "Automotive Repair"
+      ]
+    },
+    {
+      "name": "Security & Protective Services",
+      "subcategories": [
+        "Law Enforcement",
+        "Private Security",
+        "Firefighting",
+        "Emergency Response"
+      ]
+    },
+    {
+      "name": "Military & Defense",
+      "subcategories": [
+        "Armed Forces",
+        "Defense Operations",
+        "Intelligence"
+      ]
+    },
+    {
+      "name": "Sports, Fitness & Recreation",
+      "subcategories": [
+        "Coaching",
+        "Personal Training",
+        "Sports Management",
+        "Recreation Services"
+      ]
+    },
+    {
+      "name": "Beauty, Wellness & Personal Care",
+      "subcategories": [
+        "Cosmetology",
+        "Spa & Wellness",
+        "Fitness & Nutrition"
+      ]
+    },
+    {
+      "name": "Environmental & Sustainability",
+      "subcategories": [
+        "Environmental Consulting",
+        "Sustainability Programs",
+        "Conservation"
+      ]
+    },
+    {
+      "name": "Aviation & Aerospace",
+      "subcategories": [
+        "Pilots",
+        "Aircraft Maintenance",
+        "Aerospace Engineering"
+      ]
+    },
+    {
+      "name": "Maritime & Shipping",
+      "subcategories": [
+        "Seafaring",
+        "Port Operations",
+        "Marine Engineering"
+      ]
+    },
+    {
+      "name": "Insurance",
+      "subcategories": [
+        "Underwriting",
+        "Claims Processing",
+        "Actuarial Science"
+      ]
+    },
+    {
+      "name": "Procurement & Supply Chain",
+      "subcategories": [
+        "Purchasing",
+        "Vendor Management",
+        "Supply Chain Planning"
+      ]
+    },
+    {
+      "name": "Quality Assurance",
+      "subcategories": [
+        "Product QA",
+        "Process QA",
+        "Compliance Testing"
+      ]
+    },
+    {
+      "name": "Product Management",
+      "subcategories": [
+        "Product Strategy",
+        "Product Ownership",
+        "Roadmapping"
+      ]
+    },
+    {
+      "name": "Research & Development (R&D)",
+      "subcategories": [
+        "Product Research",
+        "Innovation",
+        "Prototyping"
+      ]
+    }
+  ]
+}
