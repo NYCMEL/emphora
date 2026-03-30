@@ -267,28 +267,27 @@
     </div>
   </div>
 
-  <!-- ── EMPLOYMENT ── -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">business_center</span>Employment</div>
-      <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
-    </div>
-    <div class="section-body" id="employment-body"><!-- populated by JS --></div>
-  </div>
-
-  <!-- ── RATE YOUR EMPLOYER ── -->
+  <!-- ── EMPLOYMENT + EMPLOYER RATING ── -->
   <div class="er-section" id="er-section">
     <div class="er-header">
       <div class="er-header-left">
-        <div class="er-icon"><span class="material-icons-round">rate_review</span></div>
+        <div class="er-icon"><span class="material-icons-round">business_center</span></div>
         <div>
-          <div class="er-title">Rate Your Employer</div>
-          <div class="er-subtitle">Anonymous · helps the Emphora community</div>
+          <div class="er-title">Employment</div>
+          <div class="er-subtitle">Your work history &amp; employer rating</div>
         </div>
       </div>
-      <span class="er-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Rating saved</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="er-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Rating saved</span>
+        <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit History</button>
+      </div>
     </div>
-    <div class="er-body" id="er-body"><!-- populated by JS --></div>
+    <!-- Employment list -->
+    <div style="padding:1rem 1.1rem 0" id="employment-body"><!-- populated by JS --></div>
+    <!-- Divider -->
+    <div style="margin:0 1.1rem;border-top:1px solid rgba(26,107,204,.15)"></div>
+    <!-- Employer rating collapsed/form -->
+    <div class="er-body" id="er-body" style="padding:1rem 1.1rem 1.1rem"><!-- populated by JS --></div>
   </div>
 
   <!-- ── JOBS APPLIED ── -->
