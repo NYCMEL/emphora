@@ -130,6 +130,7 @@
     <div class="profile-hero-name" id="hero-name">—</div>
     <div class="profile-hero-title" id="hero-title">—</div>
     <div class="profile-hero-meta" id="hero-meta"></div>
+    <div style="margin-top:.75rem;display:flex;gap:8px" id="hero-links"></div>
   </div>
 </div>
 
@@ -151,23 +152,6 @@
     </div>
   </div>
 
-  <!-- EMPLOYMENT (employee only) -->
-  <div class="section" id="employment-section" style="display:none">
-    <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">business_center</span>Employment</div>
-      <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
-    </div>
-    <div class="section-body" id="employment-body"></div>
-  </div>
-
-  <!-- EMPLOYER RATING (employee only) -->
-  <div class="section" id="rating-section" style="display:none">
-    <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">rate_review</span>Employer Rating</div>
-      <span class="profile-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
-    </div>
-    <div class="section-body" id="er-body"></div>
-  </div>
 
 </div><!-- /page -->
 
@@ -225,6 +209,18 @@ function updateHero() {
   if (metaEl) metaEl.innerHTML = pills.join('');
 }
 updateHero();
+
+// Show Work & Ratings link for employees
+if (user.accountType === 'employee') {
+  const linksEl = document.getElementById('hero-links');
+  if (linksEl) linksEl.innerHTML = `
+    <a href="work.html" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid rgba(26,107,204,.25);background:rgba(26,107,204,.08);color:var(--primary);font-size:.76rem;font-weight:600;text-decoration:none">
+      <span class="material-icons-round" style="font-size:.88rem">business_center</span>Work &amp; Ratings
+    </a>
+    <a href="skills.html" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid rgba(0,137,123,.25);background:rgba(0,137,123,.08);color:#00897B;font-size:.76rem;font-weight:600;text-decoration:none">
+      <span class="material-icons-round" style="font-size:.88rem">psychology</span>My Skills
+    </a>`;
+}
 
 // ── Avatar upload ─────────────────────────────────────────────────────────────
 (function() {
@@ -343,259 +339,6 @@ document.getElementById('profile-cancel-btn')?.addEventListener('click', () => {
 });
 renderProfile();
 
-// ── Employment (employees only) ───────────────────────────────────────────────
-if (user.accountType === 'employee' || user.accountType === 'admin') {
-  const empSec = document.getElementById('employment-section');
-  if (empSec) empSec.style.display = '';
-
-  const EKEY = `emphora_employment_${user.email}`;
-  let emp = { current:{ company:'', title:'', from:'', description:'' }, previous:[] };
-  try { const s = localStorage.getItem(EKEY); if (s) emp = { ...emp, ...JSON.parse(s) }; } catch(_) {}
-
-  const empBody = document.getElementById('employment-body');
-  const empEditBtn = document.getElementById('employment-edit-btn');
-
-  function fmtDate(d) { return d ? new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short'}) : ''; }
-  function yearsAt(from) {
-    if (!from) return '';
-    const y = ((Date.now()-new Date(from))/(1000*60*60*24*365.25)).toFixed(1);
-    return `${y} yrs`;
-  }
-
-  function renderEmpView() {
-    if (!empBody) return;
-    const c = emp.current;
-    let html = `<div class="employer-card current">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-        <div>
-          <div class="employer-card-title">${esc(c.company)||'<span style="color:var(--muted);font-style:italic;font-weight:400">Not set</span>'}</div>
-          ${c.title?`<div class="employer-card-sub">${esc(c.title)}</div>`:''}
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${c.from?`<span class="employer-card-badge">${fmtDate(c.from)} – Present</span>`:''}
-          ${c.from?`<span class="employer-card-badge">${yearsAt(c.from)}</span>`:''}
-        </div>
-      </div>
-      ${c.description?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(c.description)}</div>`:''}
-    </div>`;
-    (emp.previous||[]).filter(p=>p.company||p.title).forEach(p => {
-      const pf = fmtDate(p.from), pt = p.to ? fmtDate(p.to) : 'Present';
-      html += `<div class="employer-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-          <div>
-            <div class="employer-card-title">${esc(p.company)}</div>
-            ${p.title?`<div class="employer-card-sub">${esc(p.title)}</div>`:''}
-          </div>
-          ${pf?`<span class="employer-card-badge past">${pf} – ${pt}</span>`:''}
-        </div>
-        ${p.description?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(p.description)}</div>`:''}
-      </div>`;
-    });
-    empBody.innerHTML = html;
-  }
-
-  function renderEmpEdit() {
-    if (!empBody) return;
-    const EMPTY = () => ({company:'',title:'',from:'',to:'',description:''});
-
-    function fieldBlock(label, obj, idx, isCurrent) {
-      return `<div style="margin-bottom:.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
-          <div style="font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">${label}</div>
-          ${!isCurrent?`<button class="profile-cancel-btn" data-remove="${idx}" style="font-size:.7rem;padding:3px 8px;color:var(--danger);border-color:rgba(198,40,40,.25)"><span class="material-icons-round" style="font-size:.75rem">delete</span>Remove</button>`:''}
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div><label class="profile-label">Company</label><input class="profile-input" id="emp-${idx}-company" type="text" value="${esc(obj.company||'')}" placeholder="Company name"/></div>
-          <div><label class="profile-label">Job Title</label><input class="profile-input" id="emp-${idx}-title" type="text" value="${esc(obj.title||'')}" placeholder="Your title"/></div>
-          <div><label class="profile-label">From</label><input class="profile-input" id="emp-${idx}-from" type="month" value="${esc(obj.from||'')}"/></div>
-          ${!isCurrent?`<div><label class="profile-label">To</label><input class="profile-input" id="emp-${idx}-to" type="month" value="${esc(obj.to||'')}"/></div>`:''}
-          <div style="grid-column:1/-1"><label class="profile-label">Description</label><textarea class="profile-input" id="emp-${idx}-desc" rows="2" placeholder="Brief description">${esc(obj.description||'')}</textarea></div>
-        </div>
-      </div>`;
-    }
-
-    function collect() {
-      emp.current = { company:document.getElementById('emp-cur-company')?.value.trim()||'', title:document.getElementById('emp-cur-title')?.value.trim()||'', from:document.getElementById('emp-cur-from')?.value||'', description:document.getElementById('emp-cur-desc')?.value.trim()||'' };
-      emp.previous = (emp.previous||[]).map((_,i) => ({ company:document.getElementById(`emp-${i}-company`)?.value.trim()||'', title:document.getElementById(`emp-${i}-title`)?.value.trim()||'', from:document.getElementById(`emp-${i}-from`)?.value||'', to:document.getElementById(`emp-${i}-to`)?.value||'', description:document.getElementById(`emp-${i}-desc`)?.value.trim()||'' }));
-    }
-
-    function rebuild() {
-      empBody.innerHTML = fieldBlock('Current Employer', emp.current, 'cur', true)
-        + (emp.previous||[]).map((p,i) => fieldBlock(`Previous Employer ${i+1}`, p, i, false)).join('')
-        + `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.25rem">
-            <button class="profile-save-btn" id="emp-save-btn"><span class="material-icons-round">save</span>Save</button>
-            <button class="profile-edit-btn" id="emp-add-btn"><span class="material-icons-round">add</span>Add Previous Employer</button>
-            <button class="profile-cancel-btn" id="emp-cancel-btn">Cancel</button>
-          </div>`;
-      empBody.querySelectorAll('[data-remove]').forEach(btn => {
-        btn.addEventListener('click', () => { collect(); emp.previous.splice(Number(btn.dataset.remove),1); rebuild(); });
-      });
-      document.getElementById('emp-add-btn')?.addEventListener('click', () => { collect(); emp.previous.push(EMPTY()); rebuild(); });
-      document.getElementById('emp-save-btn')?.addEventListener('click', () => {
-        collect();
-        emp.previous = emp.previous.filter(p=>p.company||p.title);
-        try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_) {}
-        if (empEditBtn) empEditBtn.style.display = '';
-        renderEmpView();
-      });
-      document.getElementById('emp-cancel-btn')?.addEventListener('click', () => { if (empEditBtn) empEditBtn.style.display = ''; renderEmpView(); });
-    }
-    rebuild();
-  }
-
-  empEditBtn?.addEventListener('click', () => { empEditBtn.style.display = 'none'; renderEmpEdit(); });
-  renderEmpView();
-}
-
-// ── Employer Rating (employees only) ─────────────────────────────────────────
-if (user.accountType === 'employee') {
-  const rateSec = document.getElementById('rating-section');
-  if (rateSec) rateSec.style.display = '';
-
-  const RKEY = `emphora_employer_rating_${user.email}`;
-  const EKEY = `emphora_employment_${user.email}`;
-  const DEFAULTS = { manager:0, company:0, environment:0, recommendation:'', notes:'' };
-  let rating = { ...DEFAULTS };
-  try { Object.assign(rating, JSON.parse(localStorage.getItem(RKEY)||'{}')); } catch(_) {}
-
-  let empName = 'Your Current Employer';
-  try { const e = JSON.parse(localStorage.getItem(EKEY)||'{}'); if (e.current?.company) empName = e.current.company; } catch(_) {}
-
-  const DIMENSIONS = [
-    { key:'manager',     label:'My Manager',       icon:'supervisor_account', desc:'Leadership, communication, support & fairness'      },
-    { key:'company',     label:'The Company',      icon:'domain',             desc:'Culture, values, transparency & strategic direction' },
-    { key:'environment', label:'Work Environment', icon:'home_work',          desc:'Team dynamics, tools, work-life balance & wellbeing' },
-  ];
-  const REC_OPTIONS = [
-    { val:'yes',          label:'Yes, I recommend',     icon:'thumb_up',       cls:'selected-yes' },
-    { val:'reservations', label:'With Reservations',    icon:'thumbs_up_down', cls:'selected-res' },
-    { val:'no',           label:'Would Not Recommend',  icon:'thumb_down',     cls:'selected-no'  },
-  ];
-  const STAR_LABELS = ['','Poor','Fair','Average','Good','Excellent','Outstanding','Impressive','Exceptional','Elite','World-Class'];
-
-  function scoreColor(s) {
-    if (s<=0) return 'var(--muted)';
-    if (s<=3) return '#EF5350';
-    if (s<=5) return '#FFA726';
-    if (s<=7) return '#9CCC65';
-    return '#1A6BCC';
-  }
-  function overall() {
-    const v = DIMENSIONS.map(d=>rating[d.key]).filter(x=>x>0);
-    return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
-  }
-
-  function renderRating() {
-    const body = document.getElementById('er-body');
-    if (!body) return;
-    const ov = overall();
-    const ini = empName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-
-    body.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding:.75rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px">
-        <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1A6BCC,#00897B);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
-        <div>
-          <div style="font-size:.88rem;font-weight:600;color:var(--text)">${esc(empName)}</div>
-          <div style="font-size:.72rem;color:var(--muted)">Anonymous · only aggregate scores shared</div>
-        </div>
-        ${ov > 0 ? `<div style="margin-left:auto;text-align:center;flex-shrink:0">
-          <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;font-weight:400;color:${scoreColor(ov)};line-height:1">${ov.toFixed(1)}</div>
-          <div style="font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${scoreColor(ov)};opacity:.8">${STAR_LABELS[Math.round(ov)]||'Overall'}</div>
-        </div>` : ''}
-      </div>
-
-      ${DIMENSIONS.map(d => {
-        const val = rating[d.key]||0, c = scoreColor(val);
-        return `<div style="margin-bottom:.9rem">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
-            <div style="display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600">
-              <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">${d.icon}</span>${d.label}
-            </div>
-            <span id="erv-${d.key}" style="font-size:.95rem;font-weight:700;color:${val>0?c:'var(--muted)'}">${val>0?val:'—'}</span>
-          </div>
-          <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">${d.desc}</div>
-          <div class="er-nums" data-dim="${d.key}">
-            ${[1,2,3,4,5,6,7,8,9,10].map(n => {
-              const on = val>=n;
-              return `<button class="er-num${on?' active':''}" data-val="${n}"
-                style="${on?'background:'+c+';border-color:'+c+';':''}">${n}</button>`;
-            }).join('')}
-          </div>
-          <div class="er-bar" style="margin-top:5px"><div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div></div>
-          <div id="erl-${d.key}" style="font-size:.7rem;color:${val>0?c:'transparent'};margin-top:2px;font-weight:600;min-height:1em">${val>0?(STAR_LABELS[val]||''):''}</div>
-        </div>`;
-      }).join('')}
-
-      <div style="margin-bottom:.85rem">
-        <div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem;display:flex;align-items:center;gap:5px">
-          <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">recommend</span>Would you recommend?
-        </div>
-        <div class="er-rec-options">
-          ${REC_OPTIONS.map(o=>`<button class="er-rec-btn${rating.recommendation===o.val?' '+o.cls:''}" data-rec="${o.val}">
-            <span class="material-icons-round">${o.icon}</span>${o.label}</button>`).join('')}
-        </div>
-      </div>
-
-      <div style="margin-bottom:.85rem">
-        <div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem;display:flex;align-items:center;gap:5px">
-          <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">edit_note</span>
-          Comments <span style="font-weight:400;color:var(--muted)">(optional · anonymous)</span>
-        </div>
-        <textarea class="er-textarea" id="er-notes" placeholder="Share your experience…">${esc(rating.notes||'')}</textarea>
-      </div>
-
-      <div style="display:flex;gap:8px;align-items:center;padding-top:.5rem;border-top:1px solid var(--border);flex-wrap:wrap">
-        <button class="er-submit-btn" id="er-save-btn"><span class="material-icons-round">save</span>Save Rating</button>
-        <button class="profile-cancel-btn" id="er-clear-btn" style="color:var(--danger);border-color:rgba(198,40,40,.25)">Clear</button>
-      </div>`;
-
-    // Bind numbers
-    body.querySelectorAll('.er-nums').forEach(numsEl => {
-      const dim = numsEl.dataset.dim;
-      const btns = numsEl.querySelectorAll('.er-num');
-      function applyActive(val) {
-        const c = scoreColor(val);
-        btns.forEach(b => { const on = val>0&&Number(b.dataset.val)<=val; b.classList.toggle('active',on); b.style.background=on?c:''; b.style.borderColor=on?c:''; b.style.color=on?'#fff':''; });
-      }
-      numsEl.addEventListener('mouseover', e => { const b=e.target.closest('.er-num'); if(b) applyActive(Number(b.dataset.val)); });
-      numsEl.addEventListener('mouseleave', () => applyActive(rating[dim]||0));
-      numsEl.addEventListener('click', e => {
-        const b = e.target.closest('.er-num'); if(!b) return;
-        const n = Number(b.dataset.val);
-        rating[dim] = rating[dim]===n ? 0 : n;
-        applyActive(rating[dim]);
-        const c = scoreColor(rating[dim]);
-        const vEl = document.getElementById(`erv-${dim}`), barEl = document.getElementById(`erb-${dim}`), lblEl = document.getElementById(`erl-${dim}`);
-        if(vEl){ vEl.textContent=rating[dim]>0?rating[dim]:'—'; vEl.style.color=rating[dim]>0?c:'var(--muted)'; }
-        if(barEl){ barEl.style.width=`${rating[dim]*10}%`; barEl.style.background=rating[dim]>0?c:'var(--border)'; }
-        if(lblEl){ lblEl.textContent=rating[dim]>0?(STAR_LABELS[rating[dim]]||''):''; lblEl.style.color=c; lblEl.style.opacity=rating[dim]>0?'1':'0'; }
-      });
-    });
-
-    // Recommendation
-    body.querySelectorAll('.er-rec-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        rating.recommendation = rating.recommendation===btn.dataset.rec ? '' : btn.dataset.rec;
-        body.querySelectorAll('.er-rec-btn').forEach(b => { b.className='er-rec-btn'; if(rating.recommendation===b.dataset.rec){ const o=REC_OPTIONS.find(x=>x.val===b.dataset.rec); if(o) b.classList.add(o.cls); } });
-      });
-    });
-
-    document.getElementById('er-save-btn')?.addEventListener('click', () => {
-      rating.notes = document.getElementById('er-notes')?.value.trim()||'';
-      try { localStorage.setItem(RKEY, JSON.stringify(rating)); } catch(_) {}
-      const tag = document.getElementById('er-saved-tag');
-      if(tag){ tag.classList.add('show'); setTimeout(()=>tag.classList.remove('show'),2200); }
-    });
-    document.getElementById('er-clear-btn')?.addEventListener('click', () => {
-      if(!confirm('Clear your employer rating?')) return;
-      rating = {...DEFAULTS};
-      try { localStorage.removeItem(RKEY); } catch(_) {}
-      renderRating();
-    });
-  }
-
-  renderRating();
-}
 </script>
 
 <script src="js/avatar-upload.js"></script>
