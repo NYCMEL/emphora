@@ -1,0 +1,563 @@
+<!--
+  Place at: public/skills.html
+  Emphora Employee Skills Self-Rating
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Emphora — My Skills</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
+  <link rel="stylesheet" href="css/emphora.css"/>
+  <style>
+    :root{
+      --primary:#1A6BCC;--bg:#F0F4F8;--surface:#fff;--surface2:#F8FAFC;
+      --border:#D0DCE8;--text:#0D1B2A;--muted:#7A8FA6;
+      --success:#2E7D32;--warning:#E65100;--danger:#C62828;
+    }
+    [data-theme="dark"]{
+      --bg:#0A0F1A;--surface:#111827;--surface2:#1A2236;
+      --border:rgba(255,255,255,.10);--text:#E8F1FF;--muted:#5C7389;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:15px;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s;}
+
+    /* ── TOPBAR ── */
+    .topbar{position:sticky;top:0;z-index:100;height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.25rem;gap:10px;}
+    .logo{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:1.3rem;color:var(--primary);text-decoration:none;}
+    .logo b{color:#00897B;font-weight:400;}
+    .topbar-title{font-size:.88rem;font-weight:600;color:var(--text);}
+    .spacer{flex:1;}
+    .icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;text-decoration:none;}
+    .icon-btn:hover{color:var(--primary);border-color:var(--primary);}
+    .icon-btn .material-icons-round{font-size:1rem;}
+
+    /* ── LAYOUT ── */
+    .page{display:grid;grid-template-columns:300px 1fr;gap:0;min-height:calc(100vh - 54px);}
+    @media(max-width:768px){.page{grid-template-columns:1fr;}}
+
+    /* ── LEFT PANEL — category picker ── */
+    .panel-left{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:54px;height:calc(100vh - 54px);overflow:hidden;}
+    @media(max-width:768px){.panel-left{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);}}
+
+    .panel-header{padding:1rem 1.1rem .75rem;border-bottom:1px solid var(--border);flex-shrink:0;}
+    .panel-header h2{font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400;margin-bottom:.5rem;}
+
+    .search-wrap{position:relative;}
+    .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex;}
+    .search-icon .material-icons-round{font-size:.9rem;}
+    .skill-search{width:100%;padding:6px 10px 6px 28px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font:inherit;font-size:.8rem;outline:none;}
+    .skill-search:focus{border-color:var(--primary);}
+
+    .categories{flex:1;overflow-y:auto;padding:.5rem 0;}
+    .cat-group{margin-bottom:2px;}
+    .cat-label{padding:.35rem 1.1rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;transition:color .15s;}
+    .cat-label:hover{color:var(--primary);}
+    .cat-label .material-icons-round{font-size:.85rem;transition:transform .2s;}
+    .cat-group.open .cat-label .material-icons-round{transform:rotate(90deg);}
+    .cat-items{display:none;padding:2px 0;}
+    .cat-group.open .cat-items{display:block;}
+    .skill-item{display:flex;align-items:center;justify-content:space-between;padding:.38rem 1.1rem .38rem 1.5rem;font-size:.82rem;cursor:pointer;border-radius:0;transition:background .1s;color:var(--text);}
+    .skill-item:hover{background:rgba(26,107,204,.06);}
+    .skill-item.selected{background:rgba(26,107,204,.1);color:var(--primary);font-weight:600;}
+    .skill-item .skill-badge{font-size:.68rem;font-weight:700;color:var(--primary);background:rgba(26,107,204,.12);border-radius:20px;padding:1px 7px;min-width:24px;text-align:center;}
+
+    /* ── RIGHT PANEL — rated skills ── */
+    .panel-right{padding:1.5rem 1.25rem;overflow-y:auto;}
+
+    .right-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;}
+    .right-header h1{font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400;}
+    .right-header p{font-size:.78rem;color:var(--muted);margin-top:2px;}
+
+    .save-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;white-space:nowrap;}
+    .btn:hover{border-color:var(--primary);color:var(--primary);}
+    .btn .material-icons-round{font-size:.9rem;}
+    .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .btn-primary:hover{filter:brightness(1.1);color:#fff;}
+    .btn-danger{background:rgba(198,40,40,.08);border-color:rgba(198,40,40,.25);color:var(--danger);}
+
+    .save-status{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:4px;}
+    .save-status .material-icons-round{font-size:.85rem;}
+    .save-status.saved{color:var(--success);}
+
+    /* ── EMPTY STATE ── */
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:340px;gap:12px;text-align:center;color:var(--muted);}
+    .empty-state .material-icons-round{font-size:3rem;opacity:.25;}
+    .empty-state h3{font-family:'DM Serif Display',serif;font-size:1.2rem;font-weight:400;color:var(--text);}
+    .empty-state p{font-size:.82rem;max-width:300px;}
+
+    /* ── SKILL CARDS ── */
+    .skills-grid{display:flex;flex-direction:column;gap:10px;}
+
+    .skill-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;transition:border-color .15s;}
+    .skill-card:hover{border-color:rgba(26,107,204,.3);}
+
+    .skill-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
+    .skill-card-name{font-size:.88rem;font-weight:600;display:flex;align-items:center;gap:8px;}
+    .skill-card-cat{font-size:.65rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:1px 8px;}
+    .skill-card-score{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;min-width:32px;text-align:right;transition:color .2s;}
+
+    .slider-wrap{position:relative;padding-bottom:.4rem;}
+    .skill-slider{
+      -webkit-appearance:none;appearance:none;
+      width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;
+      background:var(--border);
+    }
+    .skill-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:18px;height:18px;border-radius:50%;
+      background:var(--primary);border:2px solid var(--surface);
+      box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;transition:transform .15s;
+    }
+    .skill-slider::-webkit-slider-thumb:hover{transform:scale(1.2);}
+    .skill-slider::-moz-range-thumb{
+      width:18px;height:18px;border-radius:50%;
+      background:var(--primary);border:2px solid var(--surface);cursor:pointer;
+    }
+    .slider-ticks{display:flex;justify-content:space-between;margin-top:4px;}
+    .slider-ticks span{font-size:.6rem;color:var(--muted);width:20px;text-align:center;}
+
+    .skill-level-label{font-size:.7rem;font-weight:600;margin-top:4px;}
+
+    .skill-remove{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;border-radius:5px;display:flex;align-items:center;transition:color .15s;}
+    .skill-remove:hover{color:var(--danger);}
+    .skill-remove .material-icons-round{font-size:1rem;}
+
+    /* ── CUSTOM ENTRY ── */
+    .custom-entry{background:var(--surface);border:1.5px dashed var(--border);border-radius:12px;padding:1rem 1.1rem;display:flex;align-items:center;gap:10px;margin-top:4px;}
+    .custom-entry input{flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface2);color:var(--text);font:inherit;font-size:.82rem;outline:none;}
+    .custom-entry input:focus{border-color:var(--primary);}
+    .custom-entry .btn{flex-shrink:0;}
+
+    /* ── SUMMARY BAR ── */
+    .summary-bar{display:flex;gap:16px;padding:.75rem 1.1rem;background:rgba(26,107,204,.06);border:1px solid rgba(26,107,204,.15);border-radius:10px;margin-bottom:1.1rem;flex-wrap:wrap;}
+    .summary-item{display:flex;flex-direction:column;align-items:center;min-width:60px;}
+    .summary-value{font-size:1.2rem;font-weight:700;color:var(--primary);letter-spacing:-.02em;}
+    .summary-label{font-size:.65rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:1px;}
+
+    @keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    .skill-card{animation:slideIn .2s ease both;}
+
+    /* scrollbar */
+    .categories::-webkit-scrollbar{width:4px;}
+    .categories::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a href="employee.html" class="logo">Emph<b>ora</b></a>
+  <span class="material-icons-round" style="font-size:1rem;color:var(--muted)">chevron_right</span>
+  <span class="topbar-title">My Skills</span>
+  <div class="spacer"></div>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <a href="employee.html" class="icon-btn" title="Back to dashboard"><span class="material-icons-round">arrow_back</span></a>
+</nav>
+
+<div class="page">
+
+  <!-- ── LEFT: Category Picker ── -->
+  <aside class="panel-left">
+    <div class="panel-header">
+      <h2>Add Skills</h2>
+      <div class="search-wrap">
+        <span class="search-icon"><span class="material-icons-round">search</span></span>
+        <input class="skill-search" id="skill-search" type="search" placeholder="Search skills…" autocomplete="off"/>
+      </div>
+    </div>
+    <div class="categories" id="categories"></div>
+  </aside>
+
+  <!-- ── RIGHT: Rated Skills ── -->
+  <main class="panel-right">
+    <div class="right-header">
+      <div>
+        <h1>Skill Ratings</h1>
+        <p id="right-sub">Select skills from the left panel, rate yourself 0–10</p>
+      </div>
+      <div class="save-bar">
+        <span class="save-status" id="save-status"></span>
+        <button class="btn" id="clear-btn"><span class="material-icons-round">delete_sweep</span>Clear all</button>
+        <button class="btn btn-primary" id="save-btn"><span class="material-icons-round">save</span>Save</button>
+      </div>
+    </div>
+
+    <div id="summary-bar" class="summary-bar" style="display:none">
+      <div class="summary-item"><span class="summary-value" id="sum-count">0</span><span class="summary-label">Skills</span></div>
+      <div class="summary-item"><span class="summary-value" id="sum-avg">0</span><span class="summary-label">Avg Score</span></div>
+      <div class="summary-item"><span class="summary-value" id="sum-expert">0</span><span class="summary-label">Expert (8+)</span></div>
+      <div class="summary-item"><span class="summary-value" id="sum-categories">0</span><span class="summary-label">Categories</span></div>
+    </div>
+
+    <div class="skills-grid" id="skills-grid"></div>
+
+    <!-- Custom Entry -->
+    <div class="custom-entry" id="custom-entry">
+      <span class="material-icons-round" style="color:var(--muted);font-size:1.1rem">add_circle_outline</span>
+      <input type="text" id="custom-input" placeholder="Add a custom skill not listed…" maxlength="60"/>
+      <button class="btn btn-primary" id="custom-add-btn"><span class="material-icons-round">add</span>Add</button>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+
+// ── Auth guard ─────────────────────────────────────────────────────────────────
+const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch{return null;} })();
+if (!user) window.location.href = '/';
+
+const STORAGE_KEY = `emphora_skills_${user?.email || 'guest'}`;
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+let theme = localStorage.getItem('em-theme') || 'light';
+function applyTheme(t) {
+  theme = t;
+  document.body.dataset.theme = t;
+  document.querySelector('#theme-btn .material-icons-round').textContent = t==='dark'?'dark_mode':'light_mode';
+  localStorage.setItem('em-theme', t);
+}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick = () => applyTheme(theme==='dark'?'light':'dark');
+
+// ── Skill Catalogue ───────────────────────────────────────────────────────────
+const CATALOGUE = [
+  { cat: 'Operating Systems', icon: 'computer', items: [
+    'Windows','macOS','Linux (Ubuntu)','Linux (Red Hat)','Unix','Android','iOS'
+  ]},
+  { cat: 'Devices', icon: 'devices', items: [
+    'Desktops','Laptops','Tablets','Smartphones','Servers','IoT Devices'
+  ]},
+  { cat: 'Productivity & Office', icon: 'work', items: [
+    'Microsoft Office Suite','Google Workspace','LibreOffice','Adobe Creative Suite',
+    'Notion','Slack','Trello'
+  ]},
+  { cat: 'Programming Languages', icon: 'code', items: [
+    'Python','Java','C','C++','C#','Go','Rust','PHP','Ruby',
+    'JavaScript','TypeScript','Shell/Bash','PowerShell','SQL'
+  ]},
+  { cat: 'Web Technologies', icon: 'language', items: [
+    'HTML5','CSS3','Sass/SCSS','JavaScript','TypeScript',
+    'Webpack','Node.js','REST APIs','GraphQL','JSON','AJAX'
+  ]},
+  { cat: 'Frameworks & Libraries', icon: 'view_quilt', items: [
+    'React','Angular','Vue.js','jQuery','jQuery UI','Bootstrap','Tailwind CSS',
+    'Express.js','Django','Flask','Spring Boot'
+  ]},
+  { cat: 'Specializations', icon: 'auto_awesome', items: [
+    'Web Components','Progressive Web Apps (PWA)','UX/UI Design',
+    'Interaction Design','Responsive Design','Hi-Fidelity Prototyping',
+    'Mobile App Development','Cloud Architecture'
+  ]},
+  { cat: 'Prototyping & Design', icon: 'design_services', items: [
+    'Figma','Sketch','Adobe XD','Axure','Miro','InVision','Balsamiq','Canva'
+  ]},
+  { cat: 'Databases', icon: 'storage', items: [
+    'MySQL','PostgreSQL','MongoDB','Redis','Oracle DB',
+    'Firebase','Microsoft SQL Server','Cassandra'
+  ]},
+  { cat: 'DevOps & Cloud', icon: 'cloud', items: [
+    'AWS','Azure','Google Cloud Platform','Docker','Kubernetes',
+    'Jenkins','GitLab CI/CD','Terraform','Ansible'
+  ]},
+  { cat: 'Networking & Security', icon: 'security', items: [
+    'TCP/IP','DNS','VPNs','Firewalls','Penetration Testing',
+    'Cybersecurity Tools','Wireshark','SSL/TLS','Encryption'
+  ]},
+  { cat: 'Testing & QA', icon: 'bug_report', items: [
+    'Selenium','Jest','Mocha','Cypress','JUnit',
+    'Postman','TestRail','Load Testing Tools'
+  ]},
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+// ratings: { skillName: { score: 0-10, category: string } }
+let ratings = {};
+
+function loadRatings() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) ratings = JSON.parse(saved);
+  } catch(_) {}
+}
+
+function saveRatings() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ratings));
+    showSaveStatus('saved');
+  } catch(_) {
+    showSaveStatus('error');
+  }
+}
+
+loadRatings();
+
+// ── Level Labels ──────────────────────────────────────────────────────────────
+const LEVELS = [
+  { max:0,  label:'No experience',   color:'#B0BEC5' },
+  { max:2,  label:'Beginner',         color:'#EF5350' },
+  { max:4,  label:'Elementary',       color:'#FF7043' },
+  { max:5,  label:'Intermediate',     color:'#FFA726' },
+  { max:6,  label:'Upper-Intermediate',color:'#FFCA28'},
+  { max:7,  label:'Advanced',         color:'#9CCC65' },
+  { max:8,  label:'Proficient',       color:'#26A69A' },
+  { max:9,  label:'Expert',           color:'#1A6BCC' },
+  { max:10, label:'Master',           color:'#673AB7' },
+];
+
+function getLevel(score) {
+  return LEVELS.find(l => score <= l.max) || LEVELS[LEVELS.length-1];
+}
+
+// ── Build left panel ──────────────────────────────────────────────────────────
+function buildCategories(filter='') {
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  const q = filter.toLowerCase().trim();
+
+  CATALOGUE.forEach(group => {
+    const visibleItems = group.items.filter(item =>
+      !q || item.toLowerCase().includes(q) || group.cat.toLowerCase().includes(q)
+    );
+    if (visibleItems.length === 0) return;
+
+    const selectedInGroup = visibleItems.filter(i => ratings[i]).length;
+    const div = document.createElement('div');
+    div.className = 'cat-group' + (q ? ' open' : (selectedInGroup > 0 ? ' open' : ''));
+    div.innerHTML = `
+      <div class="cat-label">
+        <span><span class="material-icons-round" style="font-size:.85rem;vertical-align:middle;margin-right:5px">${group.icon}</span>${group.cat}${selectedInGroup>0?` <span class="skill-badge">${selectedInGroup}</span>`:''}</span>
+        <span class="material-icons-round">chevron_right</span>
+      </div>
+      <div class="cat-items">${visibleItems.map(item => `
+        <div class="skill-item${ratings[item]?' selected':''}" data-skill="${esc(item)}" data-cat="${esc(group.cat)}">
+          <span>${esc(item)}</span>
+          ${ratings[item] ? `<span class="skill-badge">${ratings[item].score}</span>` : ''}
+        </div>`).join('')}
+      </div>`;
+
+    div.querySelector('.cat-label').addEventListener('click', () => {
+      div.classList.toggle('open');
+    });
+
+    div.querySelectorAll('.skill-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const skill = el.dataset.skill;
+        const cat   = el.dataset.cat;
+        if (ratings[skill]) {
+          // Already selected — scroll to its card
+          const card = document.getElementById(`card-${CSS.escape(skill)}`);
+          if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+        } else {
+          addSkill(skill, cat);
+        }
+      });
+    });
+
+    container.appendChild(div);
+  });
+}
+
+// ── Right panel ───────────────────────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('skills-grid');
+  const keys = Object.keys(ratings);
+
+  // Update sub-title
+  document.getElementById('right-sub').textContent =
+    keys.length > 0
+      ? `${keys.length} skill${keys.length!==1?'s':''} rated — drag sliders to adjust`
+      : 'Select skills from the left panel, rate yourself 0–10';
+
+  // Summary bar
+  const summaryBar = document.getElementById('summary-bar');
+  if (keys.length > 0) {
+    summaryBar.style.display = 'flex';
+    const avg      = keys.reduce((s,k) => s + ratings[k].score, 0) / keys.length;
+    const expert   = keys.filter(k => ratings[k].score >= 8).length;
+    const cats     = new Set(keys.map(k => ratings[k].category)).size;
+    document.getElementById('sum-count').textContent      = keys.length;
+    document.getElementById('sum-avg').textContent        = avg.toFixed(1);
+    document.getElementById('sum-expert').textContent     = expert;
+    document.getElementById('sum-categories').textContent = cats;
+  } else {
+    summaryBar.style.display = 'none';
+  }
+
+  if (keys.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="material-icons-round">psychology</span>
+        <h3>No skills rated yet</h3>
+        <p>Pick skills from the categories on the left and rate your proficiency from 0 to 10.</p>
+      </div>`;
+    return;
+  }
+
+  // Sort by score desc
+  const sorted = [...keys].sort((a,b) => ratings[b].score - ratings[a].score);
+
+  grid.innerHTML = sorted.map((skill, i) => {
+    const { score, category } = ratings[skill];
+    const level = getLevel(score);
+    return `
+      <div class="skill-card" id="card-${esc(CSS.escape(skill))}" style="animation-delay:${i*.03}s">
+        <div class="skill-card-top">
+          <div class="skill-card-name">
+            <span>${esc(skill)}</span>
+            <span class="skill-card-cat">${esc(category)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="skill-card-score" id="score-${esc(CSS.escape(skill))}" style="color:${level.color}">${score}</span>
+            <button class="skill-remove" data-skill="${esc(skill)}" title="Remove skill" aria-label="Remove ${esc(skill)}">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="slider-wrap">
+          <input class="skill-slider" type="range" min="0" max="10" step="1"
+            value="${score}" data-skill="${esc(skill)}"
+            aria-label="${esc(skill)} skill rating"
+            style="--fill:${score*10}%;background:linear-gradient(to right,${level.color} ${score*10}%,var(--border) ${score*10}%)"
+          />
+          <div class="slider-ticks">
+            ${[0,1,2,3,4,5,6,7,8,9,10].map(n=>`<span>${n}</span>`).join('')}
+          </div>
+        </div>
+        <div class="skill-level-label" id="level-${esc(CSS.escape(skill))}" style="color:${level.color}">
+          ${level.label}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Slider events
+  grid.querySelectorAll('.skill-slider').forEach(slider => {
+    const update = () => {
+      const skill = slider.dataset.skill;
+      const val   = Number(slider.value);
+      ratings[skill].score = val;
+      const level = getLevel(val);
+      const scoreEl = document.getElementById(`score-${CSS.escape(skill)}`);
+      const levelEl = document.getElementById(`level-${CSS.escape(skill)}`);
+      if (scoreEl) { scoreEl.textContent = val; scoreEl.style.color = level.color; }
+      if (levelEl) { levelEl.textContent = level.label; levelEl.style.color = level.color; }
+      slider.style.background = `linear-gradient(to right,${level.color} ${val*10}%,var(--border) ${val*10}%)`;
+      markUnsaved();
+      updateLeftPanel(skill);
+    };
+    slider.addEventListener('input', update);
+  });
+
+  // Remove buttons
+  grid.querySelectorAll('.skill-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const skill = btn.dataset.skill;
+      delete ratings[skill];
+      renderGrid();
+      buildCategories(document.getElementById('skill-search').value);
+      markUnsaved();
+    });
+  });
+}
+
+function addSkill(skill, category) {
+  if (ratings[skill]) return;
+  ratings[skill] = { score: 5, category };
+  renderGrid();
+  buildCategories(document.getElementById('skill-search').value);
+  markUnsaved();
+  // Scroll to new card
+  setTimeout(() => {
+    const card = document.getElementById(`card-${CSS.escape(skill)}`);
+    if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 80);
+}
+
+function updateLeftPanel(skill) {
+  const el = document.querySelector(`.skill-item[data-skill="${CSS.escape(skill)}"]`);
+  if (el) {
+    const badge = el.querySelector('.skill-badge');
+    if (badge) badge.textContent = ratings[skill].score;
+  }
+}
+
+// ── Custom skill ──────────────────────────────────────────────────────────────
+document.getElementById('custom-add-btn').addEventListener('click', () => {
+  const input = document.getElementById('custom-input');
+  const val   = input.value.trim();
+  if (!val) { input.focus(); return; }
+  if (ratings[val]) {
+    input.value = '';
+    const card = document.getElementById(`card-${CSS.escape(val)}`);
+    if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  ratings[val] = { score: 5, category: 'Custom' };
+  input.value = '';
+  renderGrid();
+  buildCategories(document.getElementById('skill-search').value);
+  markUnsaved();
+  setTimeout(() => {
+    const card = document.getElementById(`card-${CSS.escape(val)}`);
+    if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 80);
+});
+
+document.getElementById('custom-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('custom-add-btn').click();
+});
+
+// ── Save / clear ──────────────────────────────────────────────────────────────
+document.getElementById('save-btn').addEventListener('click', () => {
+  saveRatings();
+  renderGrid();
+  buildCategories(document.getElementById('skill-search').value);
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  if (Object.keys(ratings).length === 0) return;
+  if (!confirm('Remove all skill ratings? This cannot be undone.')) return;
+  ratings = {};
+  saveRatings();
+  renderGrid();
+  buildCategories(document.getElementById('skill-search').value);
+});
+
+function markUnsaved() {
+  showSaveStatus('unsaved');
+}
+
+function showSaveStatus(state) {
+  const el = document.getElementById('save-status');
+  if (state === 'saved') {
+    el.className = 'save-status saved';
+    el.innerHTML = '<span class="material-icons-round">check_circle</span>Saved';
+    setTimeout(() => { el.innerHTML = ''; el.className = 'save-status'; }, 2500);
+  } else if (state === 'unsaved') {
+    el.className = 'save-status';
+    el.innerHTML = '<span class="material-icons-round">edit</span>Unsaved changes';
+  } else {
+    el.className = 'save-status';
+    el.innerHTML = '';
+  }
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+document.getElementById('skill-search').addEventListener('input', e => {
+  buildCategories(e.target.value);
+});
+
+// ── Util ──────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+buildCategories();
+renderGrid();
+</script>
+</body>
+</html>
