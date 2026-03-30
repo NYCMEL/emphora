@@ -353,8 +353,7 @@ function buildCategories(filter='') {
         const cat   = el.dataset.cat;
         if (ratings[skill]) {
           // Already selected — scroll to its card
-          const card = document.getElementById(`card-${CSS.escape(skill)}`);
-          if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+          scrollToCard(skill);
         } else {
           addSkill(skill, cat);
         }
@@ -473,11 +472,23 @@ function addSkill(skill, category) {
   renderGrid();
   buildCategories(document.getElementById('skill-search').value);
   autoSave();
-  // Scroll to new card
+  scrollToCard(skill);
+}
+
+// Scroll the window so the newly added card is visible, with the slider focused
+function scrollToCard(skill) {
   setTimeout(() => {
     const card = document.getElementById(`card-${CSS.escape(skill)}`);
-    if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
-  }, 80);
+    if (!card) return;
+    // Get card position relative to the document
+    const rect   = card.getBoundingClientRect();
+    const topbar = 54; // topbar height px
+    const offset = window.scrollY + rect.top - topbar - 16;
+    window.scrollTo({ top: offset, behavior: 'smooth' });
+    // Focus the slider for immediate keyboard/touch interaction
+    const slider = card.querySelector('.skill-slider');
+    if (slider) setTimeout(() => slider.focus({ preventScroll: true }), 350);
+  }, 90);
 }
 
 function updateLeftPanel(skill) {
@@ -495,8 +506,7 @@ document.getElementById('custom-add-btn').addEventListener('click', () => {
   if (!val) { input.focus(); return; }
   if (ratings[val]) {
     input.value = '';
-    const card = document.getElementById(`card-${CSS.escape(val)}`);
-    if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+    scrollToCard(val);
     return;
   }
   ratings[val] = { score: 5, category: 'Custom' };
@@ -504,10 +514,7 @@ document.getElementById('custom-add-btn').addEventListener('click', () => {
   renderGrid();
   buildCategories(document.getElementById('skill-search').value);
   autoSave();
-  setTimeout(() => {
-    const card = document.getElementById(`card-${CSS.escape(val)}`);
-    if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
-  }, 80);
+  scrollToCard(val);
 });
 
 document.getElementById('custom-input').addEventListener('keydown', e => {
