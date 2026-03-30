@@ -159,14 +159,17 @@
     .er-rating-label .material-icons-round{font-size:.95rem;color:var(--primary);}
     .er-rating-val{font-size:1rem;font-weight:700;color:var(--primary);min-width:28px;text-align:right;transition:color .2s;}
     .er-rating-desc{font-size:.7rem;color:var(--muted);margin-top:1px;}
-    /* Stars */
-    .er-stars{display:flex;gap:3px;}
-    .er-star{font-size:1.3rem;cursor:pointer;color:var(--border);transition:color .15s,transform .1s;line-height:1;user-select:none;}
-    .er-star:hover,.er-star.active{color:#FFA726;}
-    .er-star:hover~.er-star{color:var(--border) !important;}
-    .er-star.active{color:#FFA726;}
-    .er-stars:hover .er-star{color:#FFA726;}
-    .er-stars:hover .er-star~.er-star{color:var(--border);}
+    /* Rating buttons — 1 to 10 number row */
+    .er-nums{display:flex;gap:4px;flex-wrap:wrap;}
+    .er-num{
+      width:32px;height:32px;border-radius:8px;
+      border:1.5px solid var(--border);background:var(--surface2);
+      color:var(--muted);font:700 .78rem inherit;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .15s;user-select:none;
+    }
+    .er-num:hover{border-color:var(--primary);color:var(--primary);background:rgba(26,107,204,.08);}
+    .er-num.active{border-color:transparent;color:#fff;}
     /* Recommendation */
     .er-rec-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:.5rem;}
     .er-rec-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font:600 .78rem inherit;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}
@@ -833,15 +836,18 @@ if (user) {
               </span>
             </div>
             <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">${d.desc}</div>
-            <div class="er-stars" data-dim="${d.key}">
-              ${[1,2,3,4,5,6,7,8,9,10].map(n =>
-                `<span class="er-star${val>=n?' active':''}" data-val="${n}" title="${STAR_LABELS[n]||n}">★</span>`
-              ).join('')}
+            <div class="er-nums" data-dim="${d.key}">
+              ${[1,2,3,4,5,6,7,8,9,10].map(n => {
+                const isActive = val >= n;
+                const bg = isActive ? scoreColor(val) : '';
+                return `<button class="er-num${isActive?' active':''}" data-val="${n}"
+                  title="${STAR_LABELS[n]||n}" style="${isActive?'background:'+bg+';border-color:'+bg+';':''}">${n}</button>`;
+              }).join('')}
             </div>
             <div class="er-bar" style="margin-top:5px">
               <div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div>
             </div>
-            ${val > 0 ? `<div style="font-size:.7rem;color:${c};margin-top:3px;font-weight:600">${STAR_LABELS[val]||val+'/10'}</div>` : ''}
+            <div id="erl-${d.key}" style="font-size:.7rem;color:${val>0?c:'transparent'};margin-top:3px;font-weight:600;min-height:1em">${val > 0 ? (STAR_LABELS[val]||val+'/10') : ''}</div>
           </div>`;
         }).join('')}
       </div>
@@ -879,44 +885,57 @@ if (user) {
         <span style="font-size:.72rem;color:var(--muted)">Anonymous · only aggregate scores are shared</span>
       </div>`;
 
-    // ── Bind star clicks ──────────────────────────────────────────────────────
-    body.querySelectorAll('.er-stars').forEach(starsEl => {
-      const dim = starsEl.dataset.dim;
-      const stars = starsEl.querySelectorAll('.er-star');
+    // ── Bind number-button clicks ────────────────────────────────────────────
+    body.querySelectorAll('.er-nums').forEach(numsEl => {
+      const dim  = numsEl.dataset.dim;
+      const btns = numsEl.querySelectorAll('.er-num');
 
-      // Hover — highlight up to hovered star
-      starsEl.addEventListener('mousemove', e => {
-        const star = e.target.closest('.er-star');
-        if (!star) return;
-        const n = Number(star.dataset.val);
-        stars.forEach(s => s.classList.toggle('active', Number(s.dataset.val) <= n));
+      function applyActive(val) {
+        const c = scoreColor(val);
+        btns.forEach(b => {
+          const n = Number(b.dataset.val);
+          const on = val > 0 && n <= val;
+          b.classList.toggle('active', on);
+          b.style.background   = on ? c : '';
+          b.style.borderColor  = on ? c : '';
+          b.style.color        = on ? '#fff' : '';
+        });
+      }
+
+      // Hover preview
+      numsEl.addEventListener('mouseover', e => {
+        const btn = e.target.closest('.er-num');
+        if (!btn) return;
+        applyActive(Number(btn.dataset.val));
       });
-      starsEl.addEventListener('mouseleave', () => {
-        const val = rating[dim] || 0;
-        stars.forEach(s => s.classList.toggle('active', Number(s.dataset.val) <= val));
+      numsEl.addEventListener('mouseleave', () => {
+        applyActive(rating[dim] || 0);
       });
 
-      // Click — set rating
-      starsEl.addEventListener('click', e => {
-        const star = e.target.closest('.er-star');
-        if (!star) return;
-        const n = Number(star.dataset.val);
-        // Click same value → clear it
+      // Click to set / clear
+      numsEl.addEventListener('click', e => {
+        const btn = e.target.closest('.er-num');
+        if (!btn) return;
+        const n = Number(btn.dataset.val);
         rating[dim] = rating[dim] === n ? 0 : n;
-        stars.forEach(s => s.classList.toggle('active', Number(s.dataset.val) <= rating[dim]));
-        // Update live displays
+        applyActive(rating[dim]);
+
+        // Update score label + progress bar
         const valEl = document.getElementById(`erv-${dim}`);
         const barEl = document.getElementById(`erb-${dim}`);
+        const lblEl = document.getElementById(`erl-${dim}`);
         const c     = scoreColor(rating[dim]);
         if (valEl) { valEl.textContent = rating[dim] > 0 ? rating[dim] : '—'; valEl.style.color = rating[dim] > 0 ? c : 'var(--muted)'; }
         if (barEl) { barEl.style.width = `${rating[dim]*10}%`; barEl.style.background = rating[dim] > 0 ? c : 'var(--border)'; }
+        if (lblEl) { lblEl.textContent = rating[dim] > 0 ? (STAR_LABELS[rating[dim]]||'') : ''; lblEl.style.color = c; }
+
         // Update overall
-        const overall2 = overallScore();
-        const overallEl = body.querySelector('.er-overall-score');
-        const overallBar = body.querySelector('.er-overall .er-bar-fill');
-        if (overallEl) { overallEl.textContent = overall2.toFixed(1); overallEl.style.color = scoreColor(overall2); }
-        if (overallBar) { overallBar.style.width = `${overall2*10}%`; overallBar.style.background = scoreColor(overall2); }
-        if (!overallEl && overall2 > 0) renderER(); // first rating — re-render to show overall
+        const ov = overallScore();
+        const ovEl  = body.querySelector('.er-overall-score');
+        const ovBar = body.querySelector('.er-overall .er-bar-fill');
+        if (ovEl)  { ovEl.textContent = ov.toFixed(1); ovEl.style.color = scoreColor(ov); }
+        if (ovBar) { ovBar.style.width = `${ov*10}%`; ovBar.style.background = scoreColor(ov); }
+        if (!ovEl && ov > 0) renderER();
       });
     });
 
