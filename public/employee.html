@@ -192,7 +192,10 @@
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="er-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Rating saved</span>
-        <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit History</button>
+        <div style="display:flex;gap:8px">
+          <a href="employer-entry.html?mode=new" class="profile-edit-btn" style="color:var(--primary);border-color:rgba(26,107,204,.35);background:rgba(26,107,204,.06);text-decoration:none"><span class="material-icons-round">add_business</span>Add Another</a>
+          <a href="work.html" class="profile-edit-btn" style="text-decoration:none"><span class="material-icons-round">edit</span>Edit History</a>
+        </div>
       </div>
     </div>
     <div class="er-body" id="er-body"></div>
@@ -426,7 +429,7 @@ function renderErBody(){
   </div>`;
 
   // Wire employment edit button
-  document.getElementById('employment-edit-btn')?.addEventListener('click',()=>{window.location.href='work.html';});
+
 }
 renderErBody();
 
