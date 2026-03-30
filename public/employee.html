@@ -560,23 +560,17 @@ if (user) {
   if (!user) return;
   const EKEY = `emphora_employment_${user.email}`;
 
-  const DEFAULT = {
-    current: { company:'', title:'', from:'', description:'' },
-    previous: [
-      { company:'', title:'', from:'', to:'', description:'' },
-      { company:'', title:'', from:'', to:'', description:'' },
-      { company:'', title:'', from:'', to:'', description:'' },
-    ]
-  };
+  // emp.previous is a dynamic array — only entries user explicitly adds
+  const EMPTY_EMP = () => ({ company:'', title:'', from:'', to:'', description:'' });
 
-  let emp = DEFAULT;
+  let emp = { current: { company:'', title:'', from:'', description:'' }, previous: [] };
   try {
     const saved = localStorage.getItem(EKEY);
-    if (saved) emp = { ...DEFAULT, ...JSON.parse(saved) };
+    if (saved) emp = { current:{ company:'', title:'', from:'', description:'' }, previous:[], ...JSON.parse(saved) };
   } catch(_) {}
 
   let editing = false;
-  const body = document.getElementById('employment-body');
+  const body   = document.getElementById('employment-body');
   const editBtn = document.getElementById('employment-edit-btn');
 
   function yearsAt(fromStr) {
@@ -594,12 +588,14 @@ if (user) {
   function renderView() {
     if (!body) return;
     const c = emp.current;
-    const hasCurrentData = c.company || c.title;
-    let html = `<div class="employer-card current">
+    let html = '';
+
+    // Current employer — always show (with placeholder if empty)
+    html += `<div class="employer-card current">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
         <div>
           <div class="employer-card-title">${esc(c.company) || '<span style="color:var(--muted);font-weight:400;font-style:italic">Current employer not set</span>'}</div>
-          <div class="employer-card-sub">${esc(c.title) || ''}</div>
+          ${c.title ? `<div class="employer-card-sub">${esc(c.title)}</div>` : ''}
         </div>
         <div class="employer-card-meta">
           ${c.from ? `<span class="employer-card-badge">${dateRange(c.from,'')}</span>` : ''}
@@ -609,73 +605,127 @@ if (user) {
       ${c.description ? `<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(c.description)}</div>` : ''}
     </div>`;
 
-    const prevWithData = emp.previous.filter(p => p.company || p.title);
-    if (prevWithData.length > 0) {
-      html += prevWithData.map(p => `
-        <div class="employer-card">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-            <div>
-              <div class="employer-card-title">${esc(p.company)}</div>
-              <div class="employer-card-sub">${esc(p.title)}</div>
-            </div>
-            <div class="employer-card-meta">
-              ${p.from||p.to ? `<span class="employer-card-badge past">${dateRange(p.from,p.to)}</span>` : ''}
-            </div>
+    // Previous employers — only show entries that have data
+    const prevWithData = (emp.previous || []).filter(p => p.company || p.title);
+    prevWithData.forEach(p => {
+      html += `<div class="employer-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+          <div>
+            <div class="employer-card-title">${esc(p.company)}</div>
+            ${p.title ? `<div class="employer-card-sub">${esc(p.title)}</div>` : ''}
           </div>
-          ${p.description ? `<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(p.description)}</div>` : ''}
-        </div>`).join('');
-    } else {
-      html += `<div style="font-size:.8rem;color:var(--muted);padding:.5rem 0">No previous employers added yet</div>`;
-    }
+          <div class="employer-card-meta">
+            ${p.from||p.to ? `<span class="employer-card-badge past">${dateRange(p.from,p.to)}</span>` : ''}
+          </div>
+        </div>
+        ${p.description ? `<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(p.description)}</div>` : ''}
+      </div>`;
+    });
+
     body.innerHTML = html;
   }
 
   function renderEdit() {
     if (!body) return;
-    const c = emp.current;
-    const rows = (label, obj, idx) => `
-      <div style="margin-bottom:1rem">
-        <div style="font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">${label}</div>
+    const c   = emp.current;
+    const prev = emp.previous || [];
+
+    function fieldRow(label, obj, idx, isCurrent) {
+      return `<div style="margin-bottom:1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+          <div style="font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">${label}</div>
+          ${!isCurrent ? `<button class="profile-cancel-btn" data-remove="${idx}" style="font-size:.7rem;padding:3px 8px;color:var(--danger);border-color:rgba(198,40,40,.25)">
+            <span class="material-icons-round" style="font-size:.75rem">delete</span>Remove
+          </button>` : ''}
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="profile-field"><label class="profile-label">Company</label><input class="profile-input" id="emp-${idx}-company" type="text" value="${esc(obj.company||'')}" placeholder="Company name"/></div>
-          <div class="profile-field"><label class="profile-label">Job Title</label><input class="profile-input" id="emp-${idx}-title" type="text" value="${esc(obj.title||'')}" placeholder="Your title"/></div>
-          <div class="profile-field"><label class="profile-label">From</label><input class="profile-input" id="emp-${idx}-from" type="month" value="${esc(obj.from||'')}"/></div>
-          ${idx === 'cur' ? '' : `<div class="profile-field"><label class="profile-label">To</label><input class="profile-input" id="emp-${idx}-to" type="month" value="${esc(obj.to||'')}"/></div>`}
-          <div class="profile-field" style="grid-column:1/-1"><label class="profile-label">Description</label><textarea class="profile-input" id="emp-${idx}-desc" rows="2" placeholder="Brief description">${esc(obj.description||'')}</textarea></div>
+          <div class="profile-field"><label class="profile-label">Company</label>
+            <input class="profile-input" id="emp-${idx}-company" type="text" value="${esc(obj.company||'')}" placeholder="Company name"/>
+          </div>
+          <div class="profile-field"><label class="profile-label">Job Title</label>
+            <input class="profile-input" id="emp-${idx}-title" type="text" value="${esc(obj.title||'')}" placeholder="Your title"/>
+          </div>
+          <div class="profile-field"><label class="profile-label">From</label>
+            <input class="profile-input" id="emp-${idx}-from" type="month" value="${esc(obj.from||'')}"/>
+          </div>
+          ${!isCurrent ? `<div class="profile-field"><label class="profile-label">To</label>
+            <input class="profile-input" id="emp-${idx}-to" type="month" value="${esc(obj.to||'')}"/>
+          </div>` : ''}
+          <div class="profile-field" style="grid-column:1/-1"><label class="profile-label">Description</label>
+            <textarea class="profile-input" id="emp-${idx}-desc" rows="2" placeholder="Brief description">${esc(obj.description||'')}</textarea>
+          </div>
         </div>
       </div>`;
+    }
 
-    body.innerHTML = rows('Current Employer', c, 'cur')
-      + emp.previous.map((p,i) => rows(`Previous Employer ${i+1}`, p, i)).join('')
-      + `<div style="display:flex;gap:8px;margin-top:.5rem">
-          <button class="profile-save-btn" id="emp-save-btn"><span class="material-icons-round">save</span>Save Employment</button>
-          <button class="profile-cancel-btn" id="emp-cancel-btn">Cancel</button>
-        </div>`;
+    function rebuildEdit() {
+      body.innerHTML = fieldRow('Current Employer', emp.current, 'cur', true)
+        + (emp.previous||[]).map((p,i) => fieldRow(`Previous Employer ${i+1}`, p, i, false)).join('')
+        + `<div style="display:flex;gap:8px;margin-top:.5rem;flex-wrap:wrap">
+            <button class="profile-save-btn" id="emp-save-btn"><span class="material-icons-round">save</span>Save Employment</button>
+            <button class="profile-edit-btn" id="emp-add-btn"><span class="material-icons-round">add</span>Add Previous Employer</button>
+            <button class="profile-cancel-btn" id="emp-cancel-btn">Cancel</button>
+          </div>`;
+      bindEditEvents();
+    }
 
-    document.getElementById('emp-save-btn')?.addEventListener('click', () => {
+    function bindEditEvents() {
+      // Remove buttons
+      body.querySelectorAll('[data-remove]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.remove);
+          collectCurrentValues();
+          emp.previous.splice(idx, 1);
+          rebuildEdit();
+        });
+      });
+
+      // Add previous employer
+      document.getElementById('emp-add-btn')?.addEventListener('click', () => {
+        collectCurrentValues();
+        emp.previous.push(EMPTY_EMP());
+        rebuildEdit();
+        // Scroll to new field
+        const cards = body.querySelectorAll('[id^="emp-"][id$="-company"]');
+        cards[cards.length-1]?.closest('[style]')?.scrollIntoView({behavior:'smooth',block:'center'});
+      });
+
+      // Save
+      document.getElementById('emp-save-btn')?.addEventListener('click', () => {
+        collectCurrentValues();
+        // Drop empty previous entries
+        emp.previous = emp.previous.filter(p => p.company || p.title);
+        try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_) {}
+        editing = false;
+        if (editBtn) editBtn.style.display = '';
+        renderView();
+      });
+
+      // Cancel
+      document.getElementById('emp-cancel-btn')?.addEventListener('click', () => {
+        editing = false;
+        if (editBtn) editBtn.style.display = '';
+        renderView();
+      });
+    }
+
+    function collectCurrentValues() {
       emp.current = {
         company:     document.getElementById('emp-cur-company')?.value.trim() || '',
         title:       document.getElementById('emp-cur-title')?.value.trim()   || '',
         from:        document.getElementById('emp-cur-from')?.value           || '',
         description: document.getElementById('emp-cur-desc')?.value.trim()   || '',
       };
-      emp.previous = [0,1,2].map(i => ({
+      emp.previous = (emp.previous||[]).map((_,i) => ({
         company:     document.getElementById(`emp-${i}-company`)?.value.trim() || '',
         title:       document.getElementById(`emp-${i}-title`)?.value.trim()   || '',
         from:        document.getElementById(`emp-${i}-from`)?.value           || '',
         to:          document.getElementById(`emp-${i}-to`)?.value             || '',
         description: document.getElementById(`emp-${i}-desc`)?.value.trim()   || '',
       }));
-      try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_) {}
-      editing = false;
-      if (editBtn) editBtn.style.display = '';
-      renderView();
-    });
-    document.getElementById('emp-cancel-btn')?.addEventListener('click', () => {
-      editing = false;
-      if (editBtn) editBtn.style.display = '';
-      renderView();
-    });
+    }
+
+    rebuildEdit();
   }
 
   editBtn?.addEventListener('click', () => {
