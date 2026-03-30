@@ -251,9 +251,10 @@
     }
 
     /* ─── Category skill sections ────────────────────────────────────────── */
-    .em-section { margin-bottom: 0; padding: 1rem 1.1rem; }
-    .em-section:nth-child(even) { background: rgba(26,107,204,.03); }
-    [data-theme="dark"] .em-section:nth-child(even) { background: rgba(255,255,255,.025); }
+    .em-section { margin-bottom: 0; padding: 1rem 1.1rem; border-bottom: 1px solid var(--bd); }
+    .em-section:last-child { border-bottom: none; }
+    .em-section:nth-child(odd)  { background: var(--sf); }
+    .em-section:nth-child(even) { background: var(--sf2); }
     .em-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 
     /* ─── Category progress bar ─────────────────────────────────────────── */
