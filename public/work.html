@@ -451,5 +451,15 @@ function renderER() {
 
 renderER();
 </script>
+
+// Logo always goes to user's own dashboard
+(function() {
+  const DASH = { employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html' };
+  try {
+    const u = JSON.parse(sessionStorage.getItem('emphora_user')||'null');
+    const logoEl = document.querySelector('.logo, .em-logo');
+    if (logoEl && u) logoEl.href = DASH[u.accountType] || 'employee.html';
+  } catch(_) {}
+})();
 </body>
 </html>

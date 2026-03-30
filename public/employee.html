@@ -244,29 +244,11 @@
     <div class="hero-actions">
       <a href="skills.html" class="btn btn-primary"><span class="material-icons-round">psychology</span>My Skills</a>
       <a href="work.html" class="btn"><span class="material-icons-round">business_center</span>Work &amp; Ratings</a>
-      <a href="profile.html" class="btn"><span class="material-icons-round">person</span>My Profile</a>
       <button class="btn btn-danger" id="logout-btn2"><span class="material-icons-round">logout</span>Sign Out</button>
     </div>
   </div>
 
-  
-  <!-- ── PROFILE CARD ── -->
-  <div class="section" id="profile-section">
-    <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">person</span>Profile</div>
-      <div class="profile-actions">
-        <span class="profile-saved-tag" id="profile-saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
-        <button class="profile-edit-btn" id="profile-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
-        <button class="profile-save-btn" id="profile-save-btn" style="display:none"><span class="material-icons-round">save</span>Save</button>
-        <button class="profile-cancel-btn" id="profile-cancel-btn" style="display:none">Cancel</button>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="profile-grid" id="profile-fields">
-        <!-- populated by JS -->
-      </div>
-    </div>
-  </div>
+
 
   <!-- ── EMPLOYMENT + EMPLOYER RATING ── -->
   <div class="er-section" id="er-section">
@@ -444,112 +426,6 @@ if (user) {
   if (scoreEl) scoreEl.textContent = user.emphoraScore > 0 ? user.emphoraScore.toFixed(1) : '0.0';
 }
 
-// ── Profile ────────────────────────────────────────────────────────────────────
-(function initProfile() {
-  if (!user) return;
-  const PKEY = `emphora_profile_${user.email}`;
-
-  const FIELDS = [
-    { key:'firstName',    label:'First Name',     type:'text',  icon:'person'      },
-    { key:'lastName',     label:'Last Name',       type:'text',  icon:'person'      },
-    { key:'email',        label:'Email',           type:'email', icon:'email',   readonly:true },
-    { key:'phone',        label:'Phone',           type:'tel',   icon:'phone'       },
-    { key:'location',     label:'Location',        type:'text',  icon:'location_on' },
-    { key:'linkedin',     label:'LinkedIn',        type:'url',   icon:'link'        },
-    { key:'website',      label:'Website',         type:'url',   icon:'language'    },
-    { key:'title',        label:'Job Title',       type:'text',  icon:'work'        },
-    { key:'summary',      label:'Professional Summary', type:'textarea', icon:'notes', full:true },
-  ];
-
-  // Load saved profile, merge with user session data
-  let profile = {};
-  try { profile = JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch(_) {}
-  profile.firstName = profile.firstName || user.firstName || '';
-  profile.lastName  = profile.lastName  || user.lastName  || '';
-  profile.email     = user.email || '';
-
-  let editing = false;
-
-  function renderProfile() {
-    const grid = document.getElementById('profile-fields');
-    if (!grid) return;
-
-    if (editing) {
-      grid.innerHTML = FIELDS.map(f => `
-        <div class="profile-field${f.full?' profile-field-full':''}">
-          <label class="profile-label" for="pf-${f.key}">${f.label}</label>
-          ${f.type === 'textarea'
-            ? `<textarea class="profile-input" id="pf-${f.key}" rows="3" ${f.readonly?'readonly':''}>${esc(profile[f.key]||'')}</textarea>`
-            : `<input class="profile-input" type="${f.type}" id="pf-${f.key}" value="${esc(profile[f.key]||'')}" placeholder="${f.label}" ${f.readonly?'readonly':''}>`
-          }
-        </div>`).join('');
-      // full-width textarea spans both columns
-      grid.querySelectorAll('.profile-field-full').forEach(el => {
-        el.style.gridColumn = '1 / -1';
-      });
-    } else {
-      grid.innerHTML = FIELDS.map(f => {
-        const val = profile[f.key] || '';
-        const isUrl = f.type === 'url' && val;
-        return `
-        <div class="profile-field${f.full?' profile-field-full':''}">
-          <div class="profile-label">${f.label}</div>
-          <div class="profile-value${val?'':' empty'}">
-            ${isUrl
-              ? `<a href="${esc(val)}" target="_blank" rel="noopener" style="color:var(--primary)">${esc(val)}</a>`
-              : esc(val) || 'Not set'}
-          </div>
-        </div>`;
-      }).join('');
-      grid.querySelectorAll('.profile-field-full').forEach(el => {
-        el.style.gridColumn = '1 / -1';
-      });
-    }
-  }
-
-  function saveProfile() {
-    FIELDS.forEach(f => {
-      if (f.readonly) return;
-      const el = document.getElementById(`pf-${f.key}`);
-      if (el) profile[f.key] = el.value.trim();
-    });
-    try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch(_) {}
-    // Update hero name if changed
-    const nameEl = document.getElementById('hero-name');
-    if (nameEl) nameEl.textContent = `${profile.firstName} ${profile.lastName}`.trim();
-    const savedTag = document.getElementById('profile-saved-tag');
-    if (savedTag) { savedTag.classList.add('show'); setTimeout(()=>savedTag.classList.remove('show'),2000); }
-  }
-
-  document.getElementById('profile-edit-btn')?.addEventListener('click', () => {
-    editing = true;
-    renderProfile();
-    document.getElementById('profile-edit-btn').style.display = 'none';
-    document.getElementById('profile-save-btn').style.display = '';
-    document.getElementById('profile-cancel-btn').style.display = '';
-  });
-  document.getElementById('edit-profile-btn')?.addEventListener('click', () => {
-    document.getElementById('profile-edit-btn')?.click();
-    document.getElementById('profile-section')?.scrollIntoView({behavior:'smooth'});
-  });
-  document.getElementById('profile-save-btn')?.addEventListener('click', () => {
-    saveProfile();
-    editing = false;
-    renderProfile();
-    document.getElementById('profile-edit-btn').style.display = '';
-    document.getElementById('profile-save-btn').style.display = 'none';
-    document.getElementById('profile-cancel-btn').style.display = 'none';
-  });
-  document.getElementById('profile-cancel-btn')?.addEventListener('click', () => {
-    editing = false;
-    renderProfile();
-    document.getElementById('profile-edit-btn').style.display = '';
-    document.getElementById('profile-save-btn').style.display = 'none';
-    document.getElementById('profile-cancel-btn').style.display = 'none';
-  });
-
-  renderProfile();
-})();
 
 // ── Employment ──────────────────────────────────────────────────────────────────
 (function initEmployment() {

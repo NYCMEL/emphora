@@ -115,7 +115,7 @@
 <body>
 
 <nav class="topbar">
-  <a href="/" class="logo">Emph<b>ora</b></a>
+  <a href="employee.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
   <span class="material-icons-round" style="font-size:.9rem;color:var(--muted)">chevron_right</span>
   <span style="font-size:.82rem;color:var(--muted)" id="nav-back-label">Dashboard</span>
   <div class="spacer"></div>
@@ -163,6 +163,10 @@ if (!user) window.location.href = '/';
 
 const DASH = { employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html' };
 const dashPage = DASH[user?.accountType] || 'employee.html';
+
+// Logo always goes to user's own dashboard
+const logoEl = document.getElementById('nav-logo');
+if (logoEl) logoEl.href = dashPage;
 
 // Back button + breadcrumb
 document.getElementById('back-btn').href = dashPage;
