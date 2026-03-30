@@ -251,7 +251,9 @@
     }
 
     /* ─── Category skill sections ────────────────────────────────────────── */
-    .em-section { margin-bottom: 1.25rem; }
+    .em-section { margin-bottom: 0; padding: 1rem 1.1rem; }
+    .em-section:nth-child(even) { background: rgba(26,107,204,.03); }
+    [data-theme="dark"] .em-section:nth-child(even) { background: rgba(255,255,255,.025); }
     .em-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 
     /* ─── Category progress bar ─────────────────────────────────────────── */
