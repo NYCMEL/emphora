@@ -1,35 +1,141 @@
-OPERATING SYSTEMS
-Windows, macOS, Linux (Ubuntu, Red Hat), Unix, Android, iOS
+IT Hiring Skills Dropdown List
+-----------------------------
+Operating Systems
 
-DEVICES
-Desktops, Laptops, Tablets, Smartphones, Servers, IoT Devices
+Windows
+macOS
+Linux (Ubuntu, Red Hat)
+Unix
+Android
+iOS
 
-PRODUCTIVITY & OFFICE SOFTWARE
-Microsoft Office Suite, Google Workspace, LibreOffice, Adobe Creative Suite, Notion, Slack, Trello
+Devices
 
-PROGRAMMING & SCRIPTING LANGUAGES
-Python, Java, C/C++, C#, Go, Rust, PHP, Ruby, JavaScript, TypeScript, Shell/Bash, PowerShell, SQL
+Desktops
+Laptops
+Tablets
+Smartphones
+Servers
+IoT Devices
 
-WEB TECHNOLOGIES
-HTML5, CSS3, Sass/SCSS, JavaScript, TypeScript, Webpack, Node.js, REST APIs, GraphQL, JSON, AJAX
+Productivity & Office Software
 
-FRAMEWORKS & LIBRARIES
-React, Angular, Vue.js, jQuery, jQuery-UI, Bootstrap, Tailwind CSS, Express.js, Django, Flask, Spring Boot
+Microsoft Office Suite
+Google Workspace
+LibreOffice
+Adobe Creative Suite
+Notion
+Slack
+Trello
 
-SPECIALIZATIONS
-Web Components, Progressive Web Apps (PWA), UX/UI Design, Interaction Design, Responsive Design, Hi-Fidelity Prototyping, Mobile App Development, Cloud Architecture
+Programming & Scripting Languages
 
-PROTOTYPING & DESIGN TOOLS
-Figma, Sketch, Adobe XD, Axure, Miro, InVision, Balsamiq, Canva
+Python
+Java
+C/C++
+C#
+Go
+Rust
+PHP
+Ruby
+JavaScript
+TypeScript
+Shell/Bash
+PowerShell
+SQL
 
-DATABASES & DATA MANAGEMENT
-MySQL, PostgreSQL, MongoDB, Redis, Oracle DB, Firebase, Microsoft SQL Server, Cassandra
+Web Technologies
 
-DEVOPS & CLOUD
-AWS, Azure, Google Cloud Platform, Docker, Kubernetes, Jenkins, GitLab CI/CD, Terraform, Ansible
+HTML5
+CSS3
+Sass/SCSS
+JavaScript
+TypeScript
+Webpack
+Node.js
+REST APIs
+GraphQL
+JSON
+AJAX
 
-NETWORKING & SECURITY
-TCP/IP, DNS, VPNs, Firewalls, Penetration Testing, Cybersecurity Tools, Wireshark, SSL/TLS, Encryption
+Frameworks & Libraries
 
-TESTING & QA
-Selenium, Jest, Mocha, Cypress, JUnit, Postman, TestRail, Load Testing Tools
+React
+Angular
+Vue.js
+jQuery
+jQuery-UI
+Bootstrap
+Tailwind CSS
+Express.js
+Django
+Flask
+Spring Boot
+
+Specializations
+
+Web Components
+Progressive Web Apps (PWA)
+UX/UI Design
+Interaction Design
+Responsive Design
+Hi-Fidelity Prototyping
+Mobile App Development
+Cloud Architecture
+
+Prototyping & Design Tools
+
+Figma
+Sketch
+Adobe XD
+Axure
+Miro
+InVision
+Balsamiq
+Canva
+
+Databases & Data Management
+
+MySQL
+PostgreSQL
+MongoDB
+Redis
+Oracle DB
+Firebase
+Microsoft SQL Server
+Cassandra
+
+DevOps & Cloud
+
+AWS
+Azure
+Google Cloud Platform
+Docker
+Kubernetes
+Jenkins
+GitLab CI/CD
+Terraform
+Ansible
+
+Networking & Security
+
+TCP/IP
+DNS
+VPNs
+Firewalls
+Penetration Testing
+Cybersecurity Tools
+Wireshark
+SSL/TLS
+Encryption
+
+Testing & QA
+
+Selenium
+Jest
+Mocha
+Cypress
+JUnit
+Postman
+TestRail
+Load Testing Tools
