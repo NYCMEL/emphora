@@ -1,6 +1,6 @@
 <!--
   Place at: public/profile.html
-  Emphora — User Profile Page
+  Emphora — My Profile (Personal Info only)
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -10,11 +10,11 @@
   <title>Emphora — My Profile</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
       --primary:#1A6BCC; --bg:#F0F4F8; --surface:#fff; --surface2:#F8FAFC;
       --border:#D0DCE8; --text:#0D1B2A; --muted:#7A8FA6;
-      --success:#2E7D32; --warning:#E65100; --danger:#C62828; --topH:54px;
+      --success:#2E7D32; --danger:#C62828;
     }
     [data-theme="dark"] {
       --bg:#0A0F1A; --surface:#111827; --surface2:#1A2236;
@@ -23,137 +23,156 @@
     body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-size:14px; background:var(--bg); color:var(--text); min-height:100vh; transition:background .2s,color .2s; }
 
     /* ── TOPBAR ── */
-    .topbar { position:sticky; top:0; z-index:100; height:var(--topH); background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1.25rem; gap:10px; }
-    .logo { font-family:'DM Serif Display',Georgia,serif; font-style:italic; font-size:1.3rem; color:var(--primary); text-decoration:none; }
+    .topbar { position:sticky; top:0; z-index:100; height:54px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1.25rem; gap:0; }
+    .logo { font-family:'DM Serif Display',Georgia,serif; font-style:italic; font-size:1.3rem; color:var(--primary); text-decoration:none; flex-shrink:0; }
     .logo b { color:#00897B; font-weight:400; }
+    .bc-sep { color:var(--border); margin:0 8px; font-size:.85rem; user-select:none; flex-shrink:0; }
+    .bc-link { font-size:.8rem; color:var(--muted); text-decoration:none; transition:color .15s; white-space:nowrap; }
+    .bc-link:hover { color:var(--primary); }
+    .bc-current { font-size:.8rem; color:var(--text); font-weight:600; white-space:nowrap; }
     .spacer { flex:1; }
-    .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; text-decoration:none; }
+    .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; text-decoration:none; flex-shrink:0; }
     .icon-btn:hover { color:var(--primary); border-color:var(--primary); }
     .icon-btn .material-icons-round { font-size:1rem; }
-    .back-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-size:.78rem; font-weight:600; text-decoration:none; transition:all .15s; }
-    .back-btn:hover { border-color:var(--primary); color:var(--primary); }
-    .back-btn .material-icons-round { font-size:.9rem; }
 
-    /* ── HERO ── */
-    .profile-hero { position:relative; background:linear-gradient(135deg,rgba(26,107,204,.1),rgba(0,137,123,.08)); border-bottom:1px solid var(--border); padding:2rem 1.25rem 1.5rem; display:flex; align-items:flex-end; gap:1.25rem; flex-wrap:wrap; }
-    .profile-hero-avatar { width:80px; height:80px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-size:1.8rem; color:#fff; flex-shrink:0; border:3px solid var(--surface); box-shadow:0 4px 16px rgba(0,0,0,.12); }
+    /* ── AVATAR HERO STRIP ── */
+    .profile-hero-strip {
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      padding:2rem 2rem 1.5rem;
+      display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+    }
+    .profile-avatar-wrap { position:relative; cursor:pointer; flex-shrink:0; }
+    .profile-avatar {
+      width:90px; height:90px; border-radius:50%;
+      background:var(--primary);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'DM Serif Display',serif; font-size:2rem; color:#fff;
+      border:3px solid var(--border);
+      box-shadow:0 4px 18px rgba(0,0,0,.1);
+      overflow:hidden;
+      transition:filter .2s;
+    }
+    .profile-avatar-wrap:hover .profile-avatar { filter:brightness(.75); }
+    .profile-avatar-overlay {
+      position:absolute; inset:0; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:opacity .2s; pointer-events:none;
+      background:rgba(0,0,0,.35);
+    }
+    .profile-avatar-overlay .material-icons-round { font-size:1.5rem; color:#fff; }
+    .profile-avatar-wrap:hover .profile-avatar-overlay { opacity:1; }
     .profile-hero-info { flex:1; min-width:0; }
-    .profile-hero-name { font-family:'DM Serif Display',Georgia,serif; font-size:1.6rem; font-weight:400; }
-    .profile-hero-title { font-size:.84rem; color:var(--muted); margin-top:3px; }
-    .profile-hero-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
-    .profile-hero-pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:.68rem; font-weight:700; background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2); }
+    .profile-hero-name { font-family:'DM Serif Display',Georgia,serif; font-size:1.7rem; font-weight:400; }
+    .profile-hero-sub  { font-size:.85rem; color:var(--muted); margin-top:4px; }
+    .profile-hero-pills { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .profile-hero-pill {
+      display:inline-flex; align-items:center; gap:4px;
+      padding:3px 10px; border-radius:20px; font-size:.68rem; font-weight:700;
+      background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2);
+    }
     .profile-hero-pill .material-icons-round { font-size:.78rem; }
 
-    /* ── PAGE ── */
-    .page { max-width:780px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    /* ── FULL-WIDTH FORM ── */
+    .profile-page { max-width:860px; margin:0 auto; padding:2rem 2rem 4rem; }
 
-    /* ── SECTIONS ── */
-    .section { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:1.1rem; overflow:hidden; }
-    .section-header { display:flex; align-items:center; justify-content:space-between; padding:.8rem 1.1rem; border-bottom:1px solid var(--border); }
-    .section-title { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:6px; }
-    .section-title .material-icons-round { font-size:1rem; color:var(--primary); }
-    .section-body { padding:1.1rem; }
-
-    /* ── PROFILE FIELDS ── */
-    .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
-    @media(max-width:540px){ .profile-grid { grid-template-columns:1fr; } }
-    .profile-field { display:flex; flex-direction:column; gap:3px; }
-    .profile-label { font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
-    .profile-value { font-size:.88rem; color:var(--text); font-weight:500; }
-    .profile-value.empty { color:var(--muted); font-style:italic; font-weight:400; }
-    .profile-input { padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); font:inherit; font-size:.84rem; outline:none; width:100%; }
-    .profile-input:focus { border-color:var(--primary); }
-    .profile-edit-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font:600 .76rem inherit; cursor:pointer; transition:all .15s; }
+    .profile-actions-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:1.5rem; flex-wrap:wrap; gap:10px;
+    }
+    .profile-page-title {
+      font-family:'DM Serif Display',Georgia,serif;
+      font-size:1.2rem; font-weight:400; color:var(--text);
+    }
+    .profile-btns { display:flex; gap:8px; align-items:center; }
+    .profile-edit-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:6px 16px; border-radius:9px;
+      border:1.5px solid var(--border); background:transparent;
+      color:var(--muted); font:600 .8rem inherit; cursor:pointer; transition:all .15s;
+    }
     .profile-edit-btn:hover { border-color:var(--primary); color:var(--primary); }
-    .profile-edit-btn .material-icons-round { font-size:.85rem; }
-    .profile-save-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 14px; border-radius:8px; border:none; background:var(--primary); color:#fff; font:600 .76rem inherit; cursor:pointer; }
+    .profile-edit-btn .material-icons-round { font-size:.88rem; }
+    .profile-save-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:6px 18px; border-radius:9px;
+      border:none; background:var(--primary); color:#fff;
+      font:600 .8rem inherit; cursor:pointer; transition:filter .15s;
+    }
     .profile-save-btn:hover { filter:brightness(1.1); }
-    .profile-cancel-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font:600 .76rem inherit; cursor:pointer; }
-    .profile-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .profile-saved-tag { font-size:.72rem; color:var(--success); display:flex; align-items:center; gap:3px; opacity:0; transition:opacity .3s; }
+    .profile-cancel-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:6px 14px; border-radius:9px;
+      border:1.5px solid var(--border); background:transparent;
+      color:var(--muted); font:600 .8rem inherit; cursor:pointer;
+    }
+    .profile-saved-tag { font-size:.74rem; color:var(--success); display:flex; align-items:center; gap:3px; opacity:0; transition:opacity .3s; }
     .profile-saved-tag.show { opacity:1; }
-    .profile-saved-tag .material-icons-round { font-size:.82rem; }
+    .profile-saved-tag .material-icons-round { font-size:.85rem; }
 
-    /* ── EMPLOYMENT ── */
-    .employer-card { display:flex; flex-direction:column; gap:4px; padding:.85rem 1rem; background:var(--surface2); border:1px solid var(--border); border-radius:10px; margin-bottom:8px; }
-    .employer-card:last-child { margin-bottom:0; }
-    .employer-card.current { border-left:3px solid var(--primary); }
-    .employer-card-title { font-size:.88rem; font-weight:700; color:var(--text); }
-    .employer-card-sub { font-size:.78rem; color:var(--muted); }
-    .employer-card-badge { font-size:.66rem; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2); }
-    .employer-card-badge.past { background:var(--surface2); color:var(--muted); border-color:var(--border); }
+    /* ── FIELD GRID ── */
+    .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem 2rem; }
+    @media(max-width:560px) { .profile-grid { grid-template-columns:1fr; } }
+    .profile-field { display:flex; flex-direction:column; gap:5px; }
+    .profile-field.full { grid-column:1/-1; }
+    .profile-label { font-size:.63rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+    .profile-value { font-size:.95rem; color:var(--text); font-weight:500; padding:2px 0; border-bottom:1px solid transparent; min-height:1.6em; }
+    .profile-value.empty { color:var(--muted); font-style:italic; font-weight:400; }
+    .profile-value a { color:var(--primary); }
+    .profile-divider { grid-column:1/-1; border:none; border-top:1px solid var(--border); margin:.25rem 0; }
 
-    /* ── EMPLOYER RATING ── */
-    .er-section-inner { background:linear-gradient(135deg,rgba(26,107,204,.06),rgba(0,137,123,.06)); border-radius:10px; overflow:hidden; }
-    .er-nums { display:flex; gap:4px; flex-wrap:wrap; }
-    .er-num { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); color:var(--muted); font:700 .78rem inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; user-select:none; }
-    .er-num:hover { border-color:var(--primary); color:var(--primary); background:rgba(26,107,204,.08); }
-    .er-num.active { border-color:transparent; color:#fff; }
-    .er-rec-options { display:flex; flex-wrap:wrap; gap:8px; margin-top:.4rem; }
-    .er-rec-btn { padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--surface); color:var(--muted); font:600 .78rem inherit; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:5px; }
-    .er-rec-btn .material-icons-round { font-size:.85rem; }
-    .er-rec-btn:hover { border-color:var(--primary); color:var(--primary); }
-    .er-rec-btn.selected-yes { background:rgba(46,125,50,.1); border-color:#2E7D32; color:#2E7D32; }
-    .er-rec-btn.selected-res { background:rgba(230,81,0,.08); border-color:#E65100; color:#E65100; }
-    .er-rec-btn.selected-no  { background:rgba(198,40,40,.08); border-color:#C62828; color:#C62828; }
-    .er-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:4px; }
-    .er-bar-fill { height:100%; border-radius:3px; transition:width .4s, background .3s; }
-    .er-textarea { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); font:inherit; font-size:.82rem; resize:vertical; outline:none; min-height:72px; }
-    .er-textarea:focus { border-color:var(--primary); }
-    .er-submit-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:9px; background:linear-gradient(135deg,#1A6BCC,#00897B); border:none; color:#fff; font:700 .82rem inherit; cursor:pointer; transition:filter .15s; }
-    .er-submit-btn:hover { filter:brightness(1.1); }
-    .er-submit-btn .material-icons-round { font-size:.9rem; }
-
-    /* ── AVATAR UPLOAD ── */
-    .em-avatar-upload { position:relative; cursor:pointer; transition:filter .2s; }
-    .em-avatar-upload:hover { filter:brightness(.78); }
-    .em-avatar-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; pointer-events:none; border-radius:50%; background:rgba(0,0,0,.35); }
-    .em-avatar-overlay .material-icons-round { font-size:1.6rem; color:#fff; }
-    .em-avatar-upload:hover .em-avatar-overlay { opacity:1; }
+    /* inputs */
+    .profile-input {
+      padding:8px 12px; border:1.5px solid var(--border);
+      border-radius:9px; background:var(--surface2); color:var(--text);
+      font:inherit; font-size:.9rem; outline:none; width:100%;
+      transition:border-color .15s;
+    }
+    .profile-input:focus { border-color:var(--primary); background:var(--surface); }
+    textarea.profile-input { resize:vertical; min-height:90px; }
+    .profile-input[readonly] { opacity:.6; cursor:default; }
   </style>
 </head>
 <body>
 
+<!-- TOPBAR with full breadcrumb -->
 <nav class="topbar">
-  <a href="employee.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
-  <span class="material-icons-round" style="font-size:.9rem;color:var(--muted)">chevron_right</span>
-  <span style="font-size:.82rem;color:var(--muted)" id="nav-back-label">Dashboard</span>
+  <a href="#" class="logo" id="nav-logo">Emph<b>ora</b></a>
+  <span class="bc-sep">›</span>
+  <a href="#" class="bc-link" id="bc-dash">Employee Dashboard</a>
+  <span class="bc-sep">›</span>
+  <span class="bc-current">My Profile</span>
   <div class="spacer"></div>
   <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
-  <a href="#" class="icon-btn" id="back-btn" title="Back to dashboard"><span class="material-icons-round">arrow_back</span></a>
+  <a href="#" class="icon-btn" id="back-btn" title="Back"><span class="material-icons-round">arrow_back</span></a>
 </nav>
 
-<!-- HERO -->
-<div class="profile-hero">
-  <div class="profile-hero-avatar em-avatar-upload" id="hero-avatar">?</div>
+<!-- AVATAR HERO STRIP -->
+<div class="profile-hero-strip">
+  <div class="profile-avatar-wrap" id="avatar-wrap">
+    <div class="profile-avatar" id="hero-avatar">?</div>
+    <div class="profile-avatar-overlay"><span class="material-icons-round">add_a_photo</span></div>
+  </div>
   <div class="profile-hero-info">
     <div class="profile-hero-name" id="hero-name">—</div>
-    <div class="profile-hero-title" id="hero-title">—</div>
-    <div class="profile-hero-meta" id="hero-meta"></div>
-    <div style="margin-top:.75rem;display:flex;gap:8px" id="hero-links"></div>
+    <div class="profile-hero-sub"  id="hero-sub">—</div>
+    <div class="profile-hero-pills" id="hero-pills"></div>
   </div>
 </div>
 
-<div class="page">
-
-  <!-- PROFILE FIELDS -->
-  <div class="section" id="profile-section">
-    <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">person</span>Personal Info</div>
-      <div class="profile-actions">
-        <span class="profile-saved-tag" id="profile-saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
-        <button class="profile-edit-btn" id="profile-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
-        <button class="profile-save-btn" id="profile-save-btn" style="display:none"><span class="material-icons-round">save</span>Save</button>
-        <button class="profile-cancel-btn" id="profile-cancel-btn" style="display:none">Cancel</button>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="profile-grid" id="profile-fields"></div>
+<!-- FULL-WIDTH PROFILE FORM -->
+<div class="profile-page">
+  <div class="profile-actions-bar">
+    <div class="profile-page-title">Personal Information</div>
+    <div class="profile-btns">
+      <span class="profile-saved-tag" id="profile-saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
+      <button class="profile-edit-btn" id="profile-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
+      <button class="profile-save-btn"   id="profile-save-btn"   style="display:none"><span class="material-icons-round">save</span>Save Changes</button>
+      <button class="profile-cancel-btn" id="profile-cancel-btn" style="display:none">Cancel</button>
     </div>
   </div>
-
-
-</div><!-- /page -->
+  <div class="profile-grid" id="profile-fields"></div>
+</div>
 
 <script>
 'use strict';
@@ -161,31 +180,29 @@
 const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch { return null; } })();
 if (!user) window.location.href = '/';
 
-const DASH = { employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html' };
-const dashPage = DASH[user?.accountType] || 'employee.html';
+const DASH      = { employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html' };
+const DASH_LABEL= { employee:'Employee Dashboard', employer:'Employer Dashboard', researcher:'Researcher Dashboard', admin:'Admin Dashboard' };
+const dashPage  = DASH[user?.accountType] || 'employee.html';
 
-// Logo always goes to user's own dashboard
-const logoEl = document.getElementById('nav-logo');
-if (logoEl) logoEl.href = dashPage;
-
-// Back button + breadcrumb
-document.getElementById('back-btn').href = dashPage;
-document.getElementById('nav-back-label').textContent =
-  { employee:'Employee Dashboard', employer:'Employer Dashboard', researcher:'Researcher Dashboard', admin:'Admin Dashboard' }[user?.accountType] || 'Dashboard';
+// Breadcrumb + back
+document.getElementById('nav-logo').href  = dashPage;
+document.getElementById('bc-dash').href   = dashPage;
+document.getElementById('bc-dash').textContent = DASH_LABEL[user?.accountType] || 'Dashboard';
+document.getElementById('back-btn').href  = dashPage;
 
 // Theme
 let theme = localStorage.getItem('em-theme') || 'light';
 function applyTheme(t) {
-  theme = t; document.body.dataset.theme = t;
+  theme=t; document.body.dataset.theme=t;
   document.querySelector('#theme-btn .material-icons-round').textContent = t==='dark'?'dark_mode':'light_mode';
-  localStorage.setItem('em-theme', t);
+  localStorage.setItem('em-theme',t);
 }
 applyTheme(theme);
 document.getElementById('theme-btn').onclick = () => applyTheme(theme==='dark'?'light':'dark');
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
+// ── Profile data ──────────────────────────────────────────────────────────────
 const PKEY = `emphora_profile_${user.email}`;
 let profile = {};
 try { profile = JSON.parse(localStorage.getItem(PKEY)||'{}'); } catch(_) {}
@@ -193,158 +210,128 @@ profile.firstName = profile.firstName || user.firstName || '';
 profile.lastName  = profile.lastName  || user.lastName  || '';
 profile.email     = user.email || '';
 
-function updateHero() {
-  const fn  = profile.firstName || user.firstName || '';
-  const ln  = profile.lastName  || user.lastName  || '';
-  const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
-  const nameEl  = document.getElementById('hero-name');
-  const titleEl = document.getElementById('hero-title');
-  const metaEl  = document.getElementById('hero-meta');
-  const avatarEl = document.getElementById('hero-avatar');
-  if (nameEl)  nameEl.textContent  = `${fn} ${ln}`.trim() || '—';
-  if (titleEl) titleEl.textContent = profile.title || user.email || '';
-  if (avatarEl && !avatarEl.dataset.hasImage) avatarEl.textContent = ini;
-
-  // Meta pills
-  const pills = [];
-  if (profile.location) pills.push(`<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>${esc(profile.location)}</span>`);
-  if (user.emphoraScore > 0) pills.push(`<span class="profile-hero-pill"><span class="material-icons-round">stars</span>${user.emphoraScore.toFixed(1)} Score</span>`);
-  if (user.isVerified) pills.push(`<span class="profile-hero-pill" style="background:rgba(46,125,50,.1);color:#2E7D32;border-color:rgba(46,125,50,.2)"><span class="material-icons-round">verified</span>Verified</span>`);
-  if (metaEl) metaEl.innerHTML = pills.join('');
-}
-updateHero();
-
-// Show Work & Ratings link for employees
-if (user.accountType === 'employee') {
-  const linksEl = document.getElementById('hero-links');
-  if (linksEl) linksEl.innerHTML = `
-    <a href="work.html" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid rgba(26,107,204,.25);background:rgba(26,107,204,.08);color:var(--primary);font-size:.76rem;font-weight:600;text-decoration:none">
-      <span class="material-icons-round" style="font-size:.88rem">business_center</span>Work &amp; Ratings
-    </a>
-    <a href="skills.html" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid rgba(0,137,123,.25);background:rgba(0,137,123,.08);color:#00897B;font-size:.76rem;font-weight:600;text-decoration:none">
-      <span class="material-icons-round" style="font-size:.88rem">psychology</span>My Skills
-    </a>`;
-}
-
-// ── Avatar upload ─────────────────────────────────────────────────────────────
-(function() {
-  const heroEl = document.getElementById('hero-avatar');
-  if (!heroEl || !user) return;
-  const key = `emphora_avatar_${user.email}`;
-  const saved = (() => { try { return localStorage.getItem(key); } catch { return null; } })();
-  if (saved) {
-    heroEl.style.backgroundImage = `url(${saved})`;
-    heroEl.style.backgroundSize = 'cover';
-    heroEl.style.backgroundPosition = 'center';
-    heroEl.style.color = 'transparent';
-    heroEl.dataset.hasImage = 'true';
-  }
-  const overlay = document.createElement('span');
-  overlay.className = 'em-avatar-overlay';
-  overlay.innerHTML = '<span class="material-icons-round">add_a_photo</span>';
-  heroEl.appendChild(overlay);
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = 'image/*'; input.style.display = 'none';
-  document.body.appendChild(input);
-  heroEl.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => {
-    const file = input.files[0]; input.value = '';
-    if (!file || file.size > 5*1024*1024) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 200;
-        const ctx = canvas.getContext('2d');
-        const side = Math.min(img.width, img.height);
-        const sx = (img.width-side)/2, sy = (img.height-side)/2;
-        ctx.beginPath(); ctx.arc(100,100,100,0,Math.PI*2); ctx.clip();
-        ctx.drawImage(img,sx,sy,side,side,0,0,200,200);
-        const data = canvas.toDataURL('image/jpeg',.88);
-        try { localStorage.setItem(key, data); } catch(_) {}
-        heroEl.style.backgroundImage = `url(${data})`;
-        heroEl.style.backgroundSize = 'cover';
-        heroEl.style.backgroundPosition = 'center';
-        heroEl.style.color = 'transparent';
-        heroEl.dataset.hasImage = 'true';
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-})();
-
-// ── Profile Fields ────────────────────────────────────────────────────────────
 const FIELDS = [
-  { key:'firstName',  label:'First Name',          type:'text',     readonly:false },
-  { key:'lastName',   label:'Last Name',            type:'text',     readonly:false },
-  { key:'email',      label:'Email',                type:'email',    readonly:true  },
-  { key:'phone',      label:'Phone',                type:'tel',      readonly:false },
-  { key:'location',   label:'Location',             type:'text',     readonly:false },
-  { key:'linkedin',   label:'LinkedIn',             type:'url',      readonly:false },
-  { key:'website',    label:'Website',              type:'url',      readonly:false },
-  { key:'title',      label:'Job Title',            type:'text',     readonly:false },
-  { key:'summary',    label:'Professional Summary', type:'textarea', readonly:false, full:true },
+  { key:'firstName', label:'First Name',          type:'text',     readonly:false },
+  { key:'lastName',  label:'Last Name',            type:'text',     readonly:false },
+  { key:'email',     label:'Email Address',        type:'email',    readonly:true  },
+  { key:'phone',     label:'Phone',                type:'tel',      readonly:false },
+  { key:'location',  label:'Location',             type:'text',     readonly:false },
+  { key:'linkedin',  label:'LinkedIn URL',         type:'url',      readonly:false },
+  { key:'website',   label:'Website',              type:'url',      readonly:false },
+  { key:'title',     label:'Job Title',            type:'text',     readonly:false },
+  { divider: true },
+  { key:'summary',   label:'Professional Summary', type:'textarea', readonly:false, full:true },
 ];
 
-let profEditing = false;
+let editing = false;
 
-function renderProfile() {
-  const grid = document.getElementById('profile-fields');
-  if (!grid) return;
-  if (profEditing) {
-    grid.innerHTML = FIELDS.map(f => `
-      <div class="profile-field" style="${f.full?'grid-column:1/-1':''}">
-        <label class="profile-label" for="pf-${f.key}">${f.label}</label>
-        ${f.type==='textarea'
-          ? `<textarea class="profile-input" id="pf-${f.key}" rows="3" ${f.readonly?'readonly':''}>${esc(profile[f.key]||'')}</textarea>`
-          : `<input class="profile-input" type="${f.type}" id="pf-${f.key}" value="${esc(profile[f.key]||'')}" placeholder="${f.label}" ${f.readonly?'readonly':''}>`}
-      </div>`).join('');
-  } else {
-    grid.innerHTML = FIELDS.map(f => {
-      const val = profile[f.key]||'';
-      const isUrl = f.type==='url' && val;
-      return `<div class="profile-field" style="${f.full?'grid-column:1/-1':''}">
-        <div class="profile-label">${f.label}</div>
-        <div class="profile-value${val?'':' empty'}">
-          ${isUrl ? `<a href="${esc(val)}" target="_blank" rel="noopener" style="color:var(--primary)">${esc(val)}</a>` : esc(val)||'Not set'}
-        </div>
-      </div>`;
-    }).join('');
-  }
+function updateHero() {
+  const fn  = profile.firstName || '';
+  const ln  = profile.lastName  || '';
+  const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+  document.getElementById('hero-name').textContent = `${fn} ${ln}`.trim() || '—';
+  document.getElementById('hero-sub').textContent  = profile.title || user.email || '';
+  const avatarEl = document.getElementById('hero-avatar');
+  if (avatarEl && !avatarEl.dataset.img) avatarEl.textContent = ini;
+
+  const pills = [];
+  if (profile.location) pills.push(`<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>${esc(profile.location)}</span>`);
+  if (user.emphoraScore > 0) pills.push(`<span class="profile-hero-pill"><span class="material-icons-round">stars</span>${Number(user.emphoraScore).toFixed(1)} Score</span>`);
+  if (user.isVerified) pills.push(`<span class="profile-hero-pill" style="background:rgba(46,125,50,.1);color:#2E7D32;border-color:rgba(46,125,50,.2)"><span class="material-icons-round">verified</span>Verified</span>`);
+  document.getElementById('hero-pills').innerHTML = pills.join('');
 }
 
-document.getElementById('profile-edit-btn')?.addEventListener('click', () => {
-  profEditing = true; renderProfile();
-  document.getElementById('profile-edit-btn').style.display = 'none';
-  document.getElementById('profile-save-btn').style.display = '';
+function renderFields() {
+  const grid = document.getElementById('profile-fields');
+  grid.innerHTML = FIELDS.map(f => {
+    if (f.divider) return '<hr class="profile-divider"/>';
+    const val = profile[f.key] || '';
+    if (editing) {
+      return `<div class="profile-field${f.full?' full':''}">
+        <label class="profile-label" for="pf-${f.key}">${f.label}</label>
+        ${f.type==='textarea'
+          ? `<textarea class="profile-input" id="pf-${f.key}" rows="4" ${f.readonly?'readonly':''}>${esc(val)}</textarea>`
+          : `<input class="profile-input" type="${f.type}" id="pf-${f.key}" value="${esc(val)}" placeholder="${f.label}" ${f.readonly?'readonly':''}>`}
+      </div>`;
+    } else {
+      const isUrl = f.type==='url' && val;
+      return `<div class="profile-field${f.full?' full':''}">
+        <div class="profile-label">${f.label}</div>
+        <div class="profile-value${val?'':' empty'}">
+          ${isUrl ? `<a href="${esc(val)}" target="_blank" rel="noopener">${esc(val)}</a>` : esc(val)||'Not set'}
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
+
+document.getElementById('profile-edit-btn').addEventListener('click', () => {
+  editing = true; renderFields();
+  document.getElementById('profile-edit-btn').style.display  = 'none';
+  document.getElementById('profile-save-btn').style.display  = '';
   document.getElementById('profile-cancel-btn').style.display = '';
+  document.getElementById('profile-fields').querySelector('.profile-input:not([readonly])')?.focus();
 });
-document.getElementById('profile-save-btn')?.addEventListener('click', () => {
-  FIELDS.forEach(f => {
-    if (f.readonly) return;
+
+document.getElementById('profile-save-btn').addEventListener('click', () => {
+  FIELDS.filter(f=>f.key&&!f.readonly).forEach(f => {
     const el = document.getElementById(`pf-${f.key}`);
     if (el) profile[f.key] = el.value.trim();
   });
   try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch(_) {}
-  profEditing = false; renderProfile(); updateHero();
-  document.getElementById('profile-edit-btn').style.display = '';
-  document.getElementById('profile-save-btn').style.display = 'none';
+  editing = false; renderFields(); updateHero();
+  document.getElementById('profile-edit-btn').style.display  = '';
+  document.getElementById('profile-save-btn').style.display  = 'none';
   document.getElementById('profile-cancel-btn').style.display = 'none';
   const tag = document.getElementById('profile-saved-tag');
-  if (tag) { tag.classList.add('show'); setTimeout(()=>tag.classList.remove('show'),2000); }
+  tag.classList.add('show'); setTimeout(()=>tag.classList.remove('show'), 2200);
 });
-document.getElementById('profile-cancel-btn')?.addEventListener('click', () => {
-  profEditing = false; renderProfile();
-  document.getElementById('profile-edit-btn').style.display = '';
-  document.getElementById('profile-save-btn').style.display = 'none';
+
+document.getElementById('profile-cancel-btn').addEventListener('click', () => {
+  editing = false; renderFields();
+  document.getElementById('profile-edit-btn').style.display  = '';
+  document.getElementById('profile-save-btn').style.display  = 'none';
   document.getElementById('profile-cancel-btn').style.display = 'none';
 });
-renderProfile();
 
+updateHero();
+renderFields();
+
+// ── Avatar upload ─────────────────────────────────────────────────────────────
+(function() {
+  const avatarEl = document.getElementById('hero-avatar');
+  const wrapEl   = document.getElementById('avatar-wrap');
+  if (!avatarEl || !user) return;
+  const key = `emphora_avatar_${user.email}`;
+  function applyImg(data) {
+    avatarEl.style.cssText += ';background-image:url('+data+');background-size:cover;background-position:center;color:transparent';
+    avatarEl.dataset.img = '1';
+  }
+  try { const s=localStorage.getItem(key); if(s) applyImg(s); } catch(_) {}
+  const input = Object.assign(document.createElement('input'), { type:'file', accept:'image/*', style:'display:none' });
+  document.body.appendChild(input);
+  wrapEl.addEventListener('click', ()=>input.click());
+  input.addEventListener('change', ()=>{
+    const file=input.files[0]; input.value='';
+    if (!file||file.size>5*1024*1024) return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const c=document.createElement('canvas'); c.width=c.height=200;
+        const ctx=c.getContext('2d');
+        const side=Math.min(img.width,img.height);
+        ctx.beginPath(); ctx.arc(100,100,100,0,Math.PI*2); ctx.clip();
+        ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,200,200);
+        const data=c.toDataURL('image/jpeg',.88);
+        try { localStorage.setItem(key,data); } catch(_) {}
+        applyImg(data);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+})();
 </script>
-
-<script src="js/avatar-upload.js"></script>
 </body>
 </html>
