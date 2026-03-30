@@ -1,0 +1,603 @@
+<!--
+  Place at: public/profile.html
+  Emphora — User Profile Page
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Emphora — My Profile</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:#1A6BCC; --bg:#F0F4F8; --surface:#fff; --surface2:#F8FAFC;
+      --border:#D0DCE8; --text:#0D1B2A; --muted:#7A8FA6;
+      --success:#2E7D32; --warning:#E65100; --danger:#C62828; --topH:54px;
+    }
+    [data-theme="dark"] {
+      --bg:#0A0F1A; --surface:#111827; --surface2:#1A2236;
+      --border:rgba(255,255,255,.10); --text:#E8F1FF; --muted:#5C7389;
+    }
+    body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-size:14px; background:var(--bg); color:var(--text); min-height:100vh; transition:background .2s,color .2s; }
+
+    /* ── TOPBAR ── */
+    .topbar { position:sticky; top:0; z-index:100; height:var(--topH); background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1.25rem; gap:10px; }
+    .logo { font-family:'DM Serif Display',Georgia,serif; font-style:italic; font-size:1.3rem; color:var(--primary); text-decoration:none; }
+    .logo b { color:#00897B; font-weight:400; }
+    .spacer { flex:1; }
+    .icon-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; text-decoration:none; }
+    .icon-btn:hover { color:var(--primary); border-color:var(--primary); }
+    .icon-btn .material-icons-round { font-size:1rem; }
+    .back-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-size:.78rem; font-weight:600; text-decoration:none; transition:all .15s; }
+    .back-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .back-btn .material-icons-round { font-size:.9rem; }
+
+    /* ── HERO ── */
+    .profile-hero { position:relative; background:linear-gradient(135deg,rgba(26,107,204,.1),rgba(0,137,123,.08)); border-bottom:1px solid var(--border); padding:2rem 1.25rem 1.5rem; display:flex; align-items:flex-end; gap:1.25rem; flex-wrap:wrap; }
+    .profile-hero-avatar { width:80px; height:80px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-size:1.8rem; color:#fff; flex-shrink:0; border:3px solid var(--surface); box-shadow:0 4px 16px rgba(0,0,0,.12); }
+    .profile-hero-info { flex:1; min-width:0; }
+    .profile-hero-name { font-family:'DM Serif Display',Georgia,serif; font-size:1.6rem; font-weight:400; }
+    .profile-hero-title { font-size:.84rem; color:var(--muted); margin-top:3px; }
+    .profile-hero-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+    .profile-hero-pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:.68rem; font-weight:700; background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2); }
+    .profile-hero-pill .material-icons-round { font-size:.78rem; }
+
+    /* ── PAGE ── */
+    .page { max-width:780px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+
+    /* ── SECTIONS ── */
+    .section { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:1.1rem; overflow:hidden; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; padding:.8rem 1.1rem; border-bottom:1px solid var(--border); }
+    .section-title { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:6px; }
+    .section-title .material-icons-round { font-size:1rem; color:var(--primary); }
+    .section-body { padding:1.1rem; }
+
+    /* ── PROFILE FIELDS ── */
+    .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+    @media(max-width:540px){ .profile-grid { grid-template-columns:1fr; } }
+    .profile-field { display:flex; flex-direction:column; gap:3px; }
+    .profile-label { font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+    .profile-value { font-size:.88rem; color:var(--text); font-weight:500; }
+    .profile-value.empty { color:var(--muted); font-style:italic; font-weight:400; }
+    .profile-input { padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); font:inherit; font-size:.84rem; outline:none; width:100%; }
+    .profile-input:focus { border-color:var(--primary); }
+    .profile-edit-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font:600 .76rem inherit; cursor:pointer; transition:all .15s; }
+    .profile-edit-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .profile-edit-btn .material-icons-round { font-size:.85rem; }
+    .profile-save-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 14px; border-radius:8px; border:none; background:var(--primary); color:#fff; font:600 .76rem inherit; cursor:pointer; }
+    .profile-save-btn:hover { filter:brightness(1.1); }
+    .profile-cancel-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font:600 .76rem inherit; cursor:pointer; }
+    .profile-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .profile-saved-tag { font-size:.72rem; color:var(--success); display:flex; align-items:center; gap:3px; opacity:0; transition:opacity .3s; }
+    .profile-saved-tag.show { opacity:1; }
+    .profile-saved-tag .material-icons-round { font-size:.82rem; }
+
+    /* ── EMPLOYMENT ── */
+    .employer-card { display:flex; flex-direction:column; gap:4px; padding:.85rem 1rem; background:var(--surface2); border:1px solid var(--border); border-radius:10px; margin-bottom:8px; }
+    .employer-card:last-child { margin-bottom:0; }
+    .employer-card.current { border-left:3px solid var(--primary); }
+    .employer-card-title { font-size:.88rem; font-weight:700; color:var(--text); }
+    .employer-card-sub { font-size:.78rem; color:var(--muted); }
+    .employer-card-badge { font-size:.66rem; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2); }
+    .employer-card-badge.past { background:var(--surface2); color:var(--muted); border-color:var(--border); }
+
+    /* ── EMPLOYER RATING ── */
+    .er-section-inner { background:linear-gradient(135deg,rgba(26,107,204,.06),rgba(0,137,123,.06)); border-radius:10px; overflow:hidden; }
+    .er-nums { display:flex; gap:4px; flex-wrap:wrap; }
+    .er-num { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); color:var(--muted); font:700 .78rem inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; user-select:none; }
+    .er-num:hover { border-color:var(--primary); color:var(--primary); background:rgba(26,107,204,.08); }
+    .er-num.active { border-color:transparent; color:#fff; }
+    .er-rec-options { display:flex; flex-wrap:wrap; gap:8px; margin-top:.4rem; }
+    .er-rec-btn { padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--surface); color:var(--muted); font:600 .78rem inherit; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:5px; }
+    .er-rec-btn .material-icons-round { font-size:.85rem; }
+    .er-rec-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .er-rec-btn.selected-yes { background:rgba(46,125,50,.1); border-color:#2E7D32; color:#2E7D32; }
+    .er-rec-btn.selected-res { background:rgba(230,81,0,.08); border-color:#E65100; color:#E65100; }
+    .er-rec-btn.selected-no  { background:rgba(198,40,40,.08); border-color:#C62828; color:#C62828; }
+    .er-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:4px; }
+    .er-bar-fill { height:100%; border-radius:3px; transition:width .4s, background .3s; }
+    .er-textarea { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); font:inherit; font-size:.82rem; resize:vertical; outline:none; min-height:72px; }
+    .er-textarea:focus { border-color:var(--primary); }
+    .er-submit-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:9px; background:linear-gradient(135deg,#1A6BCC,#00897B); border:none; color:#fff; font:700 .82rem inherit; cursor:pointer; transition:filter .15s; }
+    .er-submit-btn:hover { filter:brightness(1.1); }
+    .er-submit-btn .material-icons-round { font-size:.9rem; }
+
+    /* ── AVATAR UPLOAD ── */
+    .em-avatar-upload { position:relative; cursor:pointer; transition:filter .2s; }
+    .em-avatar-upload:hover { filter:brightness(.78); }
+    .em-avatar-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; pointer-events:none; border-radius:50%; background:rgba(0,0,0,.35); }
+    .em-avatar-overlay .material-icons-round { font-size:1.6rem; color:#fff; }
+    .em-avatar-upload:hover .em-avatar-overlay { opacity:1; }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="/" class="logo">Emph<b>ora</b></a>
+  <span class="material-icons-round" style="font-size:.9rem;color:var(--muted)">chevron_right</span>
+  <span style="font-size:.82rem;color:var(--muted)" id="nav-back-label">Dashboard</span>
+  <div class="spacer"></div>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <a href="#" class="icon-btn" id="back-btn" title="Back to dashboard"><span class="material-icons-round">arrow_back</span></a>
+</nav>
+
+<!-- HERO -->
+<div class="profile-hero">
+  <div class="profile-hero-avatar em-avatar-upload" id="hero-avatar">?</div>
+  <div class="profile-hero-info">
+    <div class="profile-hero-name" id="hero-name">—</div>
+    <div class="profile-hero-title" id="hero-title">—</div>
+    <div class="profile-hero-meta" id="hero-meta"></div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- PROFILE FIELDS -->
+  <div class="section" id="profile-section">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">person</span>Personal Info</div>
+      <div class="profile-actions">
+        <span class="profile-saved-tag" id="profile-saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
+        <button class="profile-edit-btn" id="profile-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
+        <button class="profile-save-btn" id="profile-save-btn" style="display:none"><span class="material-icons-round">save</span>Save</button>
+        <button class="profile-cancel-btn" id="profile-cancel-btn" style="display:none">Cancel</button>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="profile-grid" id="profile-fields"></div>
+    </div>
+  </div>
+
+  <!-- EMPLOYMENT (employee only) -->
+  <div class="section" id="employment-section" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">business_center</span>Employment</div>
+      <button class="profile-edit-btn" id="employment-edit-btn"><span class="material-icons-round">edit</span>Edit</button>
+    </div>
+    <div class="section-body" id="employment-body"></div>
+  </div>
+
+  <!-- EMPLOYER RATING (employee only) -->
+  <div class="section" id="rating-section" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">rate_review</span>Employer Rating</div>
+      <span class="profile-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
+    </div>
+    <div class="section-body" id="er-body"></div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+'use strict';
+
+const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch { return null; } })();
+if (!user) window.location.href = '/';
+
+const DASH = { employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html' };
+const dashPage = DASH[user?.accountType] || 'employee.html';
+
+// Back button + breadcrumb
+document.getElementById('back-btn').href = dashPage;
+document.getElementById('nav-back-label').textContent =
+  { employee:'Employee Dashboard', employer:'Employer Dashboard', researcher:'Researcher Dashboard', admin:'Admin Dashboard' }[user?.accountType] || 'Dashboard';
+
+// Theme
+let theme = localStorage.getItem('em-theme') || 'light';
+function applyTheme(t) {
+  theme = t; document.body.dataset.theme = t;
+  document.querySelector('#theme-btn .material-icons-round').textContent = t==='dark'?'dark_mode':'light_mode';
+  localStorage.setItem('em-theme', t);
+}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick = () => applyTheme(theme==='dark'?'light':'dark');
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
+const PKEY = `emphora_profile_${user.email}`;
+let profile = {};
+try { profile = JSON.parse(localStorage.getItem(PKEY)||'{}'); } catch(_) {}
+profile.firstName = profile.firstName || user.firstName || '';
+profile.lastName  = profile.lastName  || user.lastName  || '';
+profile.email     = user.email || '';
+
+function updateHero() {
+  const fn  = profile.firstName || user.firstName || '';
+  const ln  = profile.lastName  || user.lastName  || '';
+  const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+  const nameEl  = document.getElementById('hero-name');
+  const titleEl = document.getElementById('hero-title');
+  const metaEl  = document.getElementById('hero-meta');
+  const avatarEl = document.getElementById('hero-avatar');
+  if (nameEl)  nameEl.textContent  = `${fn} ${ln}`.trim() || '—';
+  if (titleEl) titleEl.textContent = profile.title || user.email || '';
+  if (avatarEl && !avatarEl.dataset.hasImage) avatarEl.textContent = ini;
+
+  // Meta pills
+  const pills = [];
+  if (profile.location) pills.push(`<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>${esc(profile.location)}</span>`);
+  if (user.emphoraScore > 0) pills.push(`<span class="profile-hero-pill"><span class="material-icons-round">stars</span>${user.emphoraScore.toFixed(1)} Score</span>`);
+  if (user.isVerified) pills.push(`<span class="profile-hero-pill" style="background:rgba(46,125,50,.1);color:#2E7D32;border-color:rgba(46,125,50,.2)"><span class="material-icons-round">verified</span>Verified</span>`);
+  if (metaEl) metaEl.innerHTML = pills.join('');
+}
+updateHero();
+
+// ── Avatar upload ─────────────────────────────────────────────────────────────
+(function() {
+  const heroEl = document.getElementById('hero-avatar');
+  if (!heroEl || !user) return;
+  const key = `emphora_avatar_${user.email}`;
+  const saved = (() => { try { return localStorage.getItem(key); } catch { return null; } })();
+  if (saved) {
+    heroEl.style.backgroundImage = `url(${saved})`;
+    heroEl.style.backgroundSize = 'cover';
+    heroEl.style.backgroundPosition = 'center';
+    heroEl.style.color = 'transparent';
+    heroEl.dataset.hasImage = 'true';
+  }
+  const overlay = document.createElement('span');
+  overlay.className = 'em-avatar-overlay';
+  overlay.innerHTML = '<span class="material-icons-round">add_a_photo</span>';
+  heroEl.appendChild(overlay);
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.style.display = 'none';
+  document.body.appendChild(input);
+  heroEl.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    const file = input.files[0]; input.value = '';
+    if (!file || file.size > 5*1024*1024) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width-side)/2, sy = (img.height-side)/2;
+        ctx.beginPath(); ctx.arc(100,100,100,0,Math.PI*2); ctx.clip();
+        ctx.drawImage(img,sx,sy,side,side,0,0,200,200);
+        const data = canvas.toDataURL('image/jpeg',.88);
+        try { localStorage.setItem(key, data); } catch(_) {}
+        heroEl.style.backgroundImage = `url(${data})`;
+        heroEl.style.backgroundSize = 'cover';
+        heroEl.style.backgroundPosition = 'center';
+        heroEl.style.color = 'transparent';
+        heroEl.dataset.hasImage = 'true';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+})();
+
+// ── Profile Fields ────────────────────────────────────────────────────────────
+const FIELDS = [
+  { key:'firstName',  label:'First Name',          type:'text',     readonly:false },
+  { key:'lastName',   label:'Last Name',            type:'text',     readonly:false },
+  { key:'email',      label:'Email',                type:'email',    readonly:true  },
+  { key:'phone',      label:'Phone',                type:'tel',      readonly:false },
+  { key:'location',   label:'Location',             type:'text',     readonly:false },
+  { key:'linkedin',   label:'LinkedIn',             type:'url',      readonly:false },
+  { key:'website',    label:'Website',              type:'url',      readonly:false },
+  { key:'title',      label:'Job Title',            type:'text',     readonly:false },
+  { key:'summary',    label:'Professional Summary', type:'textarea', readonly:false, full:true },
+];
+
+let profEditing = false;
+
+function renderProfile() {
+  const grid = document.getElementById('profile-fields');
+  if (!grid) return;
+  if (profEditing) {
+    grid.innerHTML = FIELDS.map(f => `
+      <div class="profile-field" style="${f.full?'grid-column:1/-1':''}">
+        <label class="profile-label" for="pf-${f.key}">${f.label}</label>
+        ${f.type==='textarea'
+          ? `<textarea class="profile-input" id="pf-${f.key}" rows="3" ${f.readonly?'readonly':''}>${esc(profile[f.key]||'')}</textarea>`
+          : `<input class="profile-input" type="${f.type}" id="pf-${f.key}" value="${esc(profile[f.key]||'')}" placeholder="${f.label}" ${f.readonly?'readonly':''}>`}
+      </div>`).join('');
+  } else {
+    grid.innerHTML = FIELDS.map(f => {
+      const val = profile[f.key]||'';
+      const isUrl = f.type==='url' && val;
+      return `<div class="profile-field" style="${f.full?'grid-column:1/-1':''}">
+        <div class="profile-label">${f.label}</div>
+        <div class="profile-value${val?'':' empty'}">
+          ${isUrl ? `<a href="${esc(val)}" target="_blank" rel="noopener" style="color:var(--primary)">${esc(val)}</a>` : esc(val)||'Not set'}
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+document.getElementById('profile-edit-btn')?.addEventListener('click', () => {
+  profEditing = true; renderProfile();
+  document.getElementById('profile-edit-btn').style.display = 'none';
+  document.getElementById('profile-save-btn').style.display = '';
+  document.getElementById('profile-cancel-btn').style.display = '';
+});
+document.getElementById('profile-save-btn')?.addEventListener('click', () => {
+  FIELDS.forEach(f => {
+    if (f.readonly) return;
+    const el = document.getElementById(`pf-${f.key}`);
+    if (el) profile[f.key] = el.value.trim();
+  });
+  try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch(_) {}
+  profEditing = false; renderProfile(); updateHero();
+  document.getElementById('profile-edit-btn').style.display = '';
+  document.getElementById('profile-save-btn').style.display = 'none';
+  document.getElementById('profile-cancel-btn').style.display = 'none';
+  const tag = document.getElementById('profile-saved-tag');
+  if (tag) { tag.classList.add('show'); setTimeout(()=>tag.classList.remove('show'),2000); }
+});
+document.getElementById('profile-cancel-btn')?.addEventListener('click', () => {
+  profEditing = false; renderProfile();
+  document.getElementById('profile-edit-btn').style.display = '';
+  document.getElementById('profile-save-btn').style.display = 'none';
+  document.getElementById('profile-cancel-btn').style.display = 'none';
+});
+renderProfile();
+
+// ── Employment (employees only) ───────────────────────────────────────────────
+if (user.accountType === 'employee' || user.accountType === 'admin') {
+  const empSec = document.getElementById('employment-section');
+  if (empSec) empSec.style.display = '';
+
+  const EKEY = `emphora_employment_${user.email}`;
+  let emp = { current:{ company:'', title:'', from:'', description:'' }, previous:[] };
+  try { const s = localStorage.getItem(EKEY); if (s) emp = { ...emp, ...JSON.parse(s) }; } catch(_) {}
+
+  const empBody = document.getElementById('employment-body');
+  const empEditBtn = document.getElementById('employment-edit-btn');
+
+  function fmtDate(d) { return d ? new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short'}) : ''; }
+  function yearsAt(from) {
+    if (!from) return '';
+    const y = ((Date.now()-new Date(from))/(1000*60*60*24*365.25)).toFixed(1);
+    return `${y} yrs`;
+  }
+
+  function renderEmpView() {
+    if (!empBody) return;
+    const c = emp.current;
+    let html = `<div class="employer-card current">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div>
+          <div class="employer-card-title">${esc(c.company)||'<span style="color:var(--muted);font-style:italic;font-weight:400">Not set</span>'}</div>
+          ${c.title?`<div class="employer-card-sub">${esc(c.title)}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${c.from?`<span class="employer-card-badge">${fmtDate(c.from)} – Present</span>`:''}
+          ${c.from?`<span class="employer-card-badge">${yearsAt(c.from)}</span>`:''}
+        </div>
+      </div>
+      ${c.description?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(c.description)}</div>`:''}
+    </div>`;
+    (emp.previous||[]).filter(p=>p.company||p.title).forEach(p => {
+      const pf = fmtDate(p.from), pt = p.to ? fmtDate(p.to) : 'Present';
+      html += `<div class="employer-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+          <div>
+            <div class="employer-card-title">${esc(p.company)}</div>
+            ${p.title?`<div class="employer-card-sub">${esc(p.title)}</div>`:''}
+          </div>
+          ${pf?`<span class="employer-card-badge past">${pf} – ${pt}</span>`:''}
+        </div>
+        ${p.description?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px">${esc(p.description)}</div>`:''}
+      </div>`;
+    });
+    empBody.innerHTML = html;
+  }
+
+  function renderEmpEdit() {
+    if (!empBody) return;
+    const EMPTY = () => ({company:'',title:'',from:'',to:'',description:''});
+
+    function fieldBlock(label, obj, idx, isCurrent) {
+      return `<div style="margin-bottom:.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+          <div style="font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">${label}</div>
+          ${!isCurrent?`<button class="profile-cancel-btn" data-remove="${idx}" style="font-size:.7rem;padding:3px 8px;color:var(--danger);border-color:rgba(198,40,40,.25)"><span class="material-icons-round" style="font-size:.75rem">delete</span>Remove</button>`:''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label class="profile-label">Company</label><input class="profile-input" id="emp-${idx}-company" type="text" value="${esc(obj.company||'')}" placeholder="Company name"/></div>
+          <div><label class="profile-label">Job Title</label><input class="profile-input" id="emp-${idx}-title" type="text" value="${esc(obj.title||'')}" placeholder="Your title"/></div>
+          <div><label class="profile-label">From</label><input class="profile-input" id="emp-${idx}-from" type="month" value="${esc(obj.from||'')}"/></div>
+          ${!isCurrent?`<div><label class="profile-label">To</label><input class="profile-input" id="emp-${idx}-to" type="month" value="${esc(obj.to||'')}"/></div>`:''}
+          <div style="grid-column:1/-1"><label class="profile-label">Description</label><textarea class="profile-input" id="emp-${idx}-desc" rows="2" placeholder="Brief description">${esc(obj.description||'')}</textarea></div>
+        </div>
+      </div>`;
+    }
+
+    function collect() {
+      emp.current = { company:document.getElementById('emp-cur-company')?.value.trim()||'', title:document.getElementById('emp-cur-title')?.value.trim()||'', from:document.getElementById('emp-cur-from')?.value||'', description:document.getElementById('emp-cur-desc')?.value.trim()||'' };
+      emp.previous = (emp.previous||[]).map((_,i) => ({ company:document.getElementById(`emp-${i}-company`)?.value.trim()||'', title:document.getElementById(`emp-${i}-title`)?.value.trim()||'', from:document.getElementById(`emp-${i}-from`)?.value||'', to:document.getElementById(`emp-${i}-to`)?.value||'', description:document.getElementById(`emp-${i}-desc`)?.value.trim()||'' }));
+    }
+
+    function rebuild() {
+      empBody.innerHTML = fieldBlock('Current Employer', emp.current, 'cur', true)
+        + (emp.previous||[]).map((p,i) => fieldBlock(`Previous Employer ${i+1}`, p, i, false)).join('')
+        + `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.25rem">
+            <button class="profile-save-btn" id="emp-save-btn"><span class="material-icons-round">save</span>Save</button>
+            <button class="profile-edit-btn" id="emp-add-btn"><span class="material-icons-round">add</span>Add Previous Employer</button>
+            <button class="profile-cancel-btn" id="emp-cancel-btn">Cancel</button>
+          </div>`;
+      empBody.querySelectorAll('[data-remove]').forEach(btn => {
+        btn.addEventListener('click', () => { collect(); emp.previous.splice(Number(btn.dataset.remove),1); rebuild(); });
+      });
+      document.getElementById('emp-add-btn')?.addEventListener('click', () => { collect(); emp.previous.push(EMPTY()); rebuild(); });
+      document.getElementById('emp-save-btn')?.addEventListener('click', () => {
+        collect();
+        emp.previous = emp.previous.filter(p=>p.company||p.title);
+        try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_) {}
+        if (empEditBtn) empEditBtn.style.display = '';
+        renderEmpView();
+      });
+      document.getElementById('emp-cancel-btn')?.addEventListener('click', () => { if (empEditBtn) empEditBtn.style.display = ''; renderEmpView(); });
+    }
+    rebuild();
+  }
+
+  empEditBtn?.addEventListener('click', () => { empEditBtn.style.display = 'none'; renderEmpEdit(); });
+  renderEmpView();
+}
+
+// ── Employer Rating (employees only) ─────────────────────────────────────────
+if (user.accountType === 'employee') {
+  const rateSec = document.getElementById('rating-section');
+  if (rateSec) rateSec.style.display = '';
+
+  const RKEY = `emphora_employer_rating_${user.email}`;
+  const EKEY = `emphora_employment_${user.email}`;
+  const DEFAULTS = { manager:0, company:0, environment:0, recommendation:'', notes:'' };
+  let rating = { ...DEFAULTS };
+  try { Object.assign(rating, JSON.parse(localStorage.getItem(RKEY)||'{}')); } catch(_) {}
+
+  let empName = 'Your Current Employer';
+  try { const e = JSON.parse(localStorage.getItem(EKEY)||'{}'); if (e.current?.company) empName = e.current.company; } catch(_) {}
+
+  const DIMENSIONS = [
+    { key:'manager',     label:'My Manager',       icon:'supervisor_account', desc:'Leadership, communication, support & fairness'      },
+    { key:'company',     label:'The Company',      icon:'domain',             desc:'Culture, values, transparency & strategic direction' },
+    { key:'environment', label:'Work Environment', icon:'home_work',          desc:'Team dynamics, tools, work-life balance & wellbeing' },
+  ];
+  const REC_OPTIONS = [
+    { val:'yes',          label:'Yes, I recommend',     icon:'thumb_up',       cls:'selected-yes' },
+    { val:'reservations', label:'With Reservations',    icon:'thumbs_up_down', cls:'selected-res' },
+    { val:'no',           label:'Would Not Recommend',  icon:'thumb_down',     cls:'selected-no'  },
+  ];
+  const STAR_LABELS = ['','Poor','Fair','Average','Good','Excellent','Outstanding','Impressive','Exceptional','Elite','World-Class'];
+
+  function scoreColor(s) {
+    if (s<=0) return 'var(--muted)';
+    if (s<=3) return '#EF5350';
+    if (s<=5) return '#FFA726';
+    if (s<=7) return '#9CCC65';
+    return '#1A6BCC';
+  }
+  function overall() {
+    const v = DIMENSIONS.map(d=>rating[d.key]).filter(x=>x>0);
+    return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0;
+  }
+
+  function renderRating() {
+    const body = document.getElementById('er-body');
+    if (!body) return;
+    const ov = overall();
+    const ini = empName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+    body.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding:.75rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px">
+        <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1A6BCC,#00897B);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:600;color:var(--text)">${esc(empName)}</div>
+          <div style="font-size:.72rem;color:var(--muted)">Anonymous · only aggregate scores shared</div>
+        </div>
+        ${ov > 0 ? `<div style="margin-left:auto;text-align:center;flex-shrink:0">
+          <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;font-weight:400;color:${scoreColor(ov)};line-height:1">${ov.toFixed(1)}</div>
+          <div style="font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${scoreColor(ov)};opacity:.8">${STAR_LABELS[Math.round(ov)]||'Overall'}</div>
+        </div>` : ''}
+      </div>
+
+      ${DIMENSIONS.map(d => {
+        const val = rating[d.key]||0, c = scoreColor(val);
+        return `<div style="margin-bottom:.9rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600">
+              <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">${d.icon}</span>${d.label}
+            </div>
+            <span id="erv-${d.key}" style="font-size:.95rem;font-weight:700;color:${val>0?c:'var(--muted)'}">${val>0?val:'—'}</span>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);margin-bottom:5px">${d.desc}</div>
+          <div class="er-nums" data-dim="${d.key}">
+            ${[1,2,3,4,5,6,7,8,9,10].map(n => {
+              const on = val>=n;
+              return `<button class="er-num${on?' active':''}" data-val="${n}"
+                style="${on?'background:'+c+';border-color:'+c+';':''}">${n}</button>`;
+            }).join('')}
+          </div>
+          <div class="er-bar" style="margin-top:5px"><div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div></div>
+          <div id="erl-${d.key}" style="font-size:.7rem;color:${val>0?c:'transparent'};margin-top:2px;font-weight:600;min-height:1em">${val>0?(STAR_LABELS[val]||''):''}</div>
+        </div>`;
+      }).join('')}
+
+      <div style="margin-bottom:.85rem">
+        <div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem;display:flex;align-items:center;gap:5px">
+          <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">recommend</span>Would you recommend?
+        </div>
+        <div class="er-rec-options">
+          ${REC_OPTIONS.map(o=>`<button class="er-rec-btn${rating.recommendation===o.val?' '+o.cls:''}" data-rec="${o.val}">
+            <span class="material-icons-round">${o.icon}</span>${o.label}</button>`).join('')}
+        </div>
+      </div>
+
+      <div style="margin-bottom:.85rem">
+        <div style="font-size:.78rem;font-weight:600;margin-bottom:.4rem;display:flex;align-items:center;gap:5px">
+          <span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">edit_note</span>
+          Comments <span style="font-weight:400;color:var(--muted)">(optional · anonymous)</span>
+        </div>
+        <textarea class="er-textarea" id="er-notes" placeholder="Share your experience…">${esc(rating.notes||'')}</textarea>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;padding-top:.5rem;border-top:1px solid var(--border);flex-wrap:wrap">
+        <button class="er-submit-btn" id="er-save-btn"><span class="material-icons-round">save</span>Save Rating</button>
+        <button class="profile-cancel-btn" id="er-clear-btn" style="color:var(--danger);border-color:rgba(198,40,40,.25)">Clear</button>
+      </div>`;
+
+    // Bind numbers
+    body.querySelectorAll('.er-nums').forEach(numsEl => {
+      const dim = numsEl.dataset.dim;
+      const btns = numsEl.querySelectorAll('.er-num');
+      function applyActive(val) {
+        const c = scoreColor(val);
+        btns.forEach(b => { const on = val>0&&Number(b.dataset.val)<=val; b.classList.toggle('active',on); b.style.background=on?c:''; b.style.borderColor=on?c:''; b.style.color=on?'#fff':''; });
+      }
+      numsEl.addEventListener('mouseover', e => { const b=e.target.closest('.er-num'); if(b) applyActive(Number(b.dataset.val)); });
+      numsEl.addEventListener('mouseleave', () => applyActive(rating[dim]||0));
+      numsEl.addEventListener('click', e => {
+        const b = e.target.closest('.er-num'); if(!b) return;
+        const n = Number(b.dataset.val);
+        rating[dim] = rating[dim]===n ? 0 : n;
+        applyActive(rating[dim]);
+        const c = scoreColor(rating[dim]);
+        const vEl = document.getElementById(`erv-${dim}`), barEl = document.getElementById(`erb-${dim}`), lblEl = document.getElementById(`erl-${dim}`);
+        if(vEl){ vEl.textContent=rating[dim]>0?rating[dim]:'—'; vEl.style.color=rating[dim]>0?c:'var(--muted)'; }
+        if(barEl){ barEl.style.width=`${rating[dim]*10}%`; barEl.style.background=rating[dim]>0?c:'var(--border)'; }
+        if(lblEl){ lblEl.textContent=rating[dim]>0?(STAR_LABELS[rating[dim]]||''):''; lblEl.style.color=c; lblEl.style.opacity=rating[dim]>0?'1':'0'; }
+      });
+    });
+
+    // Recommendation
+    body.querySelectorAll('.er-rec-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        rating.recommendation = rating.recommendation===btn.dataset.rec ? '' : btn.dataset.rec;
+        body.querySelectorAll('.er-rec-btn').forEach(b => { b.className='er-rec-btn'; if(rating.recommendation===b.dataset.rec){ const o=REC_OPTIONS.find(x=>x.val===b.dataset.rec); if(o) b.classList.add(o.cls); } });
+      });
+    });
+
+    document.getElementById('er-save-btn')?.addEventListener('click', () => {
+      rating.notes = document.getElementById('er-notes')?.value.trim()||'';
+      try { localStorage.setItem(RKEY, JSON.stringify(rating)); } catch(_) {}
+      const tag = document.getElementById('er-saved-tag');
+      if(tag){ tag.classList.add('show'); setTimeout(()=>tag.classList.remove('show'),2200); }
+    });
+    document.getElementById('er-clear-btn')?.addEventListener('click', () => {
+      if(!confirm('Clear your employer rating?')) return;
+      rating = {...DEFAULTS};
+      try { localStorage.removeItem(RKEY); } catch(_) {}
+      renderRating();
+    });
+  }
+
+  renderRating();
+}
+</script>
+
+<script src="js/avatar-upload.js"></script>
+</body>
+</html>
