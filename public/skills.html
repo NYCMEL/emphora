@@ -260,12 +260,17 @@
 
     /* ─── Category skill sections ────────────────────────────────────────── */
     .em-section { margin-bottom: 1.25rem; }
-    .em-section-title {
-      font-size: .62rem; font-weight: 700;
-      letter-spacing: .07em; text-transform: uppercase;
-      color: var(--mu); margin-bottom: .5rem;
-    }
     .em-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    /* ─── Category progress bar ─────────────────────────────────────────── */
+    .em-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .55rem; gap: 10px;
+    }
+    .em-section-title { font-size: .62rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--mu); }
+    .em-cat-avg { font-size: .68rem; font-weight: 700; color: var(--mu); white-space: nowrap; }
+    .em-cat-bar-wrap { flex: 1; height: 5px; background: var(--bd); border-radius: 3px; overflow: hidden; min-width: 60px; }
+    .em-cat-bar-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
 
     /* ─── Pill ───────────────────────────────────────────────────────────── */
     .em-pill {
@@ -286,6 +291,15 @@
       padding: 4px 10px 4px 6px;
       font-size: .72rem; font-weight: 700;
       white-space: nowrap;
+    }
+    /* thin progress bar inside each pill-wrap, below the pill chip */
+    .em-pill-bar-wrap {
+      height: 3px; background: var(--bd); border-radius: 0 0 14px 14px;
+      overflow: hidden; margin: 0;
+    }
+    .em-pill-bar-fill {
+      height: 100%; border-radius: 0 0 14px 14px;
+      transition: width .4s ease, background .3s;
     }
     .em-pill-remove {
       padding: 4px 8px 4px 2px;
@@ -707,9 +721,18 @@ function renderRight() {
   let html = '';
 
   catOrder.forEach(cat => {
-    const skills = bycat[cat].sort((a,b) => ratings[b].score - ratings[a].score);
+    const skills  = bycat[cat].sort((a,b) => ratings[b].score - ratings[a].score);
+    const catAvg  = skills.reduce((s,k) => s + ratings[k].score, 0) / skills.length;
+    const catPct  = catAvg * 10;
+    const catLv   = getLevel(Math.round(catAvg));
     html += `<div class="em-section">
-      <div class="em-section-title">${esc(cat)}</div>
+      <div class="em-section-header">
+        <span class="em-section-title">${esc(cat)}</span>
+        <div class="em-cat-bar-wrap">
+          <div class="em-cat-bar-fill" style="width:${catPct}%;background:${catLv.color}"></div>
+        </div>
+        <span class="em-cat-avg" style="color:${catLv.color}">${catAvg.toFixed(1)}</span>
+      </div>
       <div class="em-pills">
         ${skills.map(skill => pillWrapHTML(skill)).join('')}
       </div>
@@ -779,6 +802,10 @@ function pillWrapHTML(skill) {
           </button>
         </div>
       </div>
+      <!-- thin progress bar -->
+      <div class="em-pill-bar-wrap">
+        <div class="em-pill-bar-fill" style="width:${pct}%;background:${c}"></div>
+      </div>
       <!-- inline slider drawer -->
       <div class="em-slider-drawer${isOpen?' open':''}">
         <div class="em-drawer-inner">
@@ -816,9 +843,25 @@ function updatePillDisplay(wrap, skill, val) {
     if (scoreEl) scoreEl.textContent = val;
   }
 
+  // Update pill progress bar
+  const pillBar = wrap.querySelector('.em-pill-bar-fill');
+  if (pillBar) { pillBar.style.width = `${pct}%`; pillBar.style.background = c; }
+
   const slider = wrap.querySelector('.em-range');
   if (slider) {
     slider.style.background = `linear-gradient(to right,${c} ${pct}%,var(--bd) ${pct}%)`;
+  }
+
+  // Update category bar
+  const section = wrap.closest('.em-section');
+  if (section) {
+    const catSkills = [...section.querySelectorAll('.em-pill-wrap')].map(w => w.dataset.skill);
+    const catAvg    = catSkills.reduce((s,k) => s + (ratings[k]?.score||0), 0) / catSkills.length;
+    const catLv     = getLevel(Math.round(catAvg));
+    const catBar    = section.querySelector('.em-cat-bar-fill');
+    const catAvgEl  = section.querySelector('.em-cat-avg');
+    if (catBar)   { catBar.style.width = `${catAvg*10}%`; catBar.style.background = catLv.color; }
+    if (catAvgEl) { catAvgEl.textContent = catAvg.toFixed(1); catAvgEl.style.color = catLv.color; }
   }
 
   const drawerScore = wrap.querySelector('.em-drawer-score');

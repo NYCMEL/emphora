@@ -177,6 +177,7 @@ class Emphora {
     this._root.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-em-goto]');
       if (!btn) return;
+      e.preventDefault();
       const target = btn.dataset.emGoto;
       this._clearAllErrors();
 
