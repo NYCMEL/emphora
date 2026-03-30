@@ -69,15 +69,7 @@
     }
     .em-ib:hover { color: var(--pr); border-color: var(--pr); }
     .em-ib .material-icons-round { font-size: 1rem; }
-    .em-save-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 6px 14px; border-radius: 8px;
-      background: var(--pr); border: none; color: #fff;
-      font: 600 .78rem 'Plus Jakarta Sans', system-ui, sans-serif;
-      cursor: pointer; transition: filter .15s; flex-shrink: 0;
-    }
-    .em-save-btn:hover { filter: brightness(1.1); }
-    .em-save-btn .material-icons-round { font-size: .85rem; }
+
     .em-saved-tag {
       font-size: .72rem; color: var(--ok);
       display: flex; align-items: center; gap: 3px;
@@ -452,11 +444,8 @@
   </div>
   <div class="em-spacer"></div>
   <span class="em-saved-tag" id="saved-tag">
-    <span class="material-icons-round">check_circle</span>Saved
+    <span class="material-icons-round">check_circle</span>Auto-saved
   </span>
-  <button class="em-save-btn" id="save-btn">
-    <span class="material-icons-round">save</span>Save
-  </button>
   <button class="em-ib" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
     <span class="material-icons-round">light_mode</span>
   </button>
@@ -957,24 +946,29 @@ function addSkill(skill, category) {
   });
 }
 
-/* ── Save ────────────────────────────────────────────────────────────────── */
-let _unsaved = false;
+/* ── Auto-save ───────────────────────────────────────────────────────────── */
+let _saveTimer = null;
 
-function markUnsaved() { _unsaved = true; }
+function markUnsaved() {
+  // Debounced auto-save: 800ms after last change
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => {
+    persistRatings();
+    showSavedTag();
+  }, 800);
+}
 
-document.getElementById('save-btn').addEventListener('click', () => {
-  persistRatings();
-  _unsaved = false;
+function showSavedTag() {
   const tag = document.getElementById('saved-tag');
+  if (!tag) return;
   tag.classList.add('show');
-  setTimeout(() => tag.classList.remove('show'), 2500);
-  // refresh left panel counts
-  buildLeft(document.getElementById('em-search').value);
-});
+  setTimeout(() => tag.classList.remove('show'), 1800);
+}
 
-// Auto-save on blur/unload
+// Also save immediately on page unload
 window.addEventListener('beforeunload', () => {
-  if (_unsaved) persistRatings();
+  clearTimeout(_saveTimer);
+  persistRatings();
 });
 
 /* ── Custom entry ────────────────────────────────────────────────────────── */
