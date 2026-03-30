@@ -91,6 +91,7 @@
       display: grid;
       grid-template-columns: 280px 1fr;
       min-height: calc(100vh - var(--topH));
+      align-items: start;
     }
     @media (max-width: 720px) {
       .em-layout { grid-template-columns: 1fr; }
@@ -111,6 +112,35 @@
         border-right: none; border-bottom: 1px solid var(--bd);
       }
     }
+
+    /* ─── Topbar search ──────────────────────────────────────────────────── */
+    .em-topbar-search-wrap {
+      position: relative; display: flex; align-items: center;
+      flex: 0 1 240px; min-width: 120px;
+    }
+    .em-topbar-search-icon {
+      position: absolute; left: 8px; pointer-events: none;
+      display: flex; color: var(--mu);
+    }
+    .em-topbar-search-icon .material-icons-round { font-size: .88rem; }
+    .em-topbar-search {
+      width: 100%; padding: 5px 28px 5px 27px;
+      border: 1px solid var(--bd); border-radius: 20px;
+      background: var(--sf2); color: var(--tx);
+      font: inherit; font-size: .78rem; outline: none;
+      transition: border-color .15s, width .2s;
+    }
+    .em-topbar-search:focus { border-color: var(--pr); }
+    .em-topbar-search-clear {
+      position: absolute; right: 6px;
+      background: none; border: none; cursor: pointer;
+      color: var(--mu); display: none; align-items: center;
+      padding: 0;
+    }
+    .em-topbar-search-clear.show { display: flex; }
+    .em-topbar-search-clear .material-icons-round { font-size: .82rem; }
+    .em-topbar-search-clear:hover { color: var(--tx); }
+    @media (max-width: 500px) { .em-topbar-search-wrap { display: none; } }
     .em-left-head {
       padding: .85rem 1rem .7rem;
       border-bottom: 1px solid var(--bd);
@@ -190,10 +220,13 @@
     }
 
     /* ─── Right panel ────────────────────────────────────────────────────── */
-    .em-right { padding: 1.25rem; overflow-y: auto; }
+    .em-right { padding: 1.25rem 1.25rem 3rem; }
 
     .em-right-head {
       margin-bottom: 1rem;
+      position: sticky; top: var(--topH); z-index: 90;
+      background: var(--bg); padding: .6rem 0 .4rem;
+      border-bottom: 1px solid var(--bd); margin-bottom: .85rem;
     }
     .em-right-head h1 {
       font-family: 'DM Serif Display', serif;
@@ -394,6 +427,15 @@
   <a href="/" class="em-logo">Emph<b>ora</b></a>
   <span class="material-icons-round em-breadcrumb" style="font-size:.9rem">chevron_right</span>
   <span class="em-breadcrumb">My Skills</span>
+  <div class="em-topbar-search-wrap">
+    <span class="em-topbar-search-icon"><span class="material-icons-round">search</span></span>
+    <input class="em-topbar-search" id="em-header-search"
+      type="search" placeholder="Find a rated skill…"
+      autocomplete="off" aria-label="Search rated skills"/>
+    <button class="em-topbar-search-clear" id="em-header-search-clear" aria-label="Clear search">
+      <span class="material-icons-round">close</span>
+    </button>
+  </div>
   <div class="em-spacer"></div>
   <span class="em-saved-tag" id="saved-tag">
     <span class="material-icons-round">check_circle</span>Saved
@@ -905,10 +947,68 @@ document.getElementById('em-custom-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); addCustom(); }
 });
 
-/* ── Search ──────────────────────────────────────────────────────────────── */
+/* ── Scroll to pill (accounts for sticky topbar) ────────────────────────── */
+function scrollToPill(skill) {
+  const el = document.getElementById(cssId(skill));
+  if (!el) return;
+  const topH   = 54;
+  const rect   = el.getBoundingClientRect();
+  const offset = rect.top + window.scrollY - topH - 16;
+  window.scrollTo({ top: offset, behavior: 'smooth' });
+}
+
+/* ── Left panel search ───────────────────────────────────────────────────── */
 document.getElementById('em-search').addEventListener('input', e => {
   buildLeft(e.target.value);
 });
+
+/* ── Header search — filters right panel pills live ─────────────────────── */
+const headerSearch = document.getElementById('em-header-search');
+const headerClear  = document.getElementById('em-header-search-clear');
+
+headerSearch.addEventListener('input', () => {
+  const q = headerSearch.value.trim();
+  headerClear.classList.toggle('show', q.length > 0);
+  filterRightPanel(q);
+});
+
+headerSearch.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    headerSearch.value = '';
+    headerClear.classList.remove('show');
+    filterRightPanel('');
+    headerSearch.blur();
+  }
+});
+
+headerClear.addEventListener('click', () => {
+  headerSearch.value = '';
+  headerClear.classList.remove('show');
+  filterRightPanel('');
+  headerSearch.focus();
+});
+
+function filterRightPanel(q) {
+  const lq = q.toLowerCase().trim();
+  document.querySelectorAll('.em-pill-wrap').forEach(wrap => {
+    const skill = wrap.dataset.skill || '';
+    const cat   = (ratings[skill]?.category || '').toLowerCase();
+    const match = !lq || skill.toLowerCase().includes(lq) || cat.includes(lq);
+    wrap.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('.em-section').forEach(sec => {
+    const visible = [...sec.querySelectorAll('.em-pill-wrap')]
+      .some(w => w.style.display !== 'none');
+    sec.style.display = visible ? '' : 'none';
+  });
+  if (lq) {
+    const first = document.querySelector('.em-pill-wrap:not([style*="none"])');
+    if (first) {
+      const rect = first.getBoundingClientRect();
+      window.scrollTo({ top: rect.top + window.scrollY - 70, behavior: 'smooth' });
+    }
+  }
+}
 
 /* ── Boot ────────────────────────────────────────────────────────────────── */
 buildLeft();
