@@ -1,0 +1,278 @@
+<!--
+  Place at: public/employer-entry.html
+  Emphora - Employer Entry (add / edit one employer + rating)
+  Query params:
+    ?idx=cur        = current employer
+    ?idx=0|1|2...   = previous employer at that index
+    ?mode=new       = brand new previous employer
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Emphora - Employer Entry</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#1A6BCC;--bg:#F0F4F8;--surface:#fff;--surface2:#F8FAFC;--border:#D0DCE8;--text:#0D1B2A;--muted:#7A8FA6;--success:#2E7D32;--danger:#C62828;}
+    [data-theme="dark"]{--bg:#0A0F1A;--surface:#111827;--surface2:#1A2236;--border:rgba(255,255,255,.10);--text:#E8F1FF;--muted:#5C7389;}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s;}
+    .topbar{position:sticky;top:0;z-index:100;height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.25rem;gap:0;}
+    .logo{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:1.3rem;color:var(--primary);text-decoration:none;flex-shrink:0;}
+    .logo b{color:#00897B;font-weight:400;}
+    .bc-sep{color:var(--border);margin:0 8px;font-size:.85rem;user-select:none;}
+    .bc-link{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .15s;white-space:nowrap;}
+    .bc-link:hover{color:var(--primary);}
+    .bc-current{font-size:.8rem;color:var(--text);font-weight:600;white-space:nowrap;}
+    .spacer{flex:1;}
+    .icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;text-decoration:none;flex-shrink:0;}
+    .icon-btn:hover{color:var(--primary);border-color:var(--primary);}
+    .icon-btn .material-icons-round{font-size:1rem;}
+    .page{max-width:780px;margin:0 auto;padding:2rem 1.25rem 4rem;}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;overflow:hidden;}
+    .section-header{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--border);}
+    .section-title{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;}
+    .section-title .material-icons-round{font-size:1rem;color:var(--primary);}
+    .section-body{padding:1.25rem;}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.5rem;}
+    @media(max-width:540px){.field-grid{grid-template-columns:1fr;}}
+    .field{display:flex;flex-direction:column;gap:4px;}
+    .field.full{grid-column:1/-1;}
+    .field-label{font-size:.63rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+    .field-input{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font:inherit;font-size:.88rem;outline:none;width:100%;transition:border-color .15s;}
+    .field-input:focus{border-color:var(--primary);background:var(--surface);}
+    textarea.field-input{resize:vertical;min-height:80px;}
+    .current-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700;background:rgba(26,107,204,.1);color:var(--primary);border:1px solid rgba(26,107,204,.2);}
+    .er-section{background:linear-gradient(135deg,rgba(26,107,204,.07),rgba(0,137,123,.07));border:1.5px solid rgba(26,107,204,.2);border-radius:14px;margin-bottom:1.25rem;overflow:hidden;}
+    .er-header{display:flex;align-items:center;gap:12px;padding:.9rem 1.1rem;border-bottom:1.5px solid rgba(26,107,204,.15);}
+    .er-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#1A6BCC,#00897B);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .er-icon .material-icons-round{font-size:1rem;color:#fff;}
+    .er-title{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;font-weight:400;color:var(--text);}
+    .er-subtitle{font-size:.72rem;color:var(--muted);}
+    .er-body{padding:1.25rem;}
+    .er-overall{display:flex;align-items:center;gap:14px;padding:.85rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:1.25rem;}
+    .er-overall-score{font-family:'DM Serif Display',serif;font-size:2.8rem;font-weight:400;line-height:1;letter-spacing:-.04em;}
+    .er-overall-info{flex:1;}
+    .er-overall-label{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+    .er-overall-lbl{font-size:.74rem;font-weight:600;margin-top:2px;}
+    .er-overall-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px;}
+    .er-overall-bar-fill{height:100%;border-radius:3px;transition:width .5s,background .3s;}
+    .er-dim{margin-bottom:1rem;}
+    .er-dim-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+    .er-dim-label{display:flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600;}
+    .er-dim-label .material-icons-round{font-size:.9rem;color:var(--primary);}
+    .er-dim-desc{font-size:.7rem;color:var(--muted);margin-bottom:6px;}
+    .er-dim-val{font-size:.95rem;font-weight:700;}
+    .er-nums{display:flex;gap:4px;flex-wrap:wrap;}
+    .er-num{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font:700 .8rem inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;}
+    .er-num:hover{border-color:var(--primary);color:var(--primary);background:rgba(26,107,204,.08);}
+    .er-num.active{border-color:transparent;color:#fff;}
+    .er-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:5px;}
+    .er-bar-fill{height:100%;border-radius:3px;transition:width .4s,background .3s;}
+    .er-bar-lbl{font-size:.7rem;font-weight:600;margin-top:2px;min-height:1.1em;}
+    .er-rec-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:.5rem;}
+    .er-rec-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font:600 .8rem inherit;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}
+    .er-rec-btn .material-icons-round{font-size:.88rem;}
+    .er-rec-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .er-rec-btn.sel-yes{background:rgba(46,125,50,.1);border-color:#2E7D32;color:#2E7D32;}
+    .er-rec-btn.sel-res{background:rgba(230,81,0,.08);border-color:#E65100;color:#E65100;}
+    .er-rec-btn.sel-no{background:rgba(198,40,40,.08);border-color:#C62828;color:#C62828;}
+    .er-textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font:inherit;font-size:.84rem;resize:vertical;outline:none;min-height:80px;}
+    .er-textarea:focus{border-color:var(--primary);}
+    .page-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:1rem;}
+    .btn-save{display:inline-flex;align-items:center;gap:6px;padding:9px 22px;border-radius:10px;background:var(--primary);border:none;color:#fff;font:700 .88rem inherit;cursor:pointer;transition:filter .15s;}
+    .btn-save:hover{filter:brightness(1.1);}
+    .btn-save .material-icons-round{font-size:.95rem;}
+    .btn-cancel{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font:600 .88rem inherit;cursor:pointer;}
+    .btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-delete{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;border:1.5px solid rgba(198,40,40,.25);background:rgba(198,40,40,.06);color:var(--danger);font:600 .88rem inherit;cursor:pointer;margin-left:auto;}
+    .btn-delete:hover{background:rgba(198,40,40,.14);}
+    .btn-delete .material-icons-round{font-size:.95rem;}
+    .saved-tag{font-size:.76rem;color:var(--success);display:flex;align-items:center;gap:3px;opacity:0;transition:opacity .3s;}
+    .saved-tag.show{opacity:1;}
+  </style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="employee.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
+  <span class="bc-sep">›</span>
+  <a href="work.html" class="bc-link">Work &amp; Ratings</a>
+  <span class="bc-sep">›</span>
+  <span class="bc-current" id="bc-current">Employer</span>
+  <div class="spacer"></div>
+  <span class="saved-tag" id="saved-tag"><span class="material-icons-round">check_circle</span>Saved</span>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <a href="work.html" class="icon-btn" title="Back"><span class="material-icons-round">arrow_back</span></a>
+</nav>
+<div class="page">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">business_center</span><span id="section-label">Employer Details</span></div>
+      <span class="current-badge" id="current-badge" style="display:none"><span class="material-icons-round" style="font-size:.75rem">work</span>Current</span>
+    </div>
+    <div class="section-body">
+      <div class="field-grid">
+        <div class="field"><label class="field-label" for="f-company">Company Name</label><input class="field-input" type="text" id="f-company" placeholder="e.g. Acme Corp"/></div>
+        <div class="field"><label class="field-label" for="f-title">Your Job Title</label><input class="field-input" type="text" id="f-title" placeholder="e.g. Senior Engineer"/></div>
+        <div class="field"><label class="field-label" for="f-from">From</label><input class="field-input" type="month" id="f-from"/></div>
+        <div class="field" id="f-to-wrap"><label class="field-label" for="f-to">To</label><input class="field-input" type="month" id="f-to"/></div>
+        <div class="field full"><label class="field-label" for="f-desc">Description</label><textarea class="field-input" id="f-desc" rows="3" placeholder="Role summary, responsibilities..."></textarea></div>
+      </div>
+    </div>
+  </div>
+  <div class="er-section">
+    <div class="er-header">
+      <div class="er-icon"><span class="material-icons-round">rate_review</span></div>
+      <div><div class="er-title">Rate This Employer</div><div class="er-subtitle">Anonymous - helps the Emphora community</div></div>
+    </div>
+    <div class="er-body">
+      <div class="er-overall" id="overall-row" style="display:none">
+        <div class="er-overall-score" id="overall-score">0</div>
+        <div class="er-overall-info">
+          <div class="er-overall-label">Overall Rating</div>
+          <div class="er-overall-lbl" id="overall-lbl"></div>
+          <div class="er-overall-bar"><div class="er-overall-bar-fill" id="overall-bar-fill"></div></div>
+        </div>
+      </div>
+      <div id="er-dims"></div>
+      <div class="er-dim" style="margin-top:1.1rem">
+        <div class="er-dim-header"><div class="er-dim-label"><span class="material-icons-round">recommend</span>Would you recommend this employer?</div></div>
+        <div class="er-rec-options" id="er-rec"></div>
+      </div>
+      <div class="er-dim">
+        <div class="er-dim-header"><div class="er-dim-label"><span class="material-icons-round">edit_note</span>Comments <span style="font-weight:400;color:var(--muted);font-size:.78rem">(optional - anonymous)</span></div></div>
+        <textarea class="er-textarea" id="er-notes" placeholder="Share your experience..."></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="page-actions">
+    <button class="btn-save" id="btn-save"><span class="material-icons-round">save</span>Save &amp; Return</button>
+    <button class="btn-cancel" onclick="window.location.href='work.html'">Cancel</button>
+    <button class="btn-delete" id="btn-delete" style="display:none"><span class="material-icons-round">delete</span>Remove Employer</button>
+  </div>
+</div>
+<script>
+'use strict';
+const user=(()=>{try{return JSON.parse(sessionStorage.getItem('emphora_user')||'null');}catch{return null;}})();
+if(!user||user.accountType!=='employee') window.location.href='/';
+let theme=localStorage.getItem('em-theme')||'light';
+function applyTheme(t){theme=t;document.body.dataset.theme=t;document.querySelector('#theme-btn .material-icons-round').textContent=t==='dark'?'dark_mode':'light_mode';localStorage.setItem('em-theme',t);}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const params=new URLSearchParams(location.search);
+const idxParam=params.get('idx');
+const isNew=params.get('mode')==='new';
+const isCurrent=idxParam==='cur';
+const prevIdx=(!isCurrent&&!isNew&&idxParam!==null)?Number(idxParam):null;
+const EKEY=`emphora_employment_${user.email}`;
+let emp={current:{company:'',title:'',from:'',description:''},previous:[]};
+try{const s=localStorage.getItem(EKEY);if(s)emp={...emp,...JSON.parse(s)};}catch(_){}
+let empObj={company:'',title:'',from:'',to:'',description:''};
+if(isCurrent) empObj={...emp.current};
+else if(prevIdx!==null&&emp.previous[prevIdx]) empObj={...emp.previous[prevIdx]};
+const title=isCurrent?'Current Employer':isNew?'New Employer':`Previous Employer ${prevIdx!==null?prevIdx+1:''}`;
+document.getElementById('bc-current').textContent=title;
+document.getElementById('section-label').textContent=title;
+document.title=`Emphora - ${title}`;
+if(isCurrent){document.getElementById('f-to-wrap').style.display='none';document.getElementById('current-badge').style.display='';}
+if(prevIdx!==null) document.getElementById('btn-delete').style.display='';
+document.getElementById('f-company').value=empObj.company||'';
+document.getElementById('f-title').value=empObj.title||'';
+document.getElementById('f-from').value=empObj.from||'';
+document.getElementById('f-to').value=empObj.to||'';
+document.getElementById('f-desc').value=empObj.description||'';
+const RKEY=isCurrent?`emphora_employer_rating_${user.email}`:`emphora_employer_rating_${user.email}_prev_${prevIdx!==null?prevIdx:'new'}`;
+const DEFAULTS={manager:0,company:0,environment:0,recommendation:'',notes:''};
+let rating={...DEFAULTS};
+try{Object.assign(rating,JSON.parse(localStorage.getItem(RKEY)||'{}'));}catch(_){}
+const DIMENSIONS=[
+  {key:'manager',label:'My Manager',icon:'supervisor_account',desc:'Leadership, communication, support & fairness'},
+  {key:'company',label:'The Company',icon:'domain',desc:'Culture, values, transparency & strategic direction'},
+  {key:'environment',label:'Work Environment',icon:'home_work',desc:'Team dynamics, tools, work-life balance & wellbeing'},
+];
+const REC_OPTIONS=[
+  {val:'yes',label:'Yes, I recommend',icon:'thumb_up',cls:'sel-yes'},
+  {val:'reservations',label:'With Reservations',icon:'thumbs_up_down',cls:'sel-res'},
+  {val:'no',label:'Would Not Recommend',icon:'thumb_down',cls:'sel-no'},
+];
+const STAR_LABELS=['','Poor','Fair','Average','Good','Excellent','Outstanding','Impressive','Exceptional','Elite','World-Class'];
+function scoreColor(s){if(s<=0)return 'var(--muted)';if(s<=3)return '#EF5350';if(s<=5)return '#FFA726';if(s<=7)return '#9CCC65';return '#1A6BCC';}
+function overallScore(){const v=DIMENSIONS.map(d=>rating[d.key]).filter(x=>x>0);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;}
+function updateOverall(){
+  const ov=overallScore(),c=scoreColor(ov),row=document.getElementById('overall-row');
+  if(ov>0){
+    row.style.display='';
+    const sc=document.getElementById('overall-score');sc.textContent=ov.toFixed(1);sc.style.color=c;
+    const lb=document.getElementById('overall-lbl');lb.textContent=STAR_LABELS[Math.round(ov)]||'';lb.style.color=c;
+    const bf=document.getElementById('overall-bar-fill');bf.style.width=`${ov*10}%`;bf.style.background=c;
+  } else { row.style.display='none'; }
+}
+function renderDims(){
+  const container=document.getElementById('er-dims');
+  container.innerHTML=DIMENSIONS.map(d=>{
+    const val=rating[d.key]||0,c=scoreColor(val);
+    return `<div class="er-dim">
+      <div class="er-dim-header">
+        <div class="er-dim-label"><span class="material-icons-round">${d.icon}</span>${d.label}</div>
+        <span class="er-dim-val" id="erv-${d.key}" style="color:${val>0?c:'var(--muted)'}">${val>0?val:'—'}</span>
+      </div>
+      <div class="er-dim-desc">${d.desc}</div>
+      <div class="er-nums" data-dim="${d.key}">
+        ${[1,2,3,4,5,6,7,8,9,10].map(n=>{const on=val>=n;return `<button class="er-num${on?' active':''}" data-val="${n}" style="${on?'background:'+c+';border-color:'+c+';':''}">${n}</button>`;}).join('')}
+      </div>
+      <div class="er-bar"><div class="er-bar-fill" id="erb-${d.key}" style="width:${val*10}%;background:${val>0?c:'var(--border)'}"></div></div>
+      <div class="er-bar-lbl" id="erl-${d.key}" style="color:${val>0?c:'transparent'}">${val>0?(STAR_LABELS[val]||''):''}</div>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('.er-nums').forEach(numsEl=>{
+    const dim=numsEl.dataset.dim,btns=numsEl.querySelectorAll('.er-num');
+    function applyActive(v){const c=scoreColor(v);btns.forEach(b=>{const on=v>0&&Number(b.dataset.val)<=v;b.classList.toggle('active',on);b.style.background=on?c:'';b.style.borderColor=on?c:'';b.style.color=on?'#fff':'';});}
+    numsEl.addEventListener('mouseover',e=>{const b=e.target.closest('.er-num');if(b)applyActive(Number(b.dataset.val));});
+    numsEl.addEventListener('mouseleave',()=>applyActive(rating[dim]||0));
+    numsEl.addEventListener('click',e=>{
+      const b=e.target.closest('.er-num');if(!b)return;
+      const n=Number(b.dataset.val);rating[dim]=rating[dim]===n?0:n;applyActive(rating[dim]);
+      const c=scoreColor(rating[dim]);
+      const vEl=document.getElementById(`erv-${dim}`),barEl=document.getElementById(`erb-${dim}`),lblEl=document.getElementById(`erl-${dim}`);
+      if(vEl){vEl.textContent=rating[dim]>0?rating[dim]:'—';vEl.style.color=rating[dim]>0?c:'var(--muted)';}
+      if(barEl){barEl.style.width=`${rating[dim]*10}%`;barEl.style.background=rating[dim]>0?c:'var(--border)';}
+      if(lblEl){lblEl.textContent=rating[dim]>0?(STAR_LABELS[rating[dim]]||''):'';lblEl.style.color=rating[dim]>0?c:'transparent';}
+      updateOverall();
+    });
+  });
+  const recC=document.getElementById('er-rec');
+  recC.innerHTML=REC_OPTIONS.map(o=>`<button class="er-rec-btn${rating.recommendation===o.val?' '+o.cls:''}" data-rec="${o.val}"><span class="material-icons-round">${o.icon}</span>${o.label}</button>`).join('');
+  recC.querySelectorAll('.er-rec-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      rating.recommendation=rating.recommendation===btn.dataset.rec?'':btn.dataset.rec;
+      recC.querySelectorAll('.er-rec-btn').forEach(b=>{b.className='er-rec-btn';if(rating.recommendation===b.dataset.rec){const o=REC_OPTIONS.find(x=>x.val===b.dataset.rec);if(o)b.classList.add(o.cls);}});
+    });
+  });
+  document.getElementById('er-notes').value=rating.notes||'';
+  updateOverall();
+}
+renderDims();
+document.getElementById('btn-save').addEventListener('click',()=>{
+  const updated={company:document.getElementById('f-company').value.trim(),title:document.getElementById('f-title').value.trim(),from:document.getElementById('f-from').value||'',to:isCurrent?'':(document.getElementById('f-to').value||''),description:document.getElementById('f-desc').value.trim()};
+  rating.notes=document.getElementById('er-notes').value.trim();
+  if(isCurrent) emp.current={company:updated.company,title:updated.title,from:updated.from,description:updated.description};
+  else if(prevIdx!==null) emp.previous[prevIdx]=updated;
+  else if(updated.company||updated.title) emp.previous.push(updated);
+  try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}
+  try{localStorage.setItem(RKEY,JSON.stringify(rating));}catch(_){}
+  const tag=document.getElementById('saved-tag');tag.classList.add('show');
+  setTimeout(()=>{tag.classList.remove('show');window.location.href='work.html';},900);
+});
+document.getElementById('btn-delete').addEventListener('click',()=>{
+  const name=emp.previous[prevIdx]?.company||'this employer';
+  if(!confirm(`Remove ${name} from your work history?`))return;
+  emp.previous.splice(prevIdx,1);
+  try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}
+  try{localStorage.removeItem(RKEY);}catch(_){}
+  window.location.href='work.html';
+});
+</script>
+</body>
+</html>
