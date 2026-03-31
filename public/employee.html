@@ -210,9 +210,9 @@
   <!-- ── STATS ── -->
   <div class="stats" id="stats-row">
     <div class="stat-card accent"><div class="stat-label">Emphora Score</div><div class="stat-value" id="s-score">—</div><div class="stat-sub">Your professional rating</div></div>
-    <div class="stat-card"><div class="stat-label">Profile Complete</div><div class="stat-value" id="s-profile">78%</div><div class="stat-sub">Add skills to improve</div></div>
-    <div class="stat-card"><div class="stat-label">Active Matches</div><div class="stat-value" id="s-matches">47</div><div class="stat-sub">Employer matches</div></div>
-    <div class="stat-card"><div class="stat-label">Profile Views</div><div class="stat-value" id="s-views">213</div><div class="stat-sub">This month</div></div>
+    <div class="stat-card"><div class="stat-label">Profile Complete</div><div class="stat-value" id="s-profile">—</div><div class="stat-sub" id="s-profile-sub">Complete your profile</div></div>
+    <div class="stat-card"><div class="stat-label">Active Matches</div><div class="stat-value" id="s-matches">—</div><div class="stat-sub">Employer matches</div></div>
+    <div class="stat-card"><div class="stat-label">Profile Views</div><div class="stat-value" id="s-views">—</div><div class="stat-sub">This month</div></div>
   </div>
 
   <!-- ── JOB MATCHES ── -->
@@ -221,28 +221,16 @@
       <div class="section-title"><span class="material-icons-round">work</span>Job Matches</div>
       <a href="#" class="btn"><span class="material-icons-round">open_in_new</span>View all</a>
     </div>
-    <div class="section-body">
-      <table>
-        <thead><tr><th>Role</th><th>Company</th><th>Match</th><th>Salary</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td class="primary">Lead Software Architect</td><td>Employer #CORP881</td><td><span class="pill pill-green">96%</span></td><td>420–500K</td><td><span class="pill pill-blue">Active</span></td></tr>
-          <tr><td class="primary">VP of Engineering</td><td>Employer #CORP224</td><td><span class="pill pill-green">91%</span></td><td>500–620K</td><td><span class="pill pill-blue">Active</span></td></tr>
-          <tr><td class="primary">Principal Engineer — AI/ML</td><td>Employer #CORP553</td><td><span class="pill pill-amber">89%</span></td><td>380–450K</td><td><span class="pill pill-blue">Active</span></td></tr>
-        </tbody>
-      </table>
+    <div class="section-body" id="job-matches-body">
+      <div style="color:var(--muted);font-size:.82rem;font-style:italic;text-align:center;padding:1.5rem 0">No job matches yet — complete your profile and add skills to get matched</div>
     </div>
   </div>
 
   <!-- ── COMPETENCY SCORES ── -->
   <div class="section">
     <div class="section-header"><div class="section-title"><span class="material-icons-round">star</span>Competency Scores</div></div>
-    <div class="section-body">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:4px"><span>Technical Skills</span><strong>92%</strong></div><div class="progress"><div class="progress-fill" style="width:92%"></div></div></div>
-        <div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:4px"><span>Communication</span><strong>78%</strong></div><div class="progress"><div class="progress-fill" style="width:78%"></div></div></div>
-        <div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:4px"><span>Leadership</span><strong>85%</strong></div><div class="progress"><div class="progress-fill" style="width:85%"></div></div></div>
-        <div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:4px"><span>Problem Solving</span><strong>94%</strong></div><div class="progress"><div class="progress-fill" style="width:94%"></div></div></div>
-      </div>
+    <div class="section-body" id="competency-body">
+      <div style="color:var(--muted);font-size:.82rem;font-style:italic;text-align:center;padding:1.5rem 0">No competency scores yet — add skills to generate your scores</div>
     </div>
   </div>
 
@@ -265,15 +253,8 @@
   <!-- ── RECENT RATINGS ── -->
   <div class="section">
     <div class="section-header"><div class="section-title"><span class="material-icons-round">star</span>Recent Ratings</div></div>
-    <div class="section-body">
-      <table>
-        <thead><tr><th>From</th><th>Type</th><th>Score</th><th>Date</th></tr></thead>
-        <tbody>
-          <tr><td class="primary">Employer #CORP881</td><td><span class="pill pill-green">Verified</span></td><td><strong>9.2</strong></td><td>Mar 2026</td></tr>
-          <tr><td class="primary">Peer Review</td><td><span class="pill pill-blue">Peer</span></td><td><strong>8.7</strong></td><td>Feb 2026</td></tr>
-          <tr><td class="primary">Employer #CORP224</td><td><span class="pill pill-amber">Previous</span></td><td><strong>8.4</strong></td><td>Jan 2026</td></tr>
-        </tbody>
-      </table>
+    <div class="section-body" id="recent-ratings-body">
+      <div style="color:var(--muted);font-size:.82rem;font-style:italic;text-align:center;padding:1.5rem 0">No ratings yet</div>
     </div>
   </div>
 
@@ -311,7 +292,25 @@ document.getElementById('topbar-initials').textContent=ini;
 document.getElementById('hero-name').textContent=`${fn} ${ln}`.trim();
 document.getElementById('hero-sub').textContent=user.email||'';
 document.getElementById('hero-avatar').textContent=ini;
+// ── Stats — computed from real user data ──────────────────────────────────
 document.getElementById('s-score').textContent=user.emphoraScore?Number(user.emphoraScore).toFixed(1):'—';
+(function computeStats(){
+  // Profile completeness — only count data explicitly saved in localStorage, never DB session defaults
+  let filled=0, total=6;
+  try { const p=JSON.parse(localStorage.getItem('emphora_profile_'+user.email)||'{}'); if(p.firstName&&p.firstName.trim()) filled++; if(p.lastName&&p.lastName.trim()) filled++; if(p.phone&&p.phone.trim()) filled++; if(p.location&&p.location.trim()) filled++; if(p.jobTitle&&p.jobTitle.trim()) filled++; } catch(_){}
+  try { const e=JSON.parse(localStorage.getItem('emphora_employment_'+user.email)||'{}'); if(e.current&&e.current.company&&e.current.company.trim()) filled++; } catch(_){}
+  try { const sk=JSON.parse(localStorage.getItem('emphora_skills_'+user.email)||'{}'); if(Object.keys(sk).length>0){filled++;total++;} } catch(_){}
+  const pct=filled===0?0:Math.round((filled/total)*100);
+  const sEl=document.getElementById('s-profile');
+  const sSub=document.getElementById('s-profile-sub');
+  if(sEl) sEl.textContent=pct>0?pct+'%':'—';
+  if(sSub) sSub.textContent=pct>=100?'Profile complete':pct>0?'Keep improving':'Start your profile';
+
+  // Matches and views — only show if user has some profile data
+  const hasData=filled>0;
+  document.getElementById('s-matches').textContent=hasData?'—':'—';
+  document.getElementById('s-views').textContent=hasData?'—':'—';
+})();
 
 // Logout
 function doLogout(){sessionStorage.removeItem('emphora_user');try{fetch('/api/auth/logout',{method:'POST'});}catch(_){}window.location.href='/';}
@@ -335,49 +334,48 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 
 // ── Career Opportunities ──────────────────────────────────────────────────────────────
 (function(){
-  const JOBS=[
-    {title:'Lead Software Architect',  company:'TechCorp Solutions', applied:'2026-03-18',status:'Interview',match:96},
-    {title:'VP of Engineering',         company:'Innovatek Inc.',      applied:'2026-03-12',status:'Reviewing',match:91},
-    {title:'Principal Engineer — AI/ML',company:'DataStream Labs',     applied:'2026-03-05',status:'Applied',  match:89},
-    {title:'Staff Engineer',            company:'Cloudbase Systems',   applied:'2026-02-28',status:'Rejected', match:84},
-    {title:'Engineering Manager',       company:'NovaTech Partners',   applied:'2026-02-20',status:'Offer',    match:93},
-  ];
-  const STATUS_PILL={Applied:'pill-blue',Reviewing:'pill-amber',Interview:'pill-green',Offer:'pill-green',Rejected:'pill-grey'};
-  const STATUS_ICON={Applied:'send',Reviewing:'hourglass_empty',Interview:'event',Offer:'celebration',Rejected:'cancel'};
   const countEl=document.getElementById('jobs-count');
-  if(countEl) countEl.textContent=JOBS.length;
   const body=document.getElementById('tab-jobs');
-  if(body) body.innerHTML=`<div style="padding:1.1rem">`+JOBS.map(j=>`
-    <div class="job-row">
-      <div class="job-row-icon"><span class="material-icons-round">${STATUS_ICON[j.status]||'work'}</span></div>
-      <div class="job-row-info"><div class="job-row-title">${esc(j.title)}</div><div class="job-row-company">${esc(j.company)} · Applied ${fmtDate(j.applied)}</div></div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-        <span class="pill ${STATUS_PILL[j.status]||'pill-grey'}">${esc(j.status)}</span>
-        <span style="font-size:.68rem;color:var(--muted)">${j.match}% match</span>
-      </div>
-    </div>`).join('')+`</div>`;
+  if(countEl) countEl.style.display='none'; // hide count badge when empty
+  if(body) body.innerHTML=`<div style="padding:2rem 1.1rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic">No applications yet — browse opportunities to get started</div>`;
 })();
 
 // ── Seeking Talent ─────────────────────────────────────────────────────────
 (function(){
-  const COLORS=['#1A6BCC','#00897B','#C2185B','#673AB7','#E65100'];
-  const SEARCHES=[
-    {company:'Goldman Sachs',  role:'Looking for: Lead Engineer',       time:'2 hrs ago', color:COLORS[0]},
-    {company:'JPMorgan Chase', role:'Looking for: Full-Stack Developer', time:'5 hrs ago', color:COLORS[1]},
-    {company:'Microsoft',      role:'Looking for: Staff Engineer',       time:'Yesterday', color:COLORS[2]},
-    {company:'Stripe',         role:'Looking for: ML Engineer',          time:'2 days ago',color:COLORS[3]},
-    {company:'Cloudflare',     role:'Looking for: Infrastructure Eng.',  time:'3 days ago',color:COLORS[4]},
-    {company:'Morgan Stanley', role:'Looking for: Principal Engineer',   time:'4 days ago',color:COLORS[0]},
-  ];
   const body=document.getElementById('tab-searches');
-  if(body) body.innerHTML=`<div style="padding:1.1rem">`+SEARCHES.map(s=>{
-    const ini=s.company.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    return `<div class="search-row">
-      <div class="search-avatar" style="background:${s.color}">${ini}</div>
-      <div class="search-info"><div class="search-company">${esc(s.company)}</div><div class="search-role">${esc(s.role)}</div></div>
-      <div class="search-time">${esc(s.time)}</div>
-    </div>`;
-  }).join('')+`</div>`;
+  if(body) body.innerHTML=`<div style="padding:2rem 1.1rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic">No employer searches yet — complete your profile to appear in searches</div>`;
+})();
+
+// ── Competency Scores — derived from skills ───────────────────────────────────
+(function(){
+  const body = document.getElementById('competency-body');
+  if (!body) return;
+  let ratings = {};
+  try { ratings = JSON.parse(localStorage.getItem(`emphora_skills_${user.email}`) || '{}'); } catch(_) {}
+  const keys = Object.keys(ratings);
+  if (keys.length === 0) return; // leave empty state
+  // Map categories to competency dimensions
+  const CAT_MAP = {
+    'Programming Languages':'Technical Skills','Web Technologies':'Technical Skills','Frameworks & Libraries':'Technical Skills',
+    'Databases':'Technical Skills','DevOps & Cloud':'Technical Skills','Specializations':'Technical Skills',
+    'Communication':'Communication','Productivity & Office':'Communication',
+    'Leadership':'Leadership','Management':'Leadership',
+    'Problem Solving':'Problem Solving','Testing & QA':'Problem Solving',
+  };
+  const dims = {};
+  keys.forEach(k => {
+    const cat = ratings[k].category || '';
+    const dim = CAT_MAP[cat] || 'Other';
+    if (!dims[dim]) dims[dim] = [];
+    dims[dim].push(ratings[k].score);
+  });
+  const dimNames = Object.keys(dims);
+  if (dimNames.length === 0) return;
+  body.innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">` +
+    dimNames.map(d => {
+      const avg = Math.round(dims[d].reduce((a,b)=>a+b,0) / dims[d].length * 10);
+      return `<div><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:4px"><span>${esc(d)}</span><strong>${avg}%</strong></div><div class="progress"><div class="progress-fill" style="width:${avg}%"></div></div></div>`;
+    }).join('') + `</div>`;
 })();
 
 // ── Employment + Rating (er-body) ─────────────────────────────────────────────

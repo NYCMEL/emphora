@@ -2,18 +2,6 @@
  * server.js
  * ─────────────────────────────────────────────────────────────────────────────
  * Emphora Backend — Node.js + sql.js (pure WASM, zero native compilation)
- *
- * Endpoints:
- *   POST /api/auth/login      { email, password }
- *   POST /api/auth/register   { firstName, lastName, email, password, accountType }
- *   POST /api/auth/logout     Authorization: Bearer <token>
- *   GET  /api/user/profile    Authorization: Bearer <token>
- *   GET  /health
- *
- * Setup:
- *   npm install
- *   node server.js
- * ─────────────────────────────────────────────────────────────────────────────
  */
 
 'use strict';
@@ -27,36 +15,29 @@ const crypto   = require('crypto');
 const path     = require('path');
 const fs       = require('fs');
 
-// ── Config ────────────────────────────────────────────────────────────────────
-const PORT        = process.env.PORT        || 3001;  // default matches EmophoraConfig.server.port
+const PORT        = process.env.PORT        || 3001;
 const DB_PATH     = process.env.DB_PATH     || path.join(__dirname, 'emphora.db');
 const JWT_SECRET  = process.env.JWT_SECRET  || 'emphora-dev-secret-change-in-production';
 const JWT_EXPIRY  = process.env.JWT_EXPIRY  || '7d';
 const SALT_ROUNDS = 12;
-const SAVE_INTERVAL_MS = 10_000; // flush DB to disk every 10 s
+const SAVE_INTERVAL_MS = 10_000;
 
-// ── sql.js wrapper ────────────────────────────────────────────────────────────
-// sql.js keeps the database entirely in memory (a Uint8Array).
-// We persist it to disk on every write and on a periodic interval.
-
-let db;   // sql.js Database instance
+let db;
 
 function dbSave() {
   try {
-    const data = db.export();           // Uint8Array
+    const data = db.export();
     fs.writeFileSync(DB_PATH, Buffer.from(data));
   } catch (err) {
     console.error('[Emphora DB] Save error:', err.message);
   }
 }
 
-/** Run a statement that modifies data, then persist. */
 function dbRun(sql, params = []) {
   db.run(sql, params);
   dbSave();
 }
 
-/** Return the first matching row as a plain object, or null. */
 function dbGet(sql, params = []) {
   const stmt = db.prepare(sql);
   stmt.bind(params);
@@ -69,7 +50,6 @@ function dbGet(sql, params = []) {
   return null;
 }
 
-/** Return all matching rows as plain objects. */
 function dbAll(sql, params = []) {
   const stmt   = db.prepare(sql);
   const rows   = [];
@@ -79,7 +59,6 @@ function dbAll(sql, params = []) {
   return rows;
 }
 
-// ── Database initialisation ───────────────────────────────────────────────────
 async function initDb() {
   const SQL = await initSqlJs();
 
@@ -92,7 +71,6 @@ async function initDb() {
     console.info(`[Emphora DB] Created new in-memory database (will persist to ${DB_PATH})`);
   }
 
-  // Schema
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -119,74 +97,74 @@ async function initDb() {
     CREATE INDEX IF NOT EXISTS idx_sessions_user  ON sessions(user_id);
   `);
 
-  dbSave(); // initial flush
+  dbSave();
 
-  // ── Migrations ──────────────────────────────────────────────────────────────
-  // Safely add columns that may not exist in older DB files
   try { db.run("ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1"); dbSave(); }
-  catch (_) { /* column already exists */ }
+  catch (_) {}
 
-  // Periodic flush to guard against crashes
   setInterval(dbSave, SAVE_INTERVAL_MS);
 
-  // ── Seed dev accounts ───────────────────────────────────────────────────────
-  // Creates test accounts on first run if they don't exist.
-  // Password = same as the username part before @emphora.dev
+  // ── Seed accounts — re-synced on every restart ──────────────────────────────
   const seedUsers = [
-    { firstName: 'Admin',      lastName: 'User', email: 'admin@emphora.dev',      password: 'test-1234', accountType: 'admin',      isVerified: 1, isActive: 1 },
-    { firstName: 'Employee',   lastName: 'Test', email: 'employee@emphora.dev',   password: 'test-1234', accountType: 'employee',   isVerified: 1, isActive: 1 },
-    { firstName: 'Employer',   lastName: 'Test', email: 'employer@emphora.dev',   password: 'test-1234', accountType: 'employer',   isVerified: 1, isActive: 1 },
-    { firstName: 'Researcher', lastName: 'Test', email: 'researcher@emphora.dev', password: 'test-1234', accountType: 'researcher', isVerified: 0, isActive: 1 },
+    // ── Role accounts ──
+    { firstName:'Admin',      lastName:'User',       email:'admin@emphora.dev',        password:'test-1234', accountType:'admin',      emphoraScore:99.0, isVerified:1, isActive:1 },
+    { firstName:'Test',       lastName:'Employee',   email:'employee@emphora.dev',     password:'test-1234', accountType:'employee',   emphoraScore:72.5, isVerified:1, isActive:1 },
+    { firstName:'Test',       lastName:'Employer',   email:'employer@emphora.dev',     password:'test-1234', accountType:'employer',   emphoraScore:85.0, isVerified:1, isActive:1 },
+    { firstName:'Test',       lastName:'Researcher', email:'researcher@emphora.dev',   password:'test-1234', accountType:'researcher', emphoraScore:80.0, isVerified:0, isActive:1 },
+    // ── Employee pool ──
+    { firstName:'Sarah',      lastName:'Chen',       email:'sarah.chen@emphora.dev',   password:'test-1234', accountType:'employee',   emphoraScore:96.4, isVerified:1, isActive:1 },
+    { firstName:'Marcus',     lastName:'Webb',       email:'marcus.webb@emphora.dev',  password:'test-1234', accountType:'employee',   emphoraScore:93.8, isVerified:1, isActive:1 },
+    { firstName:'Priya',      lastName:'Sharma',     email:'priya.sharma@emphora.dev', password:'test-1234', accountType:'employee',   emphoraScore:88.2, isVerified:1, isActive:1 },
+    { firstName:'Devon',      lastName:'Okafor',     email:'devon.okafor@emphora.dev', password:'test-1234', accountType:'employee',   emphoraScore:85.7, isVerified:1, isActive:1 },
+    { firstName:'Lin',        lastName:'Xiao',       email:'lin.xiao@emphora.dev',     password:'test-1234', accountType:'employee',   emphoraScore:83.1, isVerified:1, isActive:1 },
+    { firstName:'Jordan',     lastName:'Reyes',      email:'jordan.reyes@emphora.dev', password:'test-1234', accountType:'employee',   emphoraScore:78.9, isVerified:1, isActive:1 },
+    { firstName:'Aisha',      lastName:'Patel',      email:'aisha.patel@emphora.dev',  password:'test-1234', accountType:'employee',   emphoraScore:75.3, isVerified:0, isActive:1 },
+    { firstName:'Tom',        lastName:'Nakamura',   email:'tom.nakamura@emphora.dev', password:'test-1234', accountType:'employee',   emphoraScore:71.6, isVerified:0, isActive:1 },
+    { firstName:'Zoe',        lastName:'Andersen',   email:'zoe.andersen@emphora.dev', password:'test-1234', accountType:'employee',   emphoraScore:64.2, isVerified:0, isActive:1 },
+    { firstName:'Kai',        lastName:'Osei',       email:'kai.osei@emphora.dev',     password:'test-1234', accountType:'employee',   emphoraScore:57.8, isVerified:0, isActive:1 },
+    // ── Blank test account ──
+    { firstName:'David',      lastName:'Miller',     email:'david.miller@emphora.dev', password:'test-1234', accountType:'employee',   emphoraScore:0.0,  isVerified:0, isActive:1 },
   ];
 
   for (const s of seedUsers) {
     const hash   = bcrypt.hashSync(s.password, SALT_ROUNDS);
     const exists = dbGet('SELECT id FROM users WHERE email = ?', [s.email]);
     if (!exists) {
-      // Create account for the first time
       db.run(
-        `INSERT INTO users (first_name, last_name, email, password_hash, account_type, is_verified, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [s.firstName, s.lastName, s.email, hash, s.accountType, s.isVerified, s.isActive]
+        `INSERT INTO users (first_name, last_name, email, password_hash, account_type, emphora_score, is_verified, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [s.firstName, s.lastName, s.email, hash, s.accountType, s.emphoraScore||0, s.isVerified, s.isActive]
       );
-      console.info(`[Emphora DB] Seeded:   ${s.email} / ${s.password}`);
+      console.info(`[Emphora DB] Seeded:    ${s.email}`);
     } else {
-      // Always update password_hash to match current config (handles password changes)
       db.run(
-        `UPDATE users SET password_hash = ?, is_active = ? WHERE email = ?`,
-        [hash, s.isActive, s.email]
+        `UPDATE users SET first_name=?, last_name=?, password_hash=?, account_type=?, emphora_score=?, is_verified=?, is_active=? WHERE email=?`,
+        [s.firstName, s.lastName, hash, s.accountType, s.emphoraScore||0, s.isVerified, s.isActive, s.email]
       );
-      console.info(`[Emphora DB] Re-synced: ${s.email} / ${s.password}`);
+      console.info(`[Emphora DB] Re-synced: ${s.email}`);
     }
   }
   dbSave();
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
-
 function makeToken(userId) {
   return jwt.sign({ sub: userId }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
 }
-
 function verifyToken(token) {
-  try   { return jwt.verify(token, JWT_SECRET); }
-  catch { return null; }
+  try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
 }
-
 function extractToken(req) {
   const auth = req.headers['authorization'] || '';
   return auth.startsWith('Bearer ') ? auth.slice(7) : null;
 }
-
 function sendError(res, status, message, details = null) {
   const body = { ok: false, message };
   if (details) body.details = details;
   return res.status(status).json(body);
 }
-
 function sanitiseUser(user) {
   return {
     id:           user.id,
@@ -201,34 +179,21 @@ function sanitiseUser(user) {
   };
 }
 
-// ── Auth middleware ───────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
   const token = extractToken(req);
   if (!token) return sendError(res, 401, 'Authentication required.');
-
   const payload = verifyToken(token);
   if (!payload) return sendError(res, 401, 'Invalid or expired token.');
-
   const now     = new Date().toISOString();
-  const session = dbGet(
-    `SELECT * FROM sessions WHERE token_hash = ? AND expires_at > ?`,
-    [hashToken(token), now]
-  );
+  const session = dbGet(`SELECT * FROM sessions WHERE token_hash = ? AND expires_at > ?`, [hashToken(token), now]);
   if (!session) return sendError(res, 401, 'Session not found or expired.');
-
-  const user = dbGet(
-    `SELECT id, first_name, last_name, email, account_type, emphora_score, is_verified, created_at
-       FROM users WHERE id = ?`,
-    [payload.sub]
-  );
+  const user = dbGet(`SELECT id, first_name, last_name, email, account_type, emphora_score, is_verified, created_at FROM users WHERE id = ?`, [payload.sub]);
   if (!user) return sendError(res, 401, 'User not found.');
-
   req.user  = user;
   req.token = token;
   next();
 }
 
-// ── Validation ────────────────────────────────────────────────────────────────
 const EMAIL_RE      = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ACCOUNT_TYPES = new Set(['employee', 'employer', 'researcher', 'admin']);
 
@@ -238,62 +203,41 @@ function validateLogin({ email, password }) {
   if (!password || password.length < 4)           e.push({ field: 'password', message: 'Password min 4 chars.' });
   return e;
 }
-
 function validateRegister({ firstName, lastName, email, password, accountType }) {
   const e = [];
   if (!firstName || firstName.trim().length < 2) e.push({ field: 'firstName',  message: 'First name min 2 chars.' });
   if (!lastName  || lastName.trim().length  < 2) e.push({ field: 'lastName',   message: 'Last name min 2 chars.' });
   if (!email     || !EMAIL_RE.test(email.trim())) e.push({ field: 'email',      message: 'Valid email required.' });
   if (!password  || password.length < 8)          e.push({ field: 'password',   message: 'Password min 8 chars.' });
-  if (accountType && !ACCOUNT_TYPES.has(accountType))
-    e.push({ field: 'accountType', message: 'Invalid account type.' });
+  if (accountType && !ACCOUNT_TYPES.has(accountType)) e.push({ field: 'accountType', message: 'Invalid account type.' });
   return e;
 }
 
-// ── Express app ───────────────────────────────────────────────────────────────
 const app = express();
-
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));  // serves public/ directory
-
-// ── Routes ────────────────────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'emphora', time: new Date().toISOString() });
 });
 
-/**
- * POST /api/auth/register
- */
 app.post('/api/auth/register', (req, res) => {
   const { firstName, lastName, email, password, accountType = 'employee' } = req.body;
-
   const errors = validateRegister({ firstName, lastName, email, password, accountType });
   if (errors.length) return sendError(res, 422, 'Validation failed.', errors);
-
   const normEmail = email.trim().toLowerCase();
   const existing  = dbGet('SELECT id FROM users WHERE email = ?', [normEmail]);
   if (existing) return sendError(res, 409, 'An account with this email already exists.');
-
   const passwordHash = bcrypt.hashSync(password, SALT_ROUNDS);
-
   try {
-    dbRun(
-      `INSERT INTO users (first_name, last_name, email, password_hash, account_type)
-       VALUES (?, ?, ?, ?, ?)`,
-      [firstName.trim(), lastName.trim(), normEmail, passwordHash, accountType || 'employee']
-    );
-
+    dbRun(`INSERT INTO users (first_name, last_name, email, password_hash, account_type) VALUES (?, ?, ?, ?, ?)`,
+      [firstName.trim(), lastName.trim(), normEmail, passwordHash, accountType || 'employee']);
     const user    = dbGet('SELECT * FROM users WHERE email = ?', [normEmail]);
     const token   = makeToken(user.id);
-    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-    dbRun(
-      `INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)`,
-      [user.id, hashToken(token), expires]
-    );
-
+    const expires = new Date(Date.now() + 7*24*60*60*1000).toISOString();
+    dbRun(`INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)`, [user.id, hashToken(token), expires]);
     res.status(201).json({ ok: true, token, user: sanitiseUser(user) });
   } catch (err) {
     console.error('[Emphora API] register error:', err);
@@ -301,79 +245,38 @@ app.post('/api/auth/register', (req, res) => {
   }
 });
 
-/**
- * POST /api/auth/login
- */
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
-
   const errors = validateLogin({ email, password });
   if (errors.length) return sendError(res, 422, 'Validation failed.', errors);
-
   const user = dbGet('SELECT * FROM users WHERE email = ?', [email.trim().toLowerCase()]);
   if (!user) return sendError(res, 401, 'Invalid email or password.');
-
-  if (!bcrypt.compareSync(password, user.password_hash))
-    return sendError(res, 401, 'Invalid email or password.');
-
-  if (user.is_active === 0)
-    return sendError(res, 403, 'This account has been disabled. Please contact support.');
-
+  if (!bcrypt.compareSync(password, user.password_hash)) return sendError(res, 401, 'Invalid email or password.');
+  if (user.is_active === 0) return sendError(res, 403, 'This account has been disabled. Please contact support.');
   const token   = makeToken(user.id);
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-  dbRun(
-    `INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)`,
-    [user.id, hashToken(token), expires]
-  );
-
-  // Prune expired sessions
+  const expires = new Date(Date.now() + 7*24*60*60*1000).toISOString();
+  dbRun(`INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)`, [user.id, hashToken(token), expires]);
   dbRun(`DELETE FROM sessions WHERE expires_at <= ?`, [new Date().toISOString()]);
-
   res.json({ ok: true, token, userId: user.id, user: sanitiseUser(user) });
 });
 
-/**
- * POST /api/auth/logout
- */
 app.post('/api/auth/logout', requireAuth, (req, res) => {
   dbRun('DELETE FROM sessions WHERE token_hash = ?', [hashToken(req.token)]);
   res.json({ ok: true, message: 'Logged out.' });
 });
 
-/**
- * GET /api/user/profile
- */
 app.get('/api/user/profile', requireAuth, (req, res) => {
   res.json({ ok: true, user: sanitiseUser(req.user) });
 });
 
-// ── Admin Routes ─────────────────────────────────────────────────────────────
-
-/**
- * GET /api/admin/users
- * List all users with active session count.
- */
 app.get('/api/admin/users', (req, res) => {
   try {
-    const users = dbAll(
-      `SELECT id, first_name, last_name, email, account_type,
-              emphora_score, is_verified, is_active, created_at
-         FROM users ORDER BY id DESC`
-    );
+    const users = dbAll(`SELECT id, first_name, last_name, email, account_type, emphora_score, is_verified, is_active, created_at FROM users ORDER BY id DESC`);
     console.log(`[Emphora API] GET /api/admin/users → ${users.length} row(s)`);
-    const sessions = dbAll(
-      `SELECT user_id, COUNT(*) as session_count
-         FROM sessions WHERE expires_at > ? GROUP BY user_id`,
-      [new Date().toISOString()]
-    );
+    const sessions = dbAll(`SELECT user_id, COUNT(*) as session_count FROM sessions WHERE expires_at > ? GROUP BY user_id`, [new Date().toISOString()]);
     const sessionMap = {};
     sessions.forEach(s => { sessionMap[s.user_id] = s.session_count; });
-
-    const rows = users.map(u => ({
-      ...sanitiseUser(u),
-      activeSessions: sessionMap[u.id] || 0,
-    }));
-
+    const rows = users.map(u => ({ ...sanitiseUser(u), activeSessions: sessionMap[u.id] || 0 }));
     res.json({ ok: true, total: rows.length, users: rows });
   } catch (err) {
     console.error('[Emphora API] admin/users error:', err);
@@ -381,65 +284,23 @@ app.get('/api/admin/users', (req, res) => {
   }
 });
 
-/**
- * GET /api/admin/users/:id
- * Single user detail.
- */
 app.get('/api/admin/users/:id', (req, res) => {
-  const user = dbGet(
-    `SELECT id, first_name, last_name, email, account_type,
-            emphora_score, is_verified, is_active, created_at
-       FROM users WHERE id = ?`,
-    [req.params.id]
-  );
+  const user = dbGet(`SELECT id, first_name, last_name, email, account_type, emphora_score, is_verified, is_active, created_at FROM users WHERE id = ?`, [req.params.id]);
   if (!user) return sendError(res, 404, 'User not found.');
   res.json({ ok: true, user: sanitiseUser(user) });
 });
 
-/**
- * PATCH /api/admin/users/:id
- * Update firstName, lastName, email, accountType, isVerified, isActive.
- */
 app.patch('/api/admin/users/:id', (req, res) => {
   const user = dbGet('SELECT * FROM users WHERE id = ?', [req.params.id]);
   if (!user) return sendError(res, 404, 'User not found.');
-
-  const {
-    firstName   = user.first_name,
-    lastName    = user.last_name,
-    email       = user.email,
-    accountType = user.account_type,
-    isVerified  = user.is_verified,
-    isActive    = user.is_active,
-  } = req.body;
-
-  // Email uniqueness check (skip if unchanged)
+  const { firstName=user.first_name, lastName=user.last_name, email=user.email, accountType=user.account_type, isVerified=user.is_verified, isActive=user.is_active } = req.body;
   if (email.trim().toLowerCase() !== user.email) {
-    const clash = dbGet('SELECT id FROM users WHERE email = ? AND id != ?',
-      [email.trim().toLowerCase(), user.id]);
+    const clash = dbGet('SELECT id FROM users WHERE email = ? AND id != ?', [email.trim().toLowerCase(), user.id]);
     if (clash) return sendError(res, 409, 'Email already in use by another account.');
   }
-
   try {
-    dbRun(
-      `UPDATE users SET
-         first_name   = ?,
-         last_name    = ?,
-         email        = ?,
-         account_type = ?,
-         is_verified  = ?,
-         is_active    = ?
-       WHERE id = ?`,
-      [
-        firstName.trim(),
-        lastName.trim(),
-        email.trim().toLowerCase(),
-        accountType,
-        isVerified ? 1 : 0,
-        isActive   ? 1 : 0,
-        user.id,
-      ]
-    );
+    dbRun(`UPDATE users SET first_name=?, last_name=?, email=?, account_type=?, is_verified=?, is_active=? WHERE id=?`,
+      [firstName.trim(), lastName.trim(), email.trim().toLowerCase(), accountType, isVerified?1:0, isActive?1:0, user.id]);
     const updated = dbGet('SELECT * FROM users WHERE id = ?', [user.id]);
     res.json({ ok: true, user: sanitiseUser(updated) });
   } catch (err) {
@@ -448,10 +309,6 @@ app.patch('/api/admin/users/:id', (req, res) => {
   }
 });
 
-/**
- * PATCH /api/admin/users/:id/activate   — enable user
- * PATCH /api/admin/users/:id/deactivate — disable user (blocks login)
- */
 app.patch('/api/admin/users/:id/activate', (req, res) => {
   const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
   if (!user) return sendError(res, 404, 'User not found.');
@@ -463,15 +320,10 @@ app.patch('/api/admin/users/:id/deactivate', (req, res) => {
   const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
   if (!user) return sendError(res, 404, 'User not found.');
   dbRun('UPDATE users SET is_active = 0 WHERE id = ?', [user.id]);
-  // Kill all active sessions for this user
   dbRun('DELETE FROM sessions WHERE user_id = ?', [user.id]);
   res.json({ ok: true, message: 'User deactivated and sessions revoked.' });
 });
 
-/**
- * DELETE /api/admin/users/:id
- * Permanently delete user + their sessions.
- */
 app.delete('/api/admin/users/:id', (req, res) => {
   const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
   if (!user) return sendError(res, 404, 'User not found.');
@@ -480,10 +332,6 @@ app.delete('/api/admin/users/:id', (req, res) => {
   res.json({ ok: true, message: 'User deleted.' });
 });
 
-/**
- * POST /api/admin/users/:id/reset-sessions
- * Revoke all active sessions for a user (force logout everywhere).
- */
 app.post('/api/admin/users/:id/reset-sessions', (req, res) => {
   const user = dbGet('SELECT id FROM users WHERE id = ?', [req.params.id]);
   if (!user) return sendError(res, 404, 'User not found.');
@@ -491,25 +339,15 @@ app.post('/api/admin/users/:id/reset-sessions', (req, res) => {
   res.json({ ok: true, message: 'All sessions revoked.' });
 });
 
-// ── 404 & error handlers ──────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ ok: false, message: 'Route not found.' }));
-
 app.use((err, _req, res, _next) => {
   console.error('[Emphora API] Unhandled error:', err);
   res.status(500).json({ ok: false, message: 'Internal server error.' });
 });
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-
-/**
- * Try to listen on `port`. If EADDRINUSE, recurse with port+1.
- * Gives up after MAX_PORT_TRIES attempts.
- */
 function listenWithFallback(port, attempt = 0) {
   const MAX_PORT_TRIES = 10;
-
   const server = app.listen(port);
-
   server.once('listening', () => {
     const addr = server.address();
     const bound = addr ? addr.port : port;
@@ -517,29 +355,18 @@ function listenWithFallback(port, attempt = 0) {
   ┌─────────────────────────────────────────────┐
   │   Emphora API  →  http://localhost:${bound}      │
   │   Database     →  ${DB_PATH}                │
-  │   Open         →  http://localhost:${bound}/emphora.html        │
   └─────────────────────────────────────────────┘`);
   });
-
   server.once('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      if (attempt >= MAX_PORT_TRIES) {
-        console.error(`[Emphora] Could not find a free port after ${MAX_PORT_TRIES} tries. Giving up.`);
-        process.exit(1);
-      }
-      const next = port + 1;
-      console.warn(`[Emphora] Port ${port} in use — trying ${next}…`);
-      listenWithFallback(next, attempt + 1);
-    } else {
-      console.error('[Emphora] Server error:', err);
-      process.exit(1);
-    }
+      if (attempt >= MAX_PORT_TRIES) { console.error(`[Emphora] No free port found.`); process.exit(1); }
+      console.warn(`[Emphora] Port ${port} in use — trying ${port+1}…`);
+      listenWithFallback(port + 1, attempt + 1);
+    } else { console.error('[Emphora] Server error:', err); process.exit(1); }
   });
 }
 
-initDb().then(() => {
-  listenWithFallback(PORT);
-}).catch((err) => {
+initDb().then(() => listenWithFallback(PORT)).catch((err) => {
   console.error('[Emphora] Failed to initialise database:', err);
   process.exit(1);
 });
