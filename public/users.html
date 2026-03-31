@@ -560,11 +560,11 @@ async function del(uid) {
 }
 
 // ── Login As ─────────────────────────────────────────────────────────────────
-const SEED_EMAILS  = ['admin@emphora.dev','employee@emphora.dev','employer@emphora.dev','researcher@emphora.dev'];
 const SEED_PASSWORD = 'test-1234';
 
 async function loginAs(uid, email, accountType) {
-  const password = SEED_EMAILS.includes(email)
+  // All @emphora.dev accounts use the shared seed password — no prompt needed
+  const password = email.endsWith('@emphora.dev')
     ? SEED_PASSWORD
     : prompt(`Password for ${email}:`);
   if (!password) return;
@@ -585,7 +585,7 @@ async function loginAs(uid, email, accountType) {
     if (data.ok && data.user) {
       // Fix accountType for admin if DB still has old value
       const u = { ...data.user };
-      if (SEED_EMAILS[0] === u.email) u.accountType = 'admin'; // admin@emphora.dev
+      if (u.email === 'admin@emphora.dev' || u.accountType === 'admin') u.accountType = 'admin';
       sessionStorage.setItem('emphora_user', JSON.stringify(u));
       const pages = {employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html'};
       window.location.href = pages[u.accountType] || 'employee.html';
