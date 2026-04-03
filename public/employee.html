@@ -486,6 +486,64 @@ function renderErBody(){
 renderErBody();
 
 
+// ── Auto-seed employment for emphora.dev accounts ────────────────────────────
+(function seedEmploymentIfEmpty(){
+  if (!user.email.endsWith('@emphora.dev')) return;
+  if (Number(user.emphoraScore||0) === 0) return;
+  const EKEY = 'emphora_employment_' + user.email;
+  let emp = {};
+  try { emp = JSON.parse(localStorage.getItem(EKEY)||'{}'); } catch(_){}
+  if (emp.current && emp.current.company) return; // already set
+
+  const COMPANIES=['Acme Corp','TechNova Inc.','Brightline Systems','Apex Digital','Quantum Works','Meridian Labs','Solstice AI','Ironclad Tech','Vantage Solutions','Nexus Corp','Pinnacle Software','Atlas Engineering','Horizon Dynamics','Vertex Technologies','Crestwood Digital','Orion Systems','Lighthouse Analytics','Cascade Software','Summit Tech','Ember Labs'];
+  const TITLES=['Software Engineer','Senior Engineer','Staff Engineer','Principal Engineer','Engineering Manager','Frontend Developer','Backend Developer','Full-Stack Engineer','Tech Lead','Solutions Architect','DevOps Engineer','Data Engineer','Product Engineer','Platform Engineer','ML Engineer'];
+  const DESCS=['Led development of core platform features and mentored junior engineers.','Built and maintained high-traffic microservices serving millions of users.','Designed scalable architecture and drove technical roadmap execution.','Owned end-to-end delivery of key product initiatives across multiple teams.','Improved system reliability and reduced deployment times by 60%.','Collaborated cross-functionally to ship impactful features on tight timelines.','Refactored legacy codebase and introduced modern testing practices.','Built internal tooling that improved team productivity significantly.'];
+
+  let rng=user.email.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*17+9999;
+  function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
+  function randCompany(used){let c,tries=0;do{c=COMPANIES[rand(COMPANIES.length)];tries++;}while(used.has(c)&&tries<20);used.add(c);return c;}
+  function randYear(min,max){return min+rand(max-min+1);}
+  function toMonth(y,m){return y+'-'+String(m).padStart(2,'0');}
+
+  const score = Number(user.emphoraScore||0);
+  const numPrev = score>=80 ? 2+rand(3) : score>=50 ? 1+rand(3) : rand(3); // 2-4 prev for high scorers
+  const used = new Set();
+
+  // Current employer
+  const curCompany = randCompany(used);
+  const curTitle   = TITLES[rand(score>=80?5:score>=60?9:TITLES.length)];
+  const curFromY   = 2022+rand(3); // 2022-2024
+  const curFromM   = 1+rand(12);
+  emp.current = {
+    company: curCompany,
+    title:   curTitle,
+    from:    toMonth(curFromY, curFromM),
+    description: DESCS[rand(DESCS.length)],
+  };
+
+  // Previous employers (going back in time)
+  emp.previous = [];
+  let prevEndY = curFromY, prevEndM = curFromM;
+  for (let i=0; i<numPrev; i++){
+    const durY  = 1+rand(3); // 1-3 year tenure
+    const durM  = rand(12);
+    const toY   = prevEndY, toM = prevEndM;
+    let fromY   = toY - durY, fromM = toM - durM;
+    if (fromM <= 0){ fromM += 12; fromY--; }
+    if (fromY < 2012) break;
+    emp.previous.push({
+      company:     randCompany(used),
+      title:       TITLES[rand(TITLES.length)],
+      from:        toMonth(fromY, fromM),
+      to:          toMonth(toY, toM),
+      description: DESCS[rand(DESCS.length)],
+    });
+    prevEndY = fromY; prevEndM = fromM;
+  }
+
+  try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_){}
+})();
+
 // ── Auto-seed skills for users with a score but no localStorage skills ─────────
 (function seedSkillsIfEmpty(){
   const SKEY = 'emphora_skills_' + user.email;
