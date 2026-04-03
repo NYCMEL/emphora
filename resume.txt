@@ -1,0 +1,53 @@
+User Experience (UX) Design
+User Interface (UI) Design
+Interaction Design
+Visual Design
+Information Architecture
+User-Centered Design (UCD)
+Usability Testing
+Accessibility (WCAG)
+Responsive Design
+HTML5
+JavaScript
+Sass (SCSS)
+Node.js
+Webpack
+jQuery
+jQuery UI
+Single Page Applications (SPA)
+WebSockets
+Ionic
+AngularJS
+W3C Web Components
+AI-Assisted UX & Prototyping
+Component Library Design & Maintenance
+Design Systems Development
+Legacy System Modernization
+Financial Tools & Enterprise UX
+Real-time Data Visualization
+Multi-language / Localization UX
+Figma
+Sketch
+Axure
+Adobe Creative Suite
+Microsoft Office
+Prototyping (Low & High Fidelity)
+Code-Based Prototyping (HTML/CSS/JS)
+Reusable Component Development
+Performance Optimization
+Cross-browser Compatibility
+Debugging & Troubleshooting
+Agile Development
+Extreme Programming (XP)
+Product Development Lifecycle
+UX Strategy & Research
+Cross-functional Collaboration
+Financial Services / Banking UX
+Enterprise Applications
+Government Systems
+AI-Enhanced Applications
+UX Leadership
+Design Strategy
+Mentoring
+Stakeholder Communication
+Requirements Gathering
