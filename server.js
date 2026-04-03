@@ -177,6 +177,7 @@ async function initDb() {
     { firstName:'Hale', lastName:'T Price', email:'hale.t.price50@emphora.dev', password:'test-1234', accountType:'employee', emphoraScore:60.8, isVerified:1, isActive:1 },
   ];
 
+  let seeded=0, resynced=0;
   for (const s of seedUsers) {
     const hash   = bcrypt.hashSync(s.password, SALT_ROUNDS);
     const exists = dbGet('SELECT id FROM users WHERE email = ?', [s.email]);
@@ -186,16 +187,18 @@ async function initDb() {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [s.firstName, s.lastName, s.email, hash, s.accountType, s.emphoraScore||0, s.isVerified, s.isActive]
       );
-      console.info(`[Emphora DB] Seeded:    ${s.email}`);
+      seeded++;
     } else {
       db.run(
         `UPDATE users SET first_name=?, last_name=?, password_hash=?, account_type=?, emphora_score=?, is_verified=?, is_active=? WHERE email=?`,
         [s.firstName, s.lastName, hash, s.accountType, s.emphoraScore||0, s.isVerified, s.isActive, s.email]
       );
-      console.info(`[Emphora DB] Re-synced: ${s.email}`);
+      resynced++;
     }
   }
   dbSave();
+  const total = dbGet('SELECT COUNT(*) as n FROM users');
+  console.info(`[Emphora DB] Seed complete — ${seeded} new, ${resynced} re-synced · ${total?.n || seedUsers.length} total users`);
 }
 
 function hashToken(token) {
