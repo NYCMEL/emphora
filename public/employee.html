@@ -416,18 +416,13 @@ function fmtM(d){return d?new Date(d).toLocaleDateString(undefined,{year:'numeri
 function yearsAt(f){if(!f)return '';return ((Date.now()-new Date(f))/(1000*60*60*24*365.25)).toFixed(1)+' yrs';}
 
 function totalWorkYears(){
-  // Sum all tenures: current + previous
-  let totalMs = 0;
-  const allJobs = [];
-  if(emp.current && emp.current.from) allJobs.push({from:emp.current.from, to:null});
-  (emp.previous||[]).forEach(p=>{ if(p.from) allJobs.push({from:p.from, to:p.to||null}); });
-  allJobs.forEach(j=>{
-    const start = new Date(j.from);
-    const end   = j.to ? new Date(j.to) : new Date();
-    const ms    = end - start;
-    if(ms > 0) totalMs += ms;
-  });
-  const totalMonths = Math.round(totalMs / (1000*60*60*24*30.44));
+  // Span from earliest start date to today
+  const allDates = [];
+  if(emp.current && emp.current.from) allDates.push(new Date(emp.current.from));
+  (emp.previous||[]).forEach(p=>{ if(p.from) allDates.push(new Date(p.from)); });
+  if(allDates.length === 0) return null;
+  const earliest = new Date(Math.min(...allDates));
+  const totalMonths = Math.round((Date.now() - earliest) / (1000*60*60*24*30.44));
   const y = Math.floor(totalMonths/12), m = totalMonths%12;
   if(y===0 && m===0) return null;
   if(y===0) return `${m} month${m!==1?'s':''}`;
