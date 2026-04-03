@@ -190,19 +190,14 @@
     <div class="er-header">
       <div class="er-header-left">
         <div class="er-icon"><span class="material-icons-round">business_center</span></div>
-        <div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <div class="er-title">Employment</div>
-          <div class="er-subtitle">Your work history &amp; employer rating</div>
+          <div id="er-header-badges" style="display:flex;gap:6px;flex-wrap:wrap"></div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="er-saved-tag" id="er-saved-tag"><span class="material-icons-round">check_circle</span>Rating saved</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <a href="employer-entry.html?mode=new" class="profile-edit-btn" style="color:var(--primary);border-color:rgba(26,107,204,.35);background:rgba(26,107,204,.06);text-decoration:none"><span class="material-icons-round">add_business</span>Add Another</a>
-          <a href="work.html" class="profile-edit-btn" style="text-decoration:none"><span class="material-icons-round">edit</span>Edit History</a>
-          <a id="rate-now-btn" href="work.html" class="profile-edit-btn" style="text-decoration:none" title="Set your current employer first"><span class="material-icons-round">rate_review</span>Rate Now</a>
-        </div>
-      </div>
+      <a href="work.html" class="profile-edit-btn" style="text-decoration:none;flex-shrink:0">
+        <span class="material-icons-round">tune</span>Manage
+      </a>
     </div>
     <div class="er-body" id="er-body"></div>
   </div>
@@ -420,69 +415,117 @@ function overallScore(){const v=DIMENSIONS.map(d=>rating[d.key]).filter(x=>x>0);
 function fmtM(d){return d?new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short'}):''}
 function yearsAt(f){if(!f)return '';return ((Date.now()-new Date(f))/(1000*60*60*24*365.25)).toFixed(1)+' yrs';}
 
+function totalWorkYears(){
+  // Sum all tenures: current + previous
+  let totalMs = 0;
+  const allJobs = [];
+  if(emp.current && emp.current.from) allJobs.push({from:emp.current.from, to:null});
+  (emp.previous||[]).forEach(p=>{ if(p.from) allJobs.push({from:p.from, to:p.to||null}); });
+  allJobs.forEach(j=>{
+    const start = new Date(j.from);
+    const end   = j.to ? new Date(j.to) : new Date();
+    const ms    = end - start;
+    if(ms > 0) totalMs += ms;
+  });
+  const totalMonths = Math.round(totalMs / (1000*60*60*24*30.44));
+  const y = Math.floor(totalMonths/12), m = totalMonths%12;
+  if(y===0 && m===0) return null;
+  if(y===0) return `${m} month${m!==1?'s':''}`;
+  if(m===0) return `${y} year${y!==1?'s':''}`;
+  return `${y} year${y!==1?'s':''} and ${m} month${m!==1?'s':''}`;
+}
+
 function renderErBody(){
   const body=document.getElementById('er-body');if(!body)return;
   const c=emp.current;
   const ov=overallScore(),ovC=ov>0?scoreColor(ov):'var(--muted)',ovLbl=ov>0?(STAR_LABELS[Math.round(ov)]||''):'';
-  const ini=(c.company||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const hasAny=DIMENSIONS.some(d=>rating[d.key]>0)||rating.recommendation;
   const recObj=REC_OPTIONS.find(o=>o.val===rating.recommendation);
   const prevWithData=(emp.previous||[]).filter(p=>p.company||p.title);
+  const hasEmployer = !!(c.company && c.company.trim());
+  const totalYrs = totalWorkYears();
+  const numEmployers = (hasEmployer?1:0) + prevWithData.length;
 
-  body.innerHTML=`<div style="display:flex;align-items:stretch;flex-wrap:wrap">
-    <!-- Score panel -->
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.1rem 1.4rem;border-right:1px solid rgba(26,107,204,.15);min-width:100px;flex-shrink:0;background:${ov>0?ovC+'12':'rgba(26,107,204,.04)'};text-align:center">
-      <div style="font-family:'DM Serif Display',serif;font-size:${ov>0?'3rem':'2rem'};font-weight:400;line-height:1;letter-spacing:-.04em;color:${ov>0?ovC:'var(--muted)'}">${ov>0?ov.toFixed(1):'—'}</div>
-      <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${ov>0?ovC:'var(--muted)'};margin-top:5px">Overall</div>
-      ${ovLbl?`<div style="font-size:.68rem;font-weight:600;color:${ovC};margin-top:3px">${ovLbl}</div>`:''}
-    </div>
-    <!-- Right panel -->
-    <div style="flex:1;min-width:180px;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.55rem">
-      <!-- Current employer row -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+  body.innerHTML=`<div style="padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.9rem">
+
+    <!-- Summary row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+
+        ${hasEmployer ? `
+        <!-- Current employer -->
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:34px;height:34px;border-radius:7px;background:linear-gradient(135deg,#1A6BCC,#00897B);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0">${ini}</div>
-          <div><div style="font-size:.88rem;font-weight:600;color:var(--text)">${esc(c.company||'Current employer not set')}</div>${c.title?`<div style="font-size:.74rem;color:var(--muted)">${esc(c.title)}</div>`:''}</div>
+          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1A6BCC,#00897B);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0">${esc((c.company||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase())}</div>
+          <div>
+            <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Current Employer</div>
+            <div style="font-size:.9rem;font-weight:700;color:var(--text)">${esc(c.company)}</div>
+            ${c.title?`<div style="font-size:.74rem;color:var(--muted)">${esc(c.title)}</div>`:''}
+          </div>
+        </div>` : `
+        <div style="font-size:.84rem;color:var(--muted);font-style:italic">No current employer set</div>`}
+
+        <!-- Divider -->
+        <div style="width:1px;height:36px;background:var(--border);flex-shrink:0"></div>
+
+        <!-- Stats -->
+        <div style="display:flex;gap:1.25rem;flex-wrap:wrap">
+          ${totalYrs ? `<div>
+            <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Total Experience</div>
+            <div style="font-size:.9rem;font-weight:700;color:var(--text)">${totalYrs}</div>
+          </div>` : ''}
+          ${numEmployers > 0 ? `<div>
+            <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Employers</div>
+            <div style="font-size:.9rem;font-weight:700;color:var(--text)">${numEmployers}</div>
+          </div>` : ''}
+          ${c.from ? `<div>
+            <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">At ${esc(c.company||'current')}</div>
+            <div style="font-size:.9rem;font-weight:700;color:var(--text)">${yearsAt(c.from)}</div>
+          </div>` : ''}
         </div>
-        ${c.from?`<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap"><span class="employer-card-badge">${fmtM(c.from)} – Present</span><span class="employer-card-badge">${yearsAt(c.from)}</span></div>`:''}
-      </div>
-      ${prevWithData.length>0?`<div style="padding-left:42px;display:flex;flex-direction:column;gap:3px">${prevWithData.map(p=>`<div style="font-size:.76rem;color:var(--muted)"><strong style="color:var(--text)">${esc(p.company)}</strong>${p.title?` · ${esc(p.title)}`:''}${p.from?`<span style="opacity:.6"> · ${fmtM(p.from)} – ${p.to?fmtM(p.to):'Present'}</span>`:''}</div>`).join('')}</div>`:''}
-      <!-- Rating pills -->
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${DIMENSIONS.map(d=>{const val=rating[d.key]||0,col=val>0?scoreColor(val):null;return `<span class="er-dim-pill${val>0?'':' er-dim-pill-unrated'}" style="${val>0?'background:'+col+'18;border-color:'+col+'44;color:'+col:''}"><span class="material-icons-round">${d.icon}</span>${d.label}<strong>${val>0?val:'—'}</strong></span>`;}).join('')}
-        ${recObj?`<span class="er-dim-pill" style="background:rgba(46,125,50,.1);border-color:rgba(46,125,50,.3);color:#2E7D32"><span class="material-icons-round">${recObj.icon}</span>${recObj.label}</span>`:''}
-        ${!hasAny?`<span class="er-not-rated">No rating yet</span>`:''}
       </div>
 
     </div>
+
   </div>`;
 
-  // Update Rate Now button state based on whether employer is set
-  const rateBtn = document.getElementById('rate-now-btn');
-  if (rateBtn) {
-    const hasEmployer = !!(c.company && c.company.trim());
-    const rateLabel   = hasAny ? 'Edit Rating' : 'Rate Now';
-    const rateIcon    = hasAny ? 'edit' : 'rate_review';
-    rateBtn.innerHTML = `<span class="material-icons-round">${rateIcon}</span>${rateLabel}`;
-    if (hasEmployer) {
-      // Active — link to work.html
-      rateBtn.href   = 'work.html';
-      rateBtn.style.opacity     = '1';
-      rateBtn.style.pointerEvents = 'auto';
-      rateBtn.style.cursor      = 'pointer';
-      rateBtn.style.color       = '';
-      rateBtn.style.borderColor = '';
-      rateBtn.title = '';
+  // Update header badges: current employer date range + tenure
+  const badges = document.getElementById('er-header-badges');
+  if (badges) {
+    if (c.company && c.from) {
+      badges.innerHTML =
+        `<span class="employer-card-badge">${fmtM(c.from)} – Present</span>` +
+        `<span class="employer-card-badge">${yearsAt(c.from)}</span>`;
     } else {
-      // Disabled — no employer set yet
-      rateBtn.removeAttribute('href');
-      rateBtn.style.opacity      = '.4';
-      rateBtn.style.pointerEvents = 'none';
-      rateBtn.style.cursor       = 'not-allowed';
-      rateBtn.title = 'Set your current employer first';
+      badges.innerHTML = '';
     }
   }
 }
+// ── Mel Heravi — fixed employment history ─────────────────────────────────────
+(function seedMelEmployment(){
+  if (user.email !== 'mel.heravi@emphora.dev') return;
+  const EKEY = 'emphora_employment_mel.heravi@emphora.dev';
+  const existing = (() => { try { return JSON.parse(localStorage.getItem(EKEY)||'{}'); } catch(_){ return {}; } })();
+  if (existing.current && existing.current.company === 'Melify LLC') return;
+  const emp = {
+    current: {
+      company:     'Melify LLC',
+      title:       'UX Lead & Front-End Architect',
+      from:        '2024-12',
+      description: 'Leading UX strategy, design systems, and front-end architecture for enterprise and AI-enhanced applications.',
+    },
+    previous: [
+      { company:'Fiserv',                              title:'Senior UX Engineer',          from:'2023-09', to:'2024-12', description:'Designed and built financial tools and enterprise UX solutions at scale.' },
+      { company:'Orion Inc.',                          title:'UI/UX Developer',              from:'2021-07', to:'2023-09', description:'Developed reusable component libraries and led design systems modernization.' },
+      { company:'JPMorgan Chase',                      title:'Lead UX Developer',            from:'2018-01', to:'2021-07', description:'Owned end-to-end UX and front-end delivery for banking and trading platforms.' },
+      { company:'Depository Trust Company (DTCC)',     title:'Front-End Engineer',           from:'2016-07', to:'2018-01', description:'Built real-time data visualization tools and multi-language UX for government systems.' },
+      { company:'Barclays Bank',                       title:'UI Developer',                 from:'2015-07', to:'2016-07', description:'Delivered responsive, accessible interfaces for retail banking products.' },
+      { company:'Fannie Mae',                          title:'UX Designer & Developer',      from:'2015-01', to:'2015-07', description:'Improved usability and accessibility of mortgage management enterprise tools.' },
+      { company:'Fidelity Investments',                title:'Front-End Developer',          from:'2012-01', to:'2014-12', description:'Built interactive investment tools and SPAs using AngularJS and jQuery.' },
+    ],
+  };
+  try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_){}
+})();
+
 // ── Auto-seed employment for emphora.dev accounts ────────────────────────────
 (function seedEmploymentIfEmpty(){
   if (!user.email.endsWith('@emphora.dev')) return;
