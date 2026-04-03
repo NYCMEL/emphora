@@ -738,12 +738,7 @@ function seedLocalData(u) {
 }
 
 async function loginAs(uid, email, accountType) {
-  // All @emphora.dev accounts use the shared seed password — no prompt needed
-  // All @emphora.dev and @emphora.dev accounts use the shared seed password
-  const password = (email.endsWith('@emphora.dev') || email.endsWith('@emphora.dev'))
-    ? SEED_PASSWORD
-    : prompt(`Password for ${email}:`);
-  if (!password) return;
+  const password = SEED_PASSWORD; // users.html is admin-only — always use seed password
 
   const loginBtn = document.querySelector(`.act[data-a="login"][data-id="${uid}"]`);
   const iconEl   = loginBtn?.querySelector('.material-icons-round');
