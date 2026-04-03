@@ -266,6 +266,106 @@ const API = window.location.protocol === 'file:' ? 'http://localhost:3001' : '';
 document.getElementById('api-sub').textContent =
   `API: ${API || window.location.origin} · live from SQLite`;
 
+// ══════════════════════════════════════════════════════════════════════════════
+// TESTING FLAG — set to true to seed 50 test employees, false to remove them
+// ══════════════════════════════════════════════════════════════════════════════
+const TESTING = false; // ← flip to true to enable 50 test employees
+
+// ── Test user data ────────────────────────────────────────────────────────────
+const TEST_FIRST_NAMES = ['Liam','Emma','Noah','Olivia','James','Ava','Oliver','Sophia','Elijah','Isabella','William','Mia','Benjamin','Charlotte','Lucas','Amelia','Henry','Harper','Alexander','Evelyn','Mason','Abigail','Ethan','Emily','Daniel','Elizabeth','Logan','Sofia','Jackson','Avery','Sebastian','Ella','Jack','Madison','Aiden','Scarlett','Owen','Victoria','Samuel','Aria','Matthew','Grace','Joseph','Chloe','Levi','Camila','Mateo','Penelope','David','Riley'];
+const TEST_LAST_NAMES  = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Rodriguez','Martinez','Hernandez','Lopez','Gonzalez','Wilson','Anderson','Thomas','Taylor','Moore','Jackson','Martin','Lee','Perez','Thompson','White','Harris','Sanchez','Clark','Ramirez','Lewis','Robinson','Walker','Young','Allen','King','Wright','Scott','Torres','Nguyen','Hill','Flores','Green','Adams','Nelson','Baker','Hall','Rivera','Campbell','Mitchell','Carter','Roberts'];
+const TEST_CATEGORIES = [
+  'Programming Languages','Web Technologies','Frameworks & Libraries','Databases',
+  'DevOps & Cloud','Testing & QA','Specializations','Prototyping & Design',
+  'Productivity & Office','Devices'
+];
+const TEST_SKILLS_BY_CAT = {
+  'Programming Languages': ['JavaScript','Python','TypeScript','Java','C#','C++','Go','Rust','Swift','Kotlin','PHP','Ruby'],
+  'Web Technologies':      ['HTML5','CSS3','REST APIs','GraphQL','WebSockets','AJAX','JSON','Webpack','Vite','SASS/SCSS'],
+  'Frameworks & Libraries':['React','Vue.js','Angular','Next.js','Node.js','Express','Django','Spring Boot','Laravel','FastAPI','Svelte'],
+  'Databases':             ['PostgreSQL','MySQL','MongoDB','Redis','SQLite','Elasticsearch','DynamoDB','Cassandra'],
+  'DevOps & Cloud':        ['Docker','Kubernetes','AWS','Azure','GCP','CI/CD','Terraform','Linux','Nginx','Git'],
+  'Testing & QA':          ['Jest','Cypress','Selenium','Pytest','JUnit','Mocha','Playwright','Postman'],
+  'Specializations':       ['Machine Learning','Data Engineering','System Design','Security','Mobile Development','UX/UI Design','API Design','Microservices'],
+  'Prototyping & Design':  ['Figma','Sketch','Adobe XD','InVision','Miro','Axure'],
+  'Productivity & Office': ['Jira','Confluence','Notion','Slack','Microsoft Office','Google Workspace','Trello','Asana'],
+  'Devices':               ['Desktop','Mobile','IoT','Embedded Systems','Raspberry Pi'],
+};
+
+function _randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function _seededRand(seed) {
+  // simple deterministic pseudo-random from a seed string
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
+  return () => { h = (Math.imul(h ^ (h >>> 16), 0x45d9f3b)) | 0; return ((h >>> 0) / 0xffffffff); };
+}
+
+function _buildTestUsers() {
+  return TEST_FIRST_NAMES.map((fn, i) => {
+    const ln    = TEST_LAST_NAMES[i];
+    const email = `${fn.toLowerCase()}.t.${ln.toLowerCase()}@emphora.dev`;
+    const rand  = _seededRand(email); // deterministic per user
+
+    // Pick 5–15 random skills across categories
+    const allSkills = [];
+    TEST_CATEGORIES.forEach(cat => {
+      (TEST_SKILLS_BY_CAT[cat] || []).forEach(skill => allSkills.push({ skill, cat }));
+    });
+    const skillCount  = 15 + Math.floor(rand() * 36); // 15–50
+    const shuffled    = [...allSkills].sort(() => rand() - 0.5);
+    const picked      = shuffled.slice(0, skillCount);
+    const skills      = {};
+    picked.forEach(({ skill, cat }) => {
+      skills[skill] = { score: 1 + Math.floor(rand() * 10), category: cat };
+    });
+
+    const avgScore = Object.values(skills).reduce((a, b) => a + b.score, 0) / Object.keys(skills).length;
+    const emphoraScore = Math.round((20 + rand() * 78) * 10) / 10; // 20–98
+
+    return { firstName: fn, middleName: 'T', lastName: ln, email, skills, emphoraScore };
+  });
+}
+
+const TEST_USERS = TESTING ? _buildTestUsers() : [];
+
+async function seedTestUsers() {
+  if (!TESTING || TEST_USERS.length === 0) return;
+  let seeded = 0;
+  for (const u of TEST_USERS) {
+    try {
+      const res  = await fetch(`${API}/api/auth/register`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName: u.firstName + ' T', lastName: u.lastName,
+          email: u.email, password: 'test-1234', accountType: 'employee' }),
+        credentials: 'include',
+      });
+      const data = await res.json();
+      // Whether newly created or already exists, seed localStorage skills
+      if (data.ok || (data.message && data.message.includes('already exists'))) {
+        localStorage.setItem(`emphora_skills_${u.email}`, JSON.stringify(u.skills));
+        seeded++;
+      }
+    } catch(_) {}
+  }
+  console.info(`[Emphora Test] Seeded ${seeded} / ${TEST_USERS.length} test users`);
+}
+
+async function removeTestUsers() {
+  if (TESTING) return; // only remove when TESTING=false
+  for (const u of _buildTestUsers()) {
+    try {
+      // Remove localStorage skills
+      localStorage.removeItem(`emphora_skills_${u.email}`);
+      // Try to find and delete via admin API
+      const listRes = await fetch(`${API}/api/admin/users`, { credentials: 'include' });
+      const list    = await listRes.json();
+      const found   = list.users?.find(x => x.email === u.email);
+      if (found) await fetch(`${API}/api/admin/users/${found.id}`, { method: 'DELETE', credentials: 'include' });
+    } catch(_) {}
+  }
+  console.info('[Emphora Test] Removed test users');
+}
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let allUsers = [];
 let sortCol  = 'id';
@@ -564,7 +664,8 @@ const SEED_PASSWORD = 'test-1234';
 
 async function loginAs(uid, email, accountType) {
   // All @emphora.dev accounts use the shared seed password — no prompt needed
-  const password = email.endsWith('@emphora.dev')
+  // All @emphora.dev and @emphora.dev accounts use the shared seed password
+  const password = (email.endsWith('@emphora.dev') || email.endsWith('@emphora.dev'))
     ? SEED_PASSWORD
     : prompt(`Password for ${email}:`);
   if (!password) return;
@@ -609,6 +710,13 @@ function esc(s) {
 }
 
 document.getElementById('refresh-btn').onclick  = load;
+
+// ── Testing seed/remove ───────────────────────────────────────────────────────
+if (TESTING) {
+  seedTestUsers().then(load);
+} else {
+  removeTestUsers().then(load);
+}
 document.getElementById('add-btn').onclick      = () => openModal(null);
 document.getElementById('modal-close').onclick  = closeModal;
 document.getElementById('modal-cancel').onclick = closeModal;
@@ -633,8 +741,6 @@ if (backBtn && _u?.accountType !== 'admin') {
 }
 
 // Boot
-load();
-</script>
 
 // Logo always goes to user's own dashboard
 (function() {
@@ -645,5 +751,6 @@ load();
     if (logoEl && u) logoEl.href = DASH[u.accountType] || 'employee.html';
   } catch(_) {}
 })();
+</script>
 </body>
 </html>
