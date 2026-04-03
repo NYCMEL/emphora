@@ -161,15 +161,14 @@
 <body>
 <nav class="topbar">
   <a href="employee.html" class="logo">Emph<b>ora</b></a>
-  <div style="width:1px;height:22px;background:var(--border);margin:0 4px;flex-shrink:0"></div>
-  <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 10px 3px 3px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
-    <div class="avatar" id="topbar-initials" style="width:28px;height:28px;font-size:.68rem">?</div>
-    <div style="display:flex;flex-direction:column;gap:0px">
-      <span id="topbar-name" style="font-size:.82rem;font-weight:700;color:var(--text);line-height:1.25">—</span>
-      <span id="topbar-email" style="font-size:.68rem;color:var(--muted);line-height:1.25">—</span>
-    </div>
-  </a>
   <div class="spacer"></div>
+  <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 3px 3px 10px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
+    <div style="display:flex;flex-direction:column;gap:0px;text-align:right">
+      <span id="topbar-name" style="font-size:.82rem;font-weight:700;color:var(--text);line-height:1.25"></span>
+      <span id="topbar-email" style="font-size:.68rem;color:var(--muted);line-height:1.25"></span>
+    </div>
+    <div class="avatar" id="topbar-initials" style="width:28px;height:28px;font-size:.68rem;opacity:0"></div>
+  </a>
   <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
   <button class="icon-btn" id="logout-btn" title="Sign out"><span class="material-icons-round">logout</span></button>
 </nav>
@@ -275,7 +274,7 @@ const fn=user.firstName||user.email?.split('@')[0]||'User';
 const ln=user.lastName||'';
 const ini=((fn[0]||'')+(ln[0]||'')).toUpperCase()||'?';
 document.getElementById('topbar-name').textContent=`${fn} ${ln}`.trim();
-document.getElementById('topbar-initials').textContent=ini;
+const ti=document.getElementById('topbar-initials');if(ti){ti.textContent=ini;ti.style.opacity='1';}
 document.getElementById('topbar-email').textContent=user.email||'';
 // ── Auto-seed profile for emphora.dev accounts ───────────────────────────────
 (function seedProfileIfEmpty(){
