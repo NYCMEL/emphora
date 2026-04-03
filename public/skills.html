@@ -541,6 +541,23 @@ applyTheme(theme);
 document.getElementById('theme-btn').onclick = () =>
   applyTheme(theme === 'dark' ? 'light' : 'dark');
 
+// ── User identity ─────────────────────────────────────────────────────────────
+(function(){
+  const u=(()=>{try{return JSON.parse(sessionStorage.getItem('emphora_user')||'null');}catch{return null;}})();
+  if(!u) return;
+  const fn=u.firstName||u.email?.split('@')[0]||'';
+  const ln=u.lastName||'';
+  const ini=((fn[0]||'')+(ln[0]||'')).toUpperCase()||'';
+  const nameEl  =document.getElementById('em-user-name');
+  const emailEl =document.getElementById('em-user-email');
+  const avatarEl=document.getElementById('em-user-avatar');
+  if(nameEl)   nameEl.textContent=(fn+' '+ln).trim();
+  if(emailEl)  emailEl.textContent=u.email||'';
+  if(avatarEl){avatarEl.textContent=ini;avatarEl.style.opacity='1';}
+  try{const img=localStorage.getItem('emphora_avatar_'+u.email);if(img&&avatarEl){avatarEl.style.backgroundImage=`url(${img})`;avatarEl.style.backgroundSize='cover';avatarEl.style.backgroundPosition='center';avatarEl.style.color='transparent';}}catch(_){}
+})();
+
+
 /* ── Catalogue ───────────────────────────────────────────────────────────── */
 const CATALOGUE = [
   { cat:'Operating Systems',    icon:'computer',        items:['Windows','macOS','Linux (Ubuntu)','Linux (Red Hat)','Unix','Android','iOS'] },
