@@ -483,9 +483,6 @@ function renderErBody(){
     }
   }
 }
-renderErBody();
-
-
 // ── Auto-seed employment for emphora.dev accounts ────────────────────────────
 (function seedEmploymentIfEmpty(){
   if (!user.email.endsWith('@emphora.dev')) return;
@@ -493,7 +490,9 @@ renderErBody();
   const EKEY = 'emphora_employment_' + user.email;
   let emp = {};
   try { emp = JSON.parse(localStorage.getItem(EKEY)||'{}'); } catch(_){}
-  if (emp.current && emp.current.company) return; // already set
+  // Re-seed if no previous employers yet (allows adding more on redeploy)
+  const alreadyHasPrev = emp.previous && emp.previous.length >= 2;
+  if (emp.current && emp.current.company && alreadyHasPrev) return; // fully seeded
 
   const COMPANIES=['Acme Corp','TechNova Inc.','Brightline Systems','Apex Digital','Quantum Works','Meridian Labs','Solstice AI','Ironclad Tech','Vantage Solutions','Nexus Corp','Pinnacle Software','Atlas Engineering','Horizon Dynamics','Vertex Technologies','Crestwood Digital','Orion Systems','Lighthouse Analytics','Cascade Software','Summit Tech','Ember Labs'];
   const TITLES=['Software Engineer','Senior Engineer','Staff Engineer','Principal Engineer','Engineering Manager','Frontend Developer','Backend Developer','Full-Stack Engineer','Tech Lead','Solutions Architect','DevOps Engineer','Data Engineer','Product Engineer','Platform Engineer','ML Engineer'];
@@ -506,20 +505,24 @@ renderErBody();
   function toMonth(y,m){return y+'-'+String(m).padStart(2,'0');}
 
   const score = Number(user.emphoraScore||0);
-  const numPrev = score>=80 ? 2+rand(3) : score>=50 ? 1+rand(3) : rand(3); // 2-4 prev for high scorers
+  const numPrev = score>=80 ? 3+rand(3) : 2+rand(3); // always 2-5 previous employers
   const used = new Set();
 
-  // Current employer
-  const curCompany = randCompany(used);
-  const curTitle   = TITLES[rand(score>=80?5:score>=60?9:TITLES.length)];
-  const curFromY   = 2022+rand(3); // 2022-2024
-  const curFromM   = 1+rand(12);
-  emp.current = {
-    company: curCompany,
-    title:   curTitle,
-    from:    toMonth(curFromY, curFromM),
-    description: DESCS[rand(DESCS.length)],
-  };
+  // Current employer — keep if already set
+  let curFromY, curFromM;
+  if (emp.current && emp.current.company) {
+    // parse existing from date to anchor previous history
+    const parts = (emp.current.from||'2023-01').split('-');
+    curFromY = parseInt(parts[0])||2023;
+    curFromM = parseInt(parts[1])||1;
+    used.add(emp.current.company);
+  } else {
+    const curCompany = randCompany(used);
+    const curTitle   = TITLES[rand(score>=80?5:score>=60?9:TITLES.length)];
+    curFromY = 2022+rand(3);
+    curFromM = 1+rand(12);
+    emp.current = { company:curCompany, title:curTitle, from:toMonth(curFromY,curFromM), description:DESCS[rand(DESCS.length)] };
+  }
 
   // Previous employers (going back in time)
   emp.previous = [];
@@ -542,7 +545,10 @@ renderErBody();
   }
 
   try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_){}
+  renderErBody(); // re-render with fresh data
 })();
+
+renderErBody(); // initial render (may be before seed runs for already-seeded users)
 
 // ── Auto-seed skills for users with a score but no localStorage skills ─────────
 (function seedSkillsIfEmpty(){
