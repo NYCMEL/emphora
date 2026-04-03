@@ -438,12 +438,13 @@
 <!-- ── Topbar ── -->
 <nav class="em-topbar">
   <a href="employee.html" class="em-logo">Emph<b>ora</b></a>
-  <span class="material-icons-round em-breadcrumb" style="font-size:.9rem">chevron_right</span>
-  <span class="em-breadcrumb">My Skills</span>
-  <div style="width:1px;height:20px;background:rgba(0,0,0,.1);margin:0 2px;flex-shrink:0"></div>
-  <a id="em-user-id" href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:7px;text-decoration:none;padding:3px 8px 3px 3px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
-    <div id="em-user-avatar" style="width:26px;height:26px;border-radius:50%;background:var(--primary,#1A6BCC);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;flex-shrink:0">?</div>
-    <span id="em-user-name" style="font-size:.8rem;font-weight:700;color:var(--text,#0D1B2A);white-space:nowrap">—</span>
+  <div style="width:1px;height:22px;background:var(--bd,#D0DCE8);margin:0 4px;flex-shrink:0"></div>
+  <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 10px 3px 3px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
+    <div id="em-user-avatar" style="width:28px;height:28px;border-radius:50%;background:#1A6BCC;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff;flex-shrink:0">?</div>
+    <div style="display:flex;flex-direction:column;gap:0px">
+      <span id="em-user-name" style="font-size:.82rem;font-weight:700;color:var(--tx,#0D1B2A);line-height:1.25">—</span>
+      <span id="em-user-email" style="font-size:.68rem;color:var(--mu,#7A8FA6);line-height:1.25">—</span>
+    </div>
   </a>
   <div class="em-topbar-search-wrap">
     <span class="em-topbar-search-icon"><span class="material-icons-round">search</span></span>
@@ -458,10 +459,14 @@
   <span class="em-saved-tag" id="saved-tag">
     <span class="material-icons-round">check_circle</span>Auto-saved
   </span>
+  <span style="color:var(--bd,#D0DCE8);margin:0 6px;font-size:.85rem;user-select:none">›</span>
+  <a href="employee.html" style="font-size:.8rem;color:var(--mu,#7A8FA6);text-decoration:none;white-space:nowrap" onmouseover="this.style.color='#1A6BCC'" onmouseout="this.style.color='var(--mu,#7A8FA6)'">Employee Dashboard</a>
+  <span style="color:var(--bd,#D0DCE8);margin:0 6px;font-size:.85rem;user-select:none">›</span>
+  <span style="font-size:.8rem;font-weight:600;color:var(--tx,#0D1B2A);white-space:nowrap">My Skills</span>
   <button class="em-ib" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
     <span class="material-icons-round">light_mode</span>
   </button>
-  <a href="employee.html" class="em-ib" title="Back to dashboard" aria-label="Back">
+  <a href="employee.html" class="em-ib" title="Back" aria-label="Back to dashboard">
     <span class="material-icons-round">arrow_back</span>
   </a>
 </nav>

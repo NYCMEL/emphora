@@ -393,6 +393,14 @@ const EKEY=`emphora_employment_${user.email}`;
 const RKEY=`emphora_employer_rating_${user.email}`;
 let emp={current:{company:'',title:'',from:'',description:''},previous:[]};
 try{const s=localStorage.getItem(EKEY);if(s)emp={...emp,...JSON.parse(s)};}catch(_){}
+// If current is blank but previous has entries, promote the most recent one
+if((!emp.current||!emp.current.company) && emp.previous && emp.previous.length>0){
+  const sorted=[...emp.previous].sort((a,b)=>(b.from||'').localeCompare(a.from||''));
+  const promoted=sorted[0];
+  emp.current={company:promoted.company,title:promoted.title,from:promoted.from,description:promoted.description};
+  emp.previous=emp.previous.filter(p=>p.company!==promoted.company||p.from!==promoted.from);
+  try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}
+}
 const DEFAULTS={manager:0,company:0,environment:0,recommendation:'',notes:''};
 let rating={...DEFAULTS};
 try{Object.assign(rating,JSON.parse(localStorage.getItem(RKEY)||'{}'));}catch(_){}
