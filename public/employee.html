@@ -464,10 +464,7 @@ function renderErBody(){
 
         <!-- Stats -->
         <div style="display:flex;gap:1.25rem;flex-wrap:wrap">
-          ${totalYrs ? `<div>
-            <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Total Experience</div>
-            <div style="font-size:.9rem;font-weight:700;color:var(--text)">${totalYrs}</div>
-          </div>` : ''}
+
           ${numEmployers > 0 ? `<div>
             <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Employers</div>
             <div style="font-size:.9rem;font-weight:700;color:var(--text)">${numEmployers}</div>
@@ -483,16 +480,13 @@ function renderErBody(){
 
   </div>`;
 
-  // Update header badges: current employer date range + tenure
+  // Update header badges: total career experience
   const badges = document.getElementById('er-header-badges');
   if (badges) {
-    if (c.company && c.from) {
-      badges.innerHTML =
-        `<span class="employer-card-badge">${fmtM(c.from)} – Present</span>` +
-        `<span class="employer-card-badge">${yearsAt(c.from)}</span>`;
-    } else {
-      badges.innerHTML = '';
-    }
+    const totalYrsHdr = totalWorkYears();
+    badges.innerHTML = totalYrsHdr
+      ? `<span class="employer-card-badge">${totalYrsHdr} experience</span>`
+      : '';
   }
 }
 // ── Mel Heravi — fixed employment history ─────────────────────────────────────
