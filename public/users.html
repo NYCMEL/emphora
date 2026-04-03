@@ -665,6 +665,78 @@ async function del(uid) {
 // ── Login As ─────────────────────────────────────────────────────────────────
 const SEED_PASSWORD = 'test-1234';
 
+
+// ── Seed fake localStorage data for demo accounts ─────────────────────────────
+function seedLocalData(u) {
+  if (!u.email.endsWith('@emphora.dev')) return;
+  if (u.accountType === 'admin') return;
+  const e = u.email;
+
+  // ── Fake profiles per user ────────────────────────────────────────────────
+  const PROFILES = {
+    'employee@emphora.dev':     { firstName:'Test', lastName:'Employee', phone:'(555) 100-0001', location:'New York, NY', jobTitle:'Software Engineer', linkedin:'linkedin.com/in/testemployee', summary:'Experienced software engineer with a passion for building scalable systems.' },
+    'sarah.chen@emphora.dev':   { firstName:'Sarah', lastName:'Chen', phone:'(555) 201-4455', location:'San Francisco, CA', jobTitle:'Principal Software Engineer', linkedin:'linkedin.com/in/sarahchen', summary:'Principal engineer specialising in distributed systems and developer experience. 12 years shipping products at scale.' },
+    'marcus.webb@emphora.dev':  { firstName:'Marcus', lastName:'Webb', phone:'(555) 302-8821', location:'Austin, TX', jobTitle:'VP of Engineering', linkedin:'linkedin.com/in/marcuswebb', summary:'Engineering leader who has scaled teams from 5 to 80+ engineers across three hyper-growth startups.' },
+    'priya.sharma@emphora.dev': { firstName:'Priya', lastName:'Sharma', phone:'(555) 403-6612', location:'Seattle, WA', jobTitle:'Staff ML Engineer', linkedin:'linkedin.com/in/priyasharma', summary:'Staff ML engineer with deep expertise in NLP, recommendation systems, and responsible AI.' },
+    'devon.okafor@emphora.dev': { firstName:'Devon', lastName:'Okafor', phone:'(555) 504-3390', location:'Chicago, IL', jobTitle:'Senior Full-Stack Engineer', linkedin:'linkedin.com/in/devonokafor', summary:'Full-stack engineer who loves TypeScript, React, and building delightful product experiences.' },
+    'lin.xiao@emphora.dev':     { firstName:'Lin', lastName:'Xiao', phone:'(555) 605-7741', location:'Boston, MA', jobTitle:'Engineering Manager', linkedin:'linkedin.com/in/linxiao', summary:'Engineering manager focused on team health, technical excellence, and shipping great software.' },
+    'jordan.reyes@emphora.dev': { firstName:'Jordan', lastName:'Reyes', phone:'(555) 706-2234', location:'Denver, CO', jobTitle:'Senior Backend Engineer', linkedin:'linkedin.com/in/jordanreyes', summary:'Backend specialist with strong experience in Go, Kubernetes, and cloud-native architecture.' },
+    'aisha.patel@emphora.dev':  { firstName:'Aisha', lastName:'Patel', phone:'(555) 807-5567', location:'Miami, FL', jobTitle:'Product Engineer', linkedin:'linkedin.com/in/aishapatel', summary:'Product-minded engineer bridging the gap between design and engineering.' },
+    'tom.nakamura@emphora.dev': { firstName:'Tom', lastName:'Nakamura', phone:'(555) 908-1123', location:'Portland, OR', jobTitle:'Senior iOS Engineer', linkedin:'linkedin.com/in/tomnakamura', summary:'Senior iOS engineer with 8 years of experience building consumer apps with millions of users.' },
+    'zoe.andersen@emphora.dev': { firstName:'Zoe', lastName:'Andersen', phone:'(555) 109-8890', location:'Minneapolis, MN', jobTitle:'Frontend Engineer', linkedin:'linkedin.com/in/zoeandersen', summary:'Frontend engineer passionate about accessibility, design systems, and performant UIs.' },
+    'kai.osei@emphora.dev':     { firstName:'Kai', lastName:'Osei', phone:'(555) 210-4456', location:'Atlanta, GA', jobTitle:'Junior Software Engineer', linkedin:'linkedin.com/in/kaiosei', summary:'Junior engineer eager to grow, currently focusing on web technologies and cloud fundamentals.' },
+  };
+
+  // ── Fake employment per user ──────────────────────────────────────────────
+  const EMPLOYMENT = {
+    'employee@emphora.dev':     { current:{ company:'Acme Corp', title:'Software Engineer', from:'2022-03', description:'Building internal tooling and APIs.' }, previous:[] },
+    'sarah.chen@emphora.dev':   { current:{ company:'Stripe', title:'Principal Engineer', from:'2020-06', description:'Leading platform reliability and developer tooling.' }, previous:[{ company:'Google', title:'Senior SWE', from:'2016-01', to:'2020-05', description:'Search infrastructure team.' },{ company:'Palantir', title:'Software Engineer', from:'2013-07', to:'2015-12', description:'Data integration pipelines.' }] },
+    'marcus.webb@emphora.dev':  { current:{ company:'Coinbase', title:'VP of Engineering', from:'2021-04', description:'Scaling the trading infrastructure team.' }, previous:[{ company:'Lyft', title:'Director of Engineering', from:'2017-09', to:'2021-03', description:'Led marketplace engineering.' }] },
+    'priya.sharma@emphora.dev': { current:{ company:'OpenAI', title:'Staff ML Engineer', from:'2022-01', description:'Working on alignment and safety tooling.' }, previous:[{ company:'Meta AI', title:'ML Engineer', from:'2018-06', to:'2021-12', description:'Recommendation systems.' }] },
+    'devon.okafor@emphora.dev': { current:{ company:'Vercel', title:'Senior Engineer', from:'2021-08', description:'Next.js runtime and edge functions.' }, previous:[{ company:'Twilio', title:'Full-Stack Engineer', from:'2019-02', to:'2021-07', description:'Messaging APIs and SDKs.' }] },
+    'lin.xiao@emphora.dev':     { current:{ company:'Figma', title:'Engineering Manager', from:'2020-11', description:'Managing the collaboration features team.' }, previous:[{ company:'Dropbox', title:'Senior Engineer', from:'2016-05', to:'2020-10', description:'Desktop sync engine.' }] },
+    'jordan.reyes@emphora.dev': { current:{ company:'Cloudflare', title:'Senior Backend Engineer', from:'2022-03', description:'Edge compute platform.' }, previous:[{ company:'DigitalOcean', title:'Backend Engineer', from:'2019-07', to:'2022-02', description:'Managed databases product.' }] },
+    'aisha.patel@emphora.dev':  { current:{ company:'Linear', title:'Product Engineer', from:'2023-01', description:'Issue tracking and project management features.' }, previous:[] },
+    'tom.nakamura@emphora.dev': { current:{ company:'Spotify', title:'Senior iOS Engineer', from:'2019-09', description:'Player and podcast features.' }, previous:[{ company:'Twitter', title:'iOS Engineer', from:'2015-06', to:'2019-08', description:'Notifications and timeline.' }] },
+    'zoe.andersen@emphora.dev': { current:{ company:'Shopify', title:'Frontend Engineer', from:'2021-05', description:'Checkout and storefront components.' }, previous:[] },
+    'kai.osei@emphora.dev':     { current:{ company:'HubSpot', title:'Junior Software Engineer', from:'2024-01', description:'CRM UI components.' }, previous:[] },
+  };
+
+  // ── Skills pools ──────────────────────────────────────────────────────────
+  const SKILL_POOLS = {
+    'employee@emphora.dev':     [['JavaScript','Web Technologies',7],['React','Frameworks & Libraries',6],['Node.js','Web Technologies',6],['Python','Programming Languages',5],['SQL','Databases',6]],
+    'sarah.chen@emphora.dev':   [['Go','Programming Languages',9],['Kubernetes','DevOps & Cloud',9],['Python','Programming Languages',8],['Distributed Systems','Specializations',9],['PostgreSQL','Databases',8],['TypeScript','Web Technologies',8],['gRPC','Web Technologies',7],['Redis','Databases',8],['AWS','DevOps & Cloud',7]],
+    'marcus.webb@emphora.dev':  [['Leadership','Leadership',9],['Engineering Management','Leadership',9],['System Design','Specializations',9],['Python','Programming Languages',8],['Go','Programming Languages',7],['AWS','DevOps & Cloud',8],['Hiring','Leadership',8]],
+    'priya.sharma@emphora.dev': [['PyTorch','Frameworks & Libraries',9],['Python','Programming Languages',9],['NLP','Specializations',9],['Machine Learning','Specializations',8],['TensorFlow','Frameworks & Libraries',7],['SQL','Databases',7],['Spark','DevOps & Cloud',6]],
+    'devon.okafor@emphora.dev': [['TypeScript','Web Technologies',9],['React','Frameworks & Libraries',9],['Node.js','Web Technologies',8],['Next.js','Frameworks & Libraries',8],['PostgreSQL','Databases',7],['GraphQL','Web Technologies',7],['CSS','Web Technologies',8]],
+    'lin.xiao@emphora.dev':     [['Engineering Management','Leadership',9],['React','Frameworks & Libraries',8],['TypeScript','Web Technologies',8],['Agile','Specializations',8],['System Design','Specializations',7],['Figma','Prototyping & Design',6]],
+    'jordan.reyes@emphora.dev': [['Go','Programming Languages',9],['Kubernetes','DevOps & Cloud',8],['PostgreSQL','Databases',8],['Redis','Databases',8],['gRPC','Web Technologies',7],['AWS','DevOps & Cloud',7],['Docker','DevOps & Cloud',8]],
+    'aisha.patel@emphora.dev':  [['TypeScript','Web Technologies',8],['React','Frameworks & Libraries',8],['Figma','Prototyping & Design',7],['Node.js','Web Technologies',6],['CSS','Web Technologies',7]],
+    'tom.nakamura@emphora.dev': [['Swift','Programming Languages',9],['Objective-C','Programming Languages',7],['iOS Development','Specializations',9],['Xcode','DevOps & Cloud',8],['Combine','Frameworks & Libraries',7]],
+    'zoe.andersen@emphora.dev': [['CSS','Web Technologies',8],['JavaScript','Web Technologies',7],['React','Frameworks & Libraries',7],['Accessibility','Specializations',8],['Figma','Prototyping & Design',6]],
+    'kai.osei@emphora.dev':     [['JavaScript','Web Technologies',6],['HTML5','Web Technologies',6],['CSS','Web Technologies',5],['Python','Programming Languages',4],['Git','DevOps & Cloud',5]],
+  };
+
+  // Only seed if not already set
+  const profileKey    = `emphora_profile_${e}`;
+  const employmentKey = `emphora_employment_${e}`;
+  const skillsKey     = `emphora_skills_${e}`;
+
+  if (!localStorage.getItem(profileKey) && PROFILES[e]) {
+    localStorage.setItem(profileKey, JSON.stringify(PROFILES[e]));
+  }
+  if (!localStorage.getItem(employmentKey) && EMPLOYMENT[e]) {
+    localStorage.setItem(employmentKey, JSON.stringify(EMPLOYMENT[e]));
+  }
+  if (!localStorage.getItem(skillsKey) && SKILL_POOLS[e]) {
+    const skills = {};
+    SKILL_POOLS[e].forEach(([name, category, score]) => {
+      skills[name] = { score, category };
+    });
+    localStorage.setItem(skillsKey, JSON.stringify(skills));
+  }
+}
+
 async function loginAs(uid, email, accountType) {
   // All @emphora.dev accounts use the shared seed password — no prompt needed
   // All @emphora.dev and @emphora.dev accounts use the shared seed password
@@ -687,10 +759,10 @@ async function loginAs(uid, email, accountType) {
     const data = await res.json();
 
     if (data.ok && data.user) {
-      // Fix accountType for admin if DB still has old value
       const u = { ...data.user };
       if (u.email === 'admin@emphora.dev' || u.accountType === 'admin') u.accountType = 'admin';
       sessionStorage.setItem('emphora_user', JSON.stringify(u));
+      seedLocalData(u);
       const pages = {employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html'};
       window.location.href = pages[u.accountType] || 'employee.html';
     } else {
