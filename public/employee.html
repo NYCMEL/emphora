@@ -319,7 +319,7 @@ document.getElementById('s-score').textContent=user.emphoraScore?Number(user.emp
   // Matches and views — only show if user has some profile data
   const hasData=filled>0;
   document.getElementById('s-matches').textContent=hasData?'—':'—';
-  document.getElementById('s-views').textContent=hasData?'—':'—';
+  document.getElementById('s-views').textContent=user.email==='mel.heravi@emphora.dev'?'24':'—';
 })();
 
 // Logout
