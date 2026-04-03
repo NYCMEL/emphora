@@ -586,8 +586,10 @@ renderErBody(); // initial render (may be before seed runs for already-seeded us
 // ── Auto-seed skills for users with a score but no localStorage skills ─────────
 (function seedSkillsIfEmpty(){
   const SKEY = 'emphora_skills_' + user.email;
+  const FKEY = 'emphora_skills_seeded_' + user.email; // one-time flag
   const score = Number(user.emphoraScore) || 0;
-  if (score === 0) return; // David Miller and truly blank accounts get nothing
+  if (score === 0) return;
+  if (localStorage.getItem(FKEY)) return; // already seeded — never run again
   let existing = {};
   try { existing = JSON.parse(localStorage.getItem(SKEY)||'{}'); } catch(_){}
 
@@ -626,9 +628,12 @@ renderErBody(); // initial render (may be before seed runs for already-seeded us
     }
   });
 
-  // Merge: add new skills without overwriting user-edited ones
+  // Merge: seed skills are base, existing user skills take priority
   const merged = { ...skills, ...existing };
-  try { localStorage.setItem(SKEY, JSON.stringify(merged)); } catch(_){}
+  try {
+    localStorage.setItem(SKEY, JSON.stringify(merged));
+    localStorage.setItem(FKEY, '1'); // mark as seeded — never run again
+  } catch(_){}
 })();
 
 // ── Skills panel ──────────────────────────────────────────────────────────────
