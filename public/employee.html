@@ -460,6 +460,52 @@ function renderErBody(){
 }
 renderErBody();
 
+
+// ── Auto-seed skills for users with a score but no localStorage skills ─────────
+(function seedSkillsIfEmpty(){
+  const SKEY = 'emphora_skills_' + user.email;
+  try { const ex = JSON.parse(localStorage.getItem(SKEY)||'{}'); if(Object.keys(ex).length > 0) return; } catch(_){}
+  const score = Number(user.emphoraScore) || 0;
+  if (score === 0) return; // David Miller and truly blank accounts get nothing
+
+  // Skill pools by category — assigned based on score bracket
+  const POOLS = {
+    'Programming Languages':  ['JavaScript','Python','TypeScript','Java','C#','Go','Rust','C++','PHP','Swift'],
+    'Web Technologies':       ['HTML5','CSS3','REST APIs','GraphQL','WebSockets','AJAX','JSON','OAuth','gRPC'],
+    'Frameworks & Libraries': ['React','Node.js','Vue.js','Angular','Express','Django','Spring Boot','FastAPI','Next.js'],
+    'Databases':              ['PostgreSQL','MySQL','MongoDB','Redis','SQLite','Elasticsearch','DynamoDB'],
+    'DevOps & Cloud':         ['Docker','Kubernetes','AWS','CI/CD','Git','Terraform','Linux','Nginx'],
+    'Specializations':        ['UX/UI Design','Machine Learning','System Design','API Design','Microservices','Agile','TDD'],
+    'Prototyping & Design':   ['Figma','Sketch','Wireframing','Prototyping','User Research'],
+    'Testing & QA':           ['Unit Testing','Integration Testing','Selenium','Jest','Cypress'],
+  };
+
+  // How many skills and at what level depends on emphoraScore
+  const numCats  = score >= 90 ? 7 : score >= 75 ? 5 : score >= 60 ? 4 : 3;
+  const baseScore = score >= 90 ? 8 : score >= 75 ? 7 : score >= 60 ? 6 : 5;
+  const cats = Object.keys(POOLS).slice(0, numCats);
+
+  const skills = {};
+  // Use email as a stable seed so each user gets consistent skills
+  let rng = user.email.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  function rand(max){ rng = (rng * 1664525 + 1013904223) & 0xffffffff; return Math.abs(rng) % max; }
+
+  cats.forEach(cat => {
+    const pool = POOLS[cat];
+    const count = 2 + rand(3); // 2-4 skills per category
+    const picked = new Set();
+    for(let i=0; i<count && picked.size < pool.length; i++){
+      let idx = rand(pool.length);
+      while(picked.has(idx)) idx = (idx+1) % pool.length;
+      picked.add(idx);
+      const skillScore = Math.max(1, Math.min(10, baseScore - 2 + rand(5)));
+      skills[pool[idx]] = { score: skillScore, category: cat };
+    }
+  });
+
+  try { localStorage.setItem(SKEY, JSON.stringify(skills)); } catch(_){}
+})();
+
 // ── Skills panel ──────────────────────────────────────────────────────────────
 (function(){
   const STORAGE_KEY=`emphora_skills_${user.email}`;
