@@ -515,6 +515,33 @@ function renderErBody(){
   try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_){}
 })();
 
+// ── Mel Heravi — job matches ─────────────────────────────────────────────────
+(function(){
+  if (user.email !== 'mel.heravi@emphora.dev') return;
+  const body = document.getElementById('job-matches-body');
+  const countEl = document.getElementById('s-matches');
+  if (!body) return;
+  const JOBS = [
+    { title:'Principal UX Engineer',         company:'Goldman Sachs',        match:97, salary:'$180–220K', status:'Interview',  icon:'event'           },
+    { title:'Head of Design Systems',        company:'JPMorgan Chase',       match:95, salary:'$190–230K', status:'Offer',      icon:'celebration'     },
+    { title:'Lead UX Architect',             company:'Fidelity Investments', match:93, salary:'$175–210K', status:'Reviewing',  icon:'hourglass_empty' },
+    { title:'Senior UI/UX Engineer',         company:'Stripe',               match:91, salary:'$160–200K', status:'Applied',    icon:'send'            },
+    { title:'Design Engineering Lead',       company:'Salesforce',           match:88, salary:'$170–205K', status:'Applied',    icon:'send'            },
+    { title:'UX Platform Engineer',          company:'Morgan Stanley',       match:86, salary:'$155–190K', status:'Reviewing',  icon:'hourglass_empty' },
+  ];
+  const STATUS_PILL = { Applied:'pill-blue', Reviewing:'pill-amber', Interview:'pill-green', Offer:'pill-green', Rejected:'pill-grey' };
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if (countEl) countEl.textContent = JOBS.length;
+  body.innerHTML = `<table><thead><tr><th>Role</th><th>Company</th><th>Match</th><th>Salary</th><th>Status</th></tr></thead><tbody>` +
+    JOBS.map(j => `<tr>
+      <td class="primary">${esc(j.title)}</td>
+      <td>${esc(j.company)}</td>
+      <td><span class="pill pill-green">${j.match}%</span></td>
+      <td>${esc(j.salary)}</td>
+      <td><span class="pill ${STATUS_PILL[j.status]||'pill-grey'}">${esc(j.status)}</span></td>
+    </tr>`).join('') + `</tbody></table>`;
+})();
+
 // ── Auto-seed employment for emphora.dev accounts ────────────────────────────
 (function seedEmploymentIfEmpty(){
   if (!user.email.endsWith('@emphora.dev')) return;
