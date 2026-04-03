@@ -649,7 +649,7 @@ renderErBody(); // initial render (may be before seed runs for already-seeded us
     if(k2.length===0){panel.innerHTML=`<div class="skills-empty"><span class="material-icons-round">psychology</span><span>No skills rated yet — <a href="skills.html" style="color:var(--primary)">add some</a></span></div>`;return;}
     const avg2=(k2.reduce((a,k)=>a+ratings[k].score,0)/k2.length).toFixed(1);
     const expert2=k2.filter(k=>ratings[k].score>=8).length;
-    const cats2=[...new Set(k2.map(k=>ratings[k].category))];
+    const cats2=[...new Set(k2.map(k=>ratings[k].category))].sort();
     const grouped2={};
     k2.forEach(k=>{const cat=ratings[k].category||'Other';if(!grouped2[cat])grouped2[cat]=[];grouped2[cat].push({name:k,score:ratings[k].score});});
     Object.values(grouped2).forEach(arr=>arr.sort((a,b)=>b.score-a.score));

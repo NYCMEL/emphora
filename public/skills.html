@@ -597,7 +597,7 @@ function buildLeft(q = '') {
   container.innerHTML = '';
   const lq = q.toLowerCase().trim();
 
-  CATALOGUE.forEach(group => {
+  [...CATALOGUE].sort((a,b)=>a.cat.localeCompare(b.cat)).forEach(group => {
     const visible = group.items.filter(item =>
       !lq || item.toLowerCase().includes(lq) || group.cat.toLowerCase().includes(lq)
     );
