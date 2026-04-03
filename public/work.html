@@ -90,6 +90,11 @@
 <body>
 <nav class="topbar">
   <a href="employee.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
+  <div style="width:1px;height:20px;background:rgba(0,0,0,.1);margin:0 2px;flex-shrink:0"></div>
+  <a id="em-user-id" href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:7px;text-decoration:none;padding:3px 8px 3px 3px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
+    <div id="em-user-avatar" style="width:26px;height:26px;border-radius:50%;background:var(--primary,#1A6BCC);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;flex-shrink:0">?</div>
+    <span id="em-user-name" style="font-size:.8rem;font-weight:700;color:var(--text,#0D1B2A);white-space:nowrap">—</span>
+  </a>
   <span class="bc-sep">›</span>
   <a href="employee.html" class="bc-link" id="bc-dash">Employee Dashboard</a>
   <span class="bc-sep">›</span>
