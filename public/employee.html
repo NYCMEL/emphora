@@ -564,6 +564,28 @@ function renderErBody(){
   try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_){}
 })();
 
+// ── Mel Heravi — recent ratings ─────────────────────────────────────────────
+(function(){
+  if (user.email !== 'mel.heravi@emphora.dev') return;
+  const body = document.getElementById('recent-ratings-body');
+  if (!body) return;
+  const RATINGS = [
+    { from:'Melify LLC',              type:'Verified',   pill:'pill-green',  score:'9.8', date:'Apr 2026' },
+    { from:'Fiserv',                  type:'Verified',   pill:'pill-green',  score:'9.4', date:'Jan 2025' },
+    { from:'Orion Inc.',              type:'Verified',   pill:'pill-green',  score:'9.1', date:'Sep 2023' },
+    { from:'Peer Review',             type:'Peer',       pill:'pill-blue',   score:'9.5', date:'Mar 2026' },
+    { from:'JPMorgan Chase',          type:'Previous',   pill:'pill-amber',  score:'8.9', date:'Jul 2021' },
+  ];
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  body.innerHTML=`<table><thead><tr><th>From</th><th>Type</th><th>Score</th><th>Date</th></tr></thead><tbody>`+
+    RATINGS.map(r=>`<tr>
+      <td class="primary">${esc(r.from)}</td>
+      <td><span class="pill ${r.pill}">${esc(r.type)}</span></td>
+      <td><strong>${esc(r.score)}</strong></td>
+      <td>${esc(r.date)}</td>
+    </tr>`).join('')+`</tbody></table>`;
+})();
+
 // ── Mel Heravi — job matches ─────────────────────────────────────────────────
 (function(){
   if (user.email !== 'mel.heravi@emphora.dev') return;
