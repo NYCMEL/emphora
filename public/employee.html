@@ -254,6 +254,7 @@
       <div class="skills-empty"><span class="material-icons-round">psychology</span><span>No skills rated yet — <a href="skills.html" style="color:var(--primary)">add some</a></span></div>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -393,13 +394,15 @@ const RKEY=`emphora_employer_rating_${user.email}`;
 let emp={current:{company:'',title:'',from:'',description:''},previous:[]};
 try{const s=localStorage.getItem(EKEY);if(s)emp={...emp,...JSON.parse(s)};}catch(_){}
 // If current is blank but previous has entries, promote the most recent one
-if((!emp.current||!emp.current.company) && emp.previous && emp.previous.length>0){
-  const sorted=[...emp.previous].sort((a,b)=>(b.from||'').localeCompare(a.from||''));
-  const promoted=sorted[0];
-  emp.current={company:promoted.company,title:promoted.title,from:promoted.from,description:promoted.description};
-  emp.previous=emp.previous.filter(p=>p.company!==promoted.company||p.from!==promoted.from);
+(function ensureCurrentEmployer(){
+  if (emp.current && emp.current.company) return;
+  const prev = (emp.previous||[]).filter(p=>p.company);
+  if (!prev.length) return;
+  const sorted = [...prev].sort((a,b)=>(b.from||'').localeCompare(a.from||''));
+  emp.current = {company:sorted[0].company, title:sorted[0].title, from:sorted[0].from, description:sorted[0].description};
+  emp.previous = emp.previous.filter(p=>p.company!==sorted[0].company||p.from!==sorted[0].from);
   try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}
-}
+})();
 const DEFAULTS={manager:0,company:0,environment:0,recommendation:'',notes:''};
 let rating={...DEFAULTS};
 try{Object.assign(rating,JSON.parse(localStorage.getItem(RKEY)||'{}'));}catch(_){}
@@ -520,8 +523,11 @@ function renderErBody(){
   let emp = {};
   try { emp = JSON.parse(localStorage.getItem(EKEY)||'{}'); } catch(_){}
   // Re-seed if no previous employers yet (allows adding more on redeploy)
+  // If current employer is missing, force re-seed regardless of flag
+  const hasCurrent = emp.current && emp.current.company;
+  if (!hasCurrent) localStorage.removeItem('emphora_employment_seeded_' + user.email);
   const alreadyHasPrev = emp.previous && emp.previous.length >= 2;
-  if (emp.current && emp.current.company && alreadyHasPrev) return; // fully seeded
+  if (hasCurrent && alreadyHasPrev) return; // fully seeded
 
   const COMPANIES=['Acme Corp','TechNova Inc.','Brightline Systems','Apex Digital','Quantum Works','Meridian Labs','Solstice AI','Ironclad Tech','Vantage Solutions','Nexus Corp','Pinnacle Software','Atlas Engineering','Horizon Dynamics','Vertex Technologies','Crestwood Digital','Orion Systems','Lighthouse Analytics','Cascade Software','Summit Tech','Ember Labs'];
   const TITLES=['Software Engineer','Senior Engineer','Staff Engineer','Principal Engineer','Engineering Manager','Frontend Developer','Backend Developer','Full-Stack Engineer','Tech Lead','Solutions Architect','DevOps Engineer','Data Engineer','Product Engineer','Platform Engineer','ML Engineer'];
@@ -534,7 +540,7 @@ function renderErBody(){
   function toMonth(y,m){return y+'-'+String(m).padStart(2,'0');}
 
   const score = Number(user.emphoraScore||0);
-  const numPrev = score>=80 ? 3+rand(3) : 2+rand(3); // always 2-5 previous employers
+  const numPrev = 2+rand(3); // always 2-4 previous employers
   const used = new Set();
 
   // Current employer — keep if already set
@@ -562,7 +568,7 @@ function renderErBody(){
     const toY   = prevEndY, toM = prevEndM;
     let fromY   = toY - durY, fromM = toM - durM;
     if (fromM <= 0){ fromM += 12; fromY--; }
-    if (fromY < 2012) break;
+    if (fromY < curFromY - 15) break; // max 15 years back
     emp.previous.push({
       company:     randCompany(used),
       title:       TITLES[rand(TITLES.length)],
@@ -573,6 +579,15 @@ function renderErBody(){
     prevEndY = fromY; prevEndM = fromM;
   }
 
+  // Always ensure current is set — promote most recent previous if needed
+  if (!emp.current || !emp.current.company) {
+    const prev = (emp.previous||[]).filter(p=>p.company);
+    if (prev.length > 0) {
+      const sorted = [...prev].sort((a,b)=>(b.from||'').localeCompare(a.from||''));
+      emp.current = {company:sorted[0].company, title:sorted[0].title, from:sorted[0].from, description:sorted[0].description};
+      emp.previous = emp.previous.filter(p=>p.company!==sorted[0].company||p.from!==sorted[0].from);
+    }
+  }
   try { localStorage.setItem(EKEY, JSON.stringify(emp)); } catch(_){}
   renderErBody(); // re-render with fresh data
 })();
@@ -660,8 +675,7 @@ renderErBody(); // initial render (may be before seed runs for already-seeded us
     const grouped2={};
     k2.forEach(k=>{const cat=ratings[k].category||'Other';if(!grouped2[cat])grouped2[cat]=[];grouped2[cat].push({name:k,score:ratings[k].score});});
     Object.values(grouped2).forEach(arr=>arr.sort((a,b)=>b.score-a.score));
-    const catBlocks=cats2.map(cat=>{const items=(grouped2[cat]||[]).map(s=>`<span class="skill-chip ${levelClass(s.score)}">${esc(s.name)}<span class="skill-chip-score">${s.score}</span><button class="skill-chip-del" data-skill="${esc(s.name)}"><span class="material-icons-round">close</span></button></span>`).join('');return `<div class="skills-cat-block"><div class="skills-cat-name">${esc(cat)}</div><div class="skills-cat-items">${items}</div></div>`;}).join('');
-    panel.innerHTML=`<div class="skills-summary"><div class="skills-summary-item"><span class="skills-summary-val">${k2.length}</span><span class="skills-summary-lbl">Skills</span></div><div class="skills-summary-item"><span class="skills-summary-val">${avg2}</span><span class="skills-summary-lbl">Avg Score</span></div><div class="skills-summary-item"><span class="skills-summary-val">${expert2}</span><span class="skills-summary-lbl">Expert (8+)</span></div><div class="skills-summary-item"><span class="skills-summary-val">${cats2.length}</span><span class="skills-summary-lbl">Categories</span></div></div><div class="skills-cat-row">${catBlocks}</div>`;
+    panel.innerHTML=`<div class="skills-summary"><div class="skills-summary-item"><span class="skills-summary-val">${k2.length}</span><span class="skills-summary-lbl">Skills</span></div><div class="skills-summary-item"><span class="skills-summary-val">${avg2}</span><span class="skills-summary-lbl">Avg Score</span></div><div class="skills-summary-item"><span class="skills-summary-val">${expert2}</span><span class="skills-summary-lbl">Expert (8+)</span></div><div class="skills-summary-item"><span class="skills-summary-val">${cats2.length}</span><span class="skills-summary-lbl">Categories</span></div></div>`;
     panel.querySelectorAll('.skill-chip-del').forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();let r={};try{r=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');}catch(_){}delete r[btn.dataset.skill];try{localStorage.setItem(STORAGE_KEY,JSON.stringify(r));}catch(_){}renderPanel();});});
   }
   renderPanel();

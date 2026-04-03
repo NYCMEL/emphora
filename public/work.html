@@ -152,13 +152,15 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 const EKEY=`emphora_employment_${user.email}`;
 let emp={current:{company:'',title:'',from:'',description:''},previous:[]};
 try{const s=localStorage.getItem(EKEY);if(s)emp={...emp,...JSON.parse(s)};}catch(_){}
-if((!emp.current||!emp.current.company)&&emp.previous&&emp.previous.length>0){
-  const sorted=[...emp.previous].sort((a,b)=>(b.from||'').localeCompare(a.from||''));
-  const promoted=sorted[0];
-  emp.current={company:promoted.company,title:promoted.title,from:promoted.from,description:promoted.description};
-  emp.previous=emp.previous.filter(p=>p.company!==promoted.company||p.from!==promoted.from);
+(function ensureCurrentEmployer(){
+  if (emp.current && emp.current.company) return;
+  const prev = (emp.previous||[]).filter(p=>p.company);
+  if (!prev.length) return;
+  const sorted = [...prev].sort((a,b)=>(b.from||'').localeCompare(a.from||''));
+  emp.current = {company:sorted[0].company, title:sorted[0].title, from:sorted[0].from, description:sorted[0].description};
+  emp.previous = emp.previous.filter(p=>p.company!==sorted[0].company||p.from!==sorted[0].from);
   try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}
-}
+})();
 const empBody=document.getElementById('employment-body');
 const empEditBtn=document.getElementById('employment-edit-btn');
 function fmtDate(d){return d?new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short'}):''}
