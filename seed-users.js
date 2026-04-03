@@ -81,4 +81,7 @@ module.exports = [
   { firstName:'Fynn',       lastName:'T Parker',   email:'fynn.t.parker48@emphora.dev',        password:'test-1234', accountType:'employee',   emphoraScore:20.1, isVerified:1, isActive:1 },
   { firstName:'Glen',       lastName:'T Patel',    email:'glen.t.patel49@emphora.dev',         password:'test-1234', accountType:'employee',   emphoraScore:48.5, isVerified:1, isActive:1 },
   { firstName:'Hale',       lastName:'T Price',    email:'hale.t.price50@emphora.dev',         password:'test-1234', accountType:'employee',   emphoraScore:60.8, isVerified:1, isActive:1 },
+
+  // ── Named real-world account ───────────────────────────────────────────────
+  { firstName:'Mel',        lastName:'M. Heravi',  email:'mel.heravi@emphora.dev',             password:'test-1234', accountType:'employee',   emphoraScore:94.7, isVerified:1, isActive:1 },
 ];
