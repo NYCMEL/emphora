@@ -180,6 +180,7 @@
     <div class="btn-row">
       <button class="btn" id="refresh-btn"><span class="material-icons-round">refresh</span> Refresh</button>
       <button class="btn btn-primary" id="add-btn"><span class="material-icons-round">person_add</span> Add User</button>
+      <button class="btn" id="hide-seed-btn" style="color:var(--primary);border-color:rgba(26,107,204,.35);background:rgba(26,107,204,.06)"><span class="material-icons-round" style="font-size:.95rem">visibility_off</span> Hide Seed Pool</button>
     </div>
   </div>
 
@@ -451,7 +452,9 @@ function getFiltered() {
   const st = document.getElementById('filter-status').value;
   const vr = document.getElementById('filter-verified').value;
 
-  return allUsers.filter(u => {
+  // Filter out seed pool if toggled
+  const visible = hideSeedPool ? allUsers.filter(u => !SEED_POOL_EMAILS.has(u.email)) : allUsers;
+  return visible.filter(u => {
     const nm = `${u.firstName||''} ${u.lastName||''} ${u.email||''}`.toLowerCase();
     if (q  && !nm.includes(q))         return false;
     if (tp && u.accountType !== tp)    return false;
@@ -727,6 +730,30 @@ document.addEventListener('keydown', e => {
   if (e.key==='Escape' && document.getElementById('modal-bg').classList.contains('open'))
     closeModal();
 });
+// Seed pool accounts (employee pool, not the 4 role accounts or David Miller)
+const SEED_POOL_EMAILS = new Set([
+  'sarah.chen@emphora.dev','marcus.webb@emphora.dev','priya.sharma@emphora.dev',
+  'devon.okafor@emphora.dev','lin.xiao@emphora.dev','jordan.reyes@emphora.dev',
+  'aisha.patel@emphora.dev','tom.nakamura@emphora.dev','zoe.andersen@emphora.dev',
+  'kai.osei@emphora.dev'
+]);
+let hideSeedPool = false;
+document.getElementById('hide-seed-btn').addEventListener('click', () => {
+  hideSeedPool = !hideSeedPool;
+  const btn = document.getElementById('hide-seed-btn');
+  const icon = btn.querySelector('.material-icons-round');
+  if (hideSeedPool) {
+    icon.textContent = 'visibility';
+    btn.childNodes[btn.childNodes.length-1].textContent = 'Show Seed Pool';
+    btn.style.background = 'rgba(26,107,204,.14)';
+  } else {
+    icon.textContent = 'visibility_off';
+    btn.childNodes[btn.childNodes.length-1].textContent = 'Hide Seed Pool';
+    btn.style.background = 'rgba(26,107,204,.06)';
+  }
+  render();
+});
+
 ['search','filter-type','filter-status','filter-verified'].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener('input',  render);
