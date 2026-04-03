@@ -292,6 +292,31 @@ document.getElementById('topbar-initials').textContent=ini;
 document.getElementById('hero-name').textContent=`${fn} ${ln}`.trim();
 document.getElementById('hero-sub').textContent=user.email||'';
 document.getElementById('hero-avatar').textContent=ini;
+// ── Auto-seed profile for emphora.dev accounts ───────────────────────────────
+(function seedProfileIfEmpty(){
+  if (!user.email.endsWith('@emphora.dev')) return;
+  if (Number(user.emphoraScore||0) === 0) return;
+  const PKEY = 'emphora_profile_' + user.email;
+  let p = {};
+  try { p = JSON.parse(localStorage.getItem(PKEY)||'{}'); } catch(_){}
+  if (p.phone || p.location || p.title) return;
+  const LOCS=['San Francisco, CA','New York, NY','Austin, TX','Seattle, WA','Boston, MA','Chicago, IL','Denver, CO','Los Angeles, CA','Miami, FL','Portland, OR','Atlanta, GA','Remote'];
+  const TITLES=['Senior Software Engineer','Staff Engineer','Principal Engineer','Engineering Manager','Full-Stack Developer','Frontend Engineer','Backend Engineer','DevOps Engineer','Product Manager','UX Designer','Data Engineer','ML Engineer','Solutions Architect','CTO','VP of Engineering','Tech Lead'];
+  const PHONES=['(415) 555-','(212) 555-','(512) 555-','(206) 555-','(617) 555-','(312) 555-'];
+  const SUMMARIES=['Passionate technologist with a track record of delivering scalable systems and mentoring high-performing teams.','Results-driven engineer focused on building robust, user-centric products that solve real-world problems.','Collaborative problem-solver with deep expertise in distributed systems and a love for clean, maintainable code.','Strategic technical leader bridging the gap between business goals and engineering execution.','Curious and driven developer who thrives in fast-paced environments and embraces continuous learning.','Experienced builder of products at scale, with a strong focus on reliability, performance, and developer experience.'];
+  let rng=user.email.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*31;
+  function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
+  const score=Number(user.emphoraScore||0);
+  p.firstName=p.firstName||user.firstName||'';
+  p.lastName=p.lastName||user.lastName||'';
+  p.phone=PHONES[rand(PHONES.length)]+(String(1000+rand(9000)).slice(0,4));
+  p.location=LOCS[rand(LOCS.length)];
+  p.title=TITLES[rand(score>=80?6:score>=60?10:TITLES.length)];
+  p.summary=SUMMARIES[rand(SUMMARIES.length)];
+  p.linkedin='https://linkedin.com/in/'+(user.firstName||'user').toLowerCase()+'-'+(user.lastName||'').toLowerCase().replace(/\s+/g,'-');
+  try{localStorage.setItem(PKEY,JSON.stringify(p));}catch(_){}
+})();
+
 // ── Stats — computed from real user data ──────────────────────────────────
 document.getElementById('s-score').textContent=user.emphoraScore?Number(user.emphoraScore).toFixed(1):'—';
 (function computeStats(){
@@ -464,9 +489,10 @@ renderErBody();
 // ── Auto-seed skills for users with a score but no localStorage skills ─────────
 (function seedSkillsIfEmpty(){
   const SKEY = 'emphora_skills_' + user.email;
-  try { const ex = JSON.parse(localStorage.getItem(SKEY)||'{}'); if(Object.keys(ex).length > 0) return; } catch(_){}
   const score = Number(user.emphoraScore) || 0;
   if (score === 0) return; // David Miller and truly blank accounts get nothing
+  let existing = {};
+  try { existing = JSON.parse(localStorage.getItem(SKEY)||'{}'); } catch(_){}
 
   // Skill pools by category — assigned based on score bracket
   const POOLS = {
@@ -492,7 +518,7 @@ renderErBody();
 
   cats.forEach(cat => {
     const pool = POOLS[cat];
-    const count = 2 + rand(3); // 2-4 skills per category
+    const count = 3 + rand(4); // 3-6 skills per category
     const picked = new Set();
     for(let i=0; i<count && picked.size < pool.length; i++){
       let idx = rand(pool.length);
@@ -503,7 +529,9 @@ renderErBody();
     }
   });
 
-  try { localStorage.setItem(SKEY, JSON.stringify(skills)); } catch(_){}
+  // Merge: add new skills without overwriting user-edited ones
+  const merged = { ...skills, ...existing };
+  try { localStorage.setItem(SKEY, JSON.stringify(merged)); } catch(_){}
 })();
 
 // ── Skills panel ──────────────────────────────────────────────────────────────
