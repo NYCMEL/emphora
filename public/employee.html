@@ -346,14 +346,63 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 (function(){
   const countEl=document.getElementById('jobs-count');
   const body=document.getElementById('tab-jobs');
-  if(countEl) countEl.style.display='none'; // hide count badge when empty
-  if(body) body.innerHTML=`<div style="padding:2rem 1.1rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic">No applications yet — browse opportunities to get started</div>`;
+  if(!body) return;
+  const isMel = user.email === 'mel.heravi@emphora.dev';
+  if (!isMel) {
+    if(countEl) countEl.style.display='none';
+    body.innerHTML=`<div style="padding:2rem 1.1rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic">No applications yet — browse opportunities to get started</div>`;
+    return;
+  }
+  const JOBS=[
+    {title:'Principal UX Engineer',      company:'Google',              applied:'2026-03-20',status:'Interview', match:96},
+    {title:'Head of Design Systems',     company:'Airbnb',              applied:'2026-03-15',status:'Offer',     match:94},
+    {title:'Lead UX Architect',          company:'Fidelity Investments',applied:'2026-03-10',status:'Reviewing', match:92},
+    {title:'Design Engineering Lead',    company:'Salesforce',          applied:'2026-03-05',status:'Applied',   match:89},
+    {title:'Senior UI/UX Engineer',      company:'Stripe',              applied:'2026-02-28',status:'Applied',   match:87},
+  ];
+  const STATUS_PILL={Applied:'pill-blue',Reviewing:'pill-amber',Interview:'pill-green',Offer:'pill-green',Rejected:'pill-grey'};
+  const STATUS_ICON={Applied:'send',Reviewing:'hourglass_empty',Interview:'event',Offer:'celebration',Rejected:'cancel'};
+  if(countEl){countEl.style.display='';countEl.textContent=JOBS.length;}
+  const fmt=d=>d?new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'';
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  body.innerHTML=`<div style="padding:1.1rem">`+JOBS.map(j=>`
+    <div class="job-row">
+      <div class="job-row-icon"><span class="material-icons-round">${STATUS_ICON[j.status]||'work'}</span></div>
+      <div class="job-row-info"><div class="job-row-title">${esc(j.title)}</div><div class="job-row-company">${esc(j.company)} · Applied ${fmt(j.applied)}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+        <span class="pill ${STATUS_PILL[j.status]||'pill-grey'}">${esc(j.status)}</span>
+        <span style="font-size:.68rem;color:var(--muted)">${j.match}% match</span>
+      </div>
+    </div>`).join('')+`</div>`;
 })();
 
 // ── Seeking Talent ─────────────────────────────────────────────────────────
 (function(){
   const body=document.getElementById('tab-searches');
-  if(body) body.innerHTML=`<div style="padding:2rem 1.1rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic">No employer searches yet — complete your profile to appear in searches</div>`;
+  if(!body) return;
+  const isMel = user.email === 'mel.heravi@emphora.dev';
+  if (!isMel) {
+    body.innerHTML=`<div style="padding:2rem 1.1rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic">No employer searches yet — complete your profile to appear in searches</div>`;
+    return;
+  }
+  const COLORS=['#1A6BCC','#00897B','#C2185B','#673AB7','#E65100','#2E7D32'];
+  const SEARCHES=[
+    {company:'Goldman Sachs',     role:'Looking for: Lead UX Engineer',           time:'1 hr ago',  color:COLORS[0]},
+    {company:'JPMorgan Chase',    role:'Looking for: Design Systems Lead',         time:'3 hrs ago', color:COLORS[1]},
+    {company:'Fidelity',          role:'Looking for: Principal UX Architect',      time:'5 hrs ago', color:COLORS[2]},
+    {company:'Morgan Stanley',    role:'Looking for: Front-End UX Engineer',       time:'Yesterday', color:COLORS[3]},
+    {company:'Barclays',          role:'Looking for: Senior Interaction Designer',  time:'2 days ago',color:COLORS[4]},
+    {company:'American Express',  role:'Looking for: UX Strategy Lead',            time:'3 days ago',color:COLORS[5]},
+  ];
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  body.innerHTML=`<div style="padding:1.1rem">`+SEARCHES.map(s=>{
+    const ini=s.company.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="search-row">
+      <div class="search-avatar" style="background:${s.color}">${ini}</div>
+      <div class="search-info"><div class="search-company">${esc(s.company)}</div><div class="search-role">${esc(s.role)}</div></div>
+      <div class="search-time">${esc(s.time)}</div>
+    </div>`;
+  }).join('')+`</div>`;
 })();
 
 // ── Competency Scores — derived from skills ───────────────────────────────────
