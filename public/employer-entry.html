@@ -287,8 +287,7 @@ document.getElementById('btn-save').addEventListener('click',()=>{
   else if(updated.company||updated.title) emp.previous.push(updated);
   try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}
   try{localStorage.setItem(RKEY,JSON.stringify(rating));}catch(_){}
-  const tag=document.getElementById('saved-tag');tag.classList.add('show');
-  setTimeout(()=>{tag.classList.remove('show');window.location.href='work.html';},900);
+  window.location.href='work.html';
 });
 document.getElementById('btn-delete').addEventListener('click',()=>{
   const name=emp.previous[prevIdx]?.company||'this employer';
