@@ -113,16 +113,7 @@
     </div>
     <div class="section-body" id="employment-body"></div>
   </div>
-  <div class="er-section">
-    <div class="er-header" style="justify-content:space-between">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="er-icon"><span class="material-icons-round">rate_review</span></div>
-        <div><div class="er-title">Rate Your Employer</div><div class="er-subtitle">Anonymous · helps the Emphora community</div></div>
-      </div>
-      <a id="rate-now-btn" href="#" class="profile-edit-btn" style="text-decoration:none;flex-shrink:0" title="Set your current employer first"><span class="material-icons-round">rate_review</span>Rate Now</a>
-    </div>
-    <div class="er-body" id="er-body"></div>
-  </div>
+
 </div>
 <script>
 'use strict';
@@ -184,7 +175,10 @@ function renderEmpView(){
     const ratingBadge = avg > 0
       ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:700;color:${scoreCol(avg)};background:${scoreCol(avg)}18;border:1px solid ${scoreCol(avg)}44;border-radius:20px;padding:2px 8px">
           <span class="material-icons-round" style="font-size:.75rem">star</span>${avg.toFixed(1)}
-        </span>` : '';
+        </span>`
+      : `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;font-weight:700;color:#EF5350;background:#EF535012;border:1px solid #EF535044;border-radius:20px;padding:2px 8px">
+          <span class="material-icons-round" style="font-size:.75rem">radio_button_unchecked</span>Not Rated
+        </span>`;
     const commentBadge = rdata.notes && rdata.notes.trim()
       ? `<span title="${esc(rdata.notes)}" style="display:inline-flex;align-items:center;color:var(--muted);opacity:.7">
           <span class="material-icons-round" style="font-size:.95rem">comment</span>
@@ -242,7 +236,7 @@ function renderEmpEdit(){
     empBody.innerHTML=fieldBlock('Current Employer',emp.current,'cur',true)+(emp.previous||[]).map((p,i)=>fieldBlock(`Previous Employer ${i+1}`,p,i,false)).join('')+`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.25rem"><button class="profile-save-btn" id="emp-save-btn"><span class="material-icons-round">save</span>Save</button><button class="profile-edit-btn" id="emp-add-btn"><span class="material-icons-round">add</span>Add Previous Employer</button><button class="profile-cancel-btn" id="emp-cancel-btn">Cancel</button></div>`;
     empBody.querySelectorAll('[data-remove]').forEach(btn=>{btn.addEventListener('click',()=>{collect();emp.previous.splice(Number(btn.dataset.remove),1);rebuild();});});
     document.getElementById('emp-add-btn')?.addEventListener('click',()=>{collect();emp.previous.push(EMPTY());rebuild();});
-    document.getElementById('emp-save-btn')?.addEventListener('click',()=>{collect();emp.previous=emp.previous.filter(p=>p.company||p.title);try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}if(empEditBtn)empEditBtn.style.display='';renderEmpView();renderER();});
+    document.getElementById('emp-save-btn')?.addEventListener('click',()=>{collect();emp.previous=emp.previous.filter(p=>p.company||p.title);try{localStorage.setItem(EKEY,JSON.stringify(emp));}catch(_){}if(empEditBtn)empEditBtn.style.display='';renderEmpView();});
     document.getElementById('emp-cancel-btn')?.addEventListener('click',()=>{if(empEditBtn)empEditBtn.style.display='';renderEmpView();});
   }
   rebuild();
@@ -333,7 +327,6 @@ function renderER(){
   body.querySelector('#er-save-btn')?.addEventListener('click',()=>{rating.notes=body.querySelector('#er-notes')?.value.trim()||'';try{localStorage.setItem(RKEY,JSON.stringify(rating));}catch(_){}const tag=document.getElementById('er-saved-tag');if(tag){tag.classList.add('show');setTimeout(()=>tag.classList.remove('show'),2200);}erEditing=false;renderER();});
   body.querySelector('#er-clear-btn')?.addEventListener('click',()=>{if(!confirm('Clear your employer rating?'))return;rating={...DEFAULTS};try{localStorage.removeItem(RKEY);}catch(_){}erEditing=false;renderER();});
 }
-renderER();
 </script>
 </body>
 </html>
