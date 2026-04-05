@@ -215,10 +215,10 @@
     .em-right { padding: 1.25rem 1.25rem 3rem; }
 
     .em-right-head {
-      margin-bottom: 1rem;
       position: sticky; top: var(--topH); z-index: 90;
       background: var(--bg); padding: .6rem 0 .4rem;
       border-bottom: 1px solid var(--bd); margin-bottom: .85rem;
+      overflow: visible;
     }
     .em-right-head h1 {
       font-family: 'DM Serif Display', serif;
@@ -458,11 +458,7 @@
   <a href="employee.html" style="font-size:.8rem;color:var(--mu,#7A8FA6);text-decoration:none;white-space:nowrap" onmouseover="this.style.color='#1A6BCC'" onmouseout="this.style.color='var(--mu,#7A8FA6)'">Employee Dashboard</a>
   <span style="color:var(--bd,#D0DCE8);margin:0 4px;font-size:.85rem;user-select:none">›</span>
   <span style="font-size:.8rem;font-weight:600;color:var(--tx,#0D1B2A);white-space:nowrap">My Skills</span>
-  <div class="em-topbar-search-wrap">
-    <span class="em-topbar-search-icon"><span class="material-icons-round">search</span></span>
-    <input class="em-topbar-search" id="em-header-search" type="search" placeholder="Find a rated skill…" autocomplete="off" aria-label="Search rated skills"/>
-    <button class="em-topbar-search-clear" id="em-header-search-clear" aria-label="Clear search"><span class="material-icons-round">close</span></button>
-  </div>
+
   <div class="em-spacer"></div>
   <span class="em-saved-tag" id="saved-tag"><span class="material-icons-round">check_circle</span>Auto-saved</span>
   <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 3px 3px 10px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
@@ -498,7 +494,7 @@
         <h1>Skill Ratings</h1>
         <p class="em-right-sub" id="em-sub">Select skills from the left, then click any pill to rate it</p>
       </div>
-      <div class="em-custom-wrap-rel" style="position:relative;min-width:260px;max-width:380px;flex:1">
+      <div class="em-custom-wrap-rel" style="position:relative;min-width:220px;max-width:340px;flex:1;align-self:center">
         <span class="material-icons-round" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.9rem;color:var(--mu);pointer-events:none">search</span>
         <input type="text" id="em-custom-input"
           placeholder="Search or add a skill…" maxlength="60" autocomplete="off"
@@ -1124,30 +1120,9 @@ document.getElementById('em-search').addEventListener('input', e => {
 });
 
 /* ── Header search — filters right panel pills live ─────────────────────── */
-const headerSearch = document.getElementById('em-header-search');
-const headerClear  = document.getElementById('em-header-search-clear');
+const headerSearch = null; // removed — search moved to Skill Ratings panel
+const headerClear  = null;
 
-headerSearch.addEventListener('input', () => {
-  const q = headerSearch.value.trim();
-  headerClear.classList.toggle('show', q.length > 0);
-  filterRightPanel(q);
-});
-
-headerSearch.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    headerSearch.value = '';
-    headerClear.classList.remove('show');
-    filterRightPanel('');
-    headerSearch.blur();
-  }
-});
-
-headerClear.addEventListener('click', () => {
-  headerSearch.value = '';
-  headerClear.classList.remove('show');
-  filterRightPanel('');
-  headerSearch.focus();
-});
 
 function filterRightPanel(q) {
   const lq = q.toLowerCase().trim();
@@ -1176,6 +1151,7 @@ buildLeft();
 renderRight();
 </script>
 
+<script>
 // Logo always goes to user's own dashboard
 (function() {
   const DASH = { employee:'employee.html', employer:'employer.html', researcher:'researcher.html', admin:'admin.html' };
@@ -1185,5 +1161,6 @@ renderRight();
     if (logoEl && u) logoEl.href = DASH[u.accountType] || 'employee.html';
   } catch(_) {}
 })();
+</script>
 </body>
 </html>
