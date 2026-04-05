@@ -84,4 +84,33 @@ module.exports = [
 
   // ── Named real-world account ───────────────────────────────────────────────
   { firstName:'Mel',        lastName:'M. Heravi',  email:'mel.heravi@emphora.dev',             password:'test-1234', accountType:'employee',   emphoraScore:94.7, isVerified:1, isActive:1 },
+  // ── Employer accounts — one per seeded company ────────────────────────────
+  { firstName:'Melify',      lastName:'LLC',          email:'hr@melify.emphora.dev',              password:'test-1234', accountType:'employer', emphoraScore:92.0, isVerified:1, isActive:1 },
+  { firstName:'Fiserv',      lastName:'Recruiting',   email:'hr@fiserv.emphora.dev',              password:'test-1234', accountType:'employer', emphoraScore:88.0, isVerified:1, isActive:1 },
+  { firstName:'Orion',       lastName:'Inc.',         email:'hr@orion.emphora.dev',               password:'test-1234', accountType:'employer', emphoraScore:85.0, isVerified:1, isActive:1 },
+  { firstName:'JPMorgan',    lastName:'Chase',        email:'hr@jpmorgan.emphora.dev',            password:'test-1234', accountType:'employer', emphoraScore:91.0, isVerified:1, isActive:1 },
+  { firstName:'DTCC',        lastName:'Recruiting',   email:'hr@dtcc.emphora.dev',               password:'test-1234', accountType:'employer', emphoraScore:84.0, isVerified:1, isActive:1 },
+  { firstName:'Barclays',    lastName:'Bank',         email:'hr@barclays.emphora.dev',            password:'test-1234', accountType:'employer', emphoraScore:87.0, isVerified:1, isActive:1 },
+  { firstName:'Fannie',      lastName:'Mae',          email:'hr@fanniemae.emphora.dev',           password:'test-1234', accountType:'employer', emphoraScore:83.0, isVerified:1, isActive:1 },
+  { firstName:'Fidelity',    lastName:'Investments',  email:'hr@fidelity.emphora.dev',            password:'test-1234', accountType:'employer', emphoraScore:90.0, isVerified:1, isActive:1 },
+  { firstName:'Acme',        lastName:'Corp',         email:'hr@acmecorp.emphora.dev',            password:'test-1234', accountType:'employer', emphoraScore:74.0, isVerified:1, isActive:1 },
+  { firstName:'TechNova',    lastName:'Inc.',         email:'hr@technova.emphora.dev',            password:'test-1234', accountType:'employer', emphoraScore:82.0, isVerified:1, isActive:1 },
+  { firstName:'Brightline',  lastName:'Systems',      email:'hr@brightline.emphora.dev',          password:'test-1234', accountType:'employer', emphoraScore:79.0, isVerified:1, isActive:1 },
+  { firstName:'Apex',        lastName:'Digital',      email:'hr@apexdigital.emphora.dev',         password:'test-1234', accountType:'employer', emphoraScore:77.0, isVerified:1, isActive:1 },
+  { firstName:'Quantum',     lastName:'Works',        email:'hr@quantumworks.emphora.dev',        password:'test-1234', accountType:'employer', emphoraScore:81.0, isVerified:1, isActive:1 },
+  { firstName:'Meridian',    lastName:'Labs',         email:'hr@meridianlabs.emphora.dev',        password:'test-1234', accountType:'employer', emphoraScore:78.0, isVerified:1, isActive:1 },
+  { firstName:'Solstice',    lastName:'AI',           email:'hr@solsticeai.emphora.dev',          password:'test-1234', accountType:'employer', emphoraScore:86.0, isVerified:1, isActive:1 },
+  { firstName:'Ironclad',    lastName:'Tech',         email:'hr@ironcladtech.emphora.dev',        password:'test-1234', accountType:'employer', emphoraScore:76.0, isVerified:1, isActive:1 },
+  { firstName:'Vantage',     lastName:'Solutions',    email:'hr@vantagesolutions.emphora.dev',    password:'test-1234', accountType:'employer', emphoraScore:80.0, isVerified:1, isActive:1 },
+  { firstName:'Nexus',       lastName:'Corp',         email:'hr@nexuscorp.emphora.dev',           password:'test-1234', accountType:'employer', emphoraScore:75.0, isVerified:1, isActive:1 },
+  { firstName:'Pinnacle',    lastName:'Software',     email:'hr@pinnaclesoftware.emphora.dev',    password:'test-1234', accountType:'employer', emphoraScore:83.0, isVerified:1, isActive:1 },
+  { firstName:'Atlas',       lastName:'Engineering',  email:'hr@atlasengineering.emphora.dev',    password:'test-1234', accountType:'employer', emphoraScore:78.0, isVerified:1, isActive:1 },
+  { firstName:'Horizon',     lastName:'Dynamics',     email:'hr@horizondynamics.emphora.dev',     password:'test-1234', accountType:'employer', emphoraScore:77.0, isVerified:1, isActive:1 },
+  { firstName:'Vertex',      lastName:'Technologies', email:'hr@vertextech.emphora.dev',          password:'test-1234', accountType:'employer', emphoraScore:82.0, isVerified:1, isActive:1 },
+  { firstName:'Crestwood',   lastName:'Digital',      email:'hr@crestwooddigital.emphora.dev',    password:'test-1234', accountType:'employer', emphoraScore:74.0, isVerified:1, isActive:1 },
+  { firstName:'Lighthouse',  lastName:'Analytics',    email:'hr@lighthouseanalytics.emphora.dev', password:'test-1234', accountType:'employer', emphoraScore:80.0, isVerified:1, isActive:1 },
+  { firstName:'Cascade',     lastName:'Software',     email:'hr@cascadesoftware.emphora.dev',     password:'test-1234', accountType:'employer', emphoraScore:76.0, isVerified:1, isActive:1 },
+  { firstName:'Summit',      lastName:'Tech',         email:'hr@summittech.emphora.dev',          password:'test-1234', accountType:'employer', emphoraScore:79.0, isVerified:1, isActive:1 },
+  { firstName:'Ember',       lastName:'Labs',         email:'hr@emberlabs.emphora.dev',           password:'test-1234', accountType:'employer', emphoraScore:72.0, isVerified:1, isActive:1 },
+
 ];
