@@ -156,6 +156,28 @@
     .search-company{font-size:.84rem;font-weight:600;color:var(--text);}
     .search-role{font-size:.74rem;color:var(--muted);}
     .search-time{font-size:.7rem;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+
+    /* ── Skills Heatmap ─────────────────────────────────────────────────────── */
+    .hm-grid { display:flex; flex-direction:column; gap:1px; }
+    .hm-row { display:flex; align-items:center; gap:10px; }
+    .hm-cat-label { font-size:.72rem; font-weight:600; color:var(--text); width:160px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hm-cells { display:flex; gap:1px; flex:1; align-items:center; }
+    .hm-cell {
+      height:28px; border-radius:0; position:relative; flex-shrink:0;
+      cursor:default; transition:opacity .12s;
+    }
+    .hm-cell:hover { opacity:.8; }
+    .hm-cell:hover .hm-tooltip { opacity:1; }
+    .hm-tooltip {
+      position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%);
+      background:rgba(13,27,42,.88); color:#fff; font-size:.68rem; font-weight:500;
+      white-space:nowrap; padding:4px 8px; border-radius:6px;
+      opacity:0; transition:opacity .15s; pointer-events:none; z-index:20;
+    }
+    .hm-avg { font-size:.7rem; font-weight:700; color:var(--muted); width:28px; text-align:right; flex-shrink:0; }
+    .hm-legend { display:flex; align-items:center; gap:6px; margin-top:10px; font-size:.68rem; color:var(--muted); }
+    .hm-legend-cells { display:flex; gap:2px; }
+    .hm-legend-cell { width:20px; height:10px; border-radius:0; margin-right:1px; }
   </style>
 </head>
 <body>
@@ -253,6 +275,13 @@
     <div class="section-body skills-body" id="skills-panel-inner">
       <div class="skills-empty"><span class="material-icons-round">psychology</span><span>No skills rated yet — <a href="skills.html" style="color:var(--primary)">add some</a></span></div>
     </div>
+  
+  <!-- ── SKILLS HEATMAP ── -->
+  <div class="section" id="skills-heatmap-section" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="material-icons-round">grid_view</span>Skills Heat Map</div>
+    </div>
+    <div class="section-body" style="padding:1rem 1.1rem" id="skills-heatmap-body"></div>
   </div>
 
 </div>
@@ -781,6 +810,86 @@ renderErBody(); // initial render (may be before seed runs for already-seeded us
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') renderPanel(); });
   window.addEventListener('storage', e=>{ if(e.key===STORAGE_KEY) renderPanel(); });
 })();
+
+// ── Skills Heatmap ────────────────────────────────────────────────────────────
+(function renderHeatmap(){
+  const section = document.getElementById('skills-heatmap-section');
+  const body    = document.getElementById('skills-heatmap-body');
+  if (!section || !body) return;
+
+  let ratings = {};
+  try { ratings = JSON.parse(localStorage.getItem('emphora_skills_' + user.email) || '{}'); } catch(_) {}
+  const keys = Object.keys(ratings);
+  if (keys.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = '';
+
+  const bycat = {};
+  keys.forEach(k => {
+    const cat = ratings[k].category || 'Other';
+    if (!bycat[cat]) bycat[cat] = [];
+    bycat[cat].push({ name: k, score: ratings[k].score });
+  });
+
+  function scoreColor(s) {
+    const stops = [[1,'#EF5350'],[3,'#FF8A65'],[5,'#FFA726'],[7,'#9CCC65'],[8,'#26A69A'],[9,'#1E88E5'],[10,'#1A6BCC']];
+    s = Math.max(1, Math.min(10, s));
+    for (let i=1; i<stops.length; i++) {
+      if (s <= stops[i][0]) {
+        const t = (s - stops[i-1][0]) / (stops[i][0] - stops[i-1][0]);
+        return lerpColor(stops[i-1][1], stops[i][1], t);
+      }
+    }
+    return stops[stops.length-1][1];
+  }
+  function lerpColor(a, b, t) {
+    const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
+    const r=Math.round((ah>>16)+(((bh>>16)-(ah>>16))*t));
+    const g=Math.round(((ah>>8)&0xff)+((((bh>>8)&0xff)-((ah>>8)&0xff))*t));
+    const bl=Math.round((ah&0xff)+(((bh&0xff)-(ah&0xff))*t));
+    return '#'+[r,g,bl].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+
+  const cats = Object.keys(bycat).sort();
+  // Each row: category label | colored bars (width ∝ score, height fixed) | avg
+  const rows = cats.map(cat => {
+    const skills = bycat[cat].sort((a,b) => a.score - b.score);
+    const avg = (skills.reduce((s,x)=>s+x.score,0)/skills.length).toFixed(1);
+    // Group by score, sort score asc (low left)
+    const scoreGroups = {};
+    skills.forEach(s => {
+      if (!scoreGroups[s.score]) scoreGroups[s.score] = [];
+      scoreGroups[s.score].push(s.name);
+    });
+    const sortedScores = Object.keys(scoreGroups).map(Number).sort((a,b)=>a-b);
+    const cells = sortedScores.map(score => {
+      const names = scoreGroups[score];
+      const w = Math.max(8, Math.round(score * 5)) * names.length;
+      const tooltip = names.map(n => `${esc(n)}&nbsp;·&nbsp;${score}`).join('<br>');
+      return `<div class="hm-cell" style="width:${w}px;background:${scoreColor(score)}">
+        <div class="hm-tooltip" style="text-align:left">${tooltip}</div>
+      </div>`;
+    }).join('');
+    return `<div class="hm-row">
+      <div class="hm-cat-label">${esc(cat)}</div>
+      <div class="hm-cells">${cells}</div>
+      <div class="hm-avg">${avg}</div>
+    </div>`;
+  }).join('');
+
+  const legend = `<div class="hm-legend">
+    <span>Low</span>
+    <div class="hm-legend-cells">${[1,2,3,4,5,6,7,8,9,10].map(s=>
+      `<div class="hm-legend-cell" style="background:${scoreColor(s)}"></div>`
+    ).join('')}</div>
+    <span>High</span>
+  </div>`;
+
+  body.innerHTML = `<div class="hm-grid">${rows}${legend}</div>`;
+
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') renderHeatmap(); });
+  window.addEventListener('storage', e=>{ if(e.key==='emphora_skills_'+user.email) renderHeatmap(); });
+})();
+
 </script>
 <script src="js/avatar-upload.js"></script>
 <script>
