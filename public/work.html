@@ -171,11 +171,34 @@ function renderEmpView(){
   function cardHTML(obj,idx,isCurrent){
     const isSet=obj.company||obj.title;
     const pf=fmtDate(obj.from),pt=obj.to?fmtDate(obj.to):'Present';
+    // Load rating for this employer
+    const rkey = isCurrent
+      ? `emphora_employer_rating_${user.email}`
+      : `emphora_employer_rating_${user.email}_prev_${idx}`;
+    let rdata = {};
+    try { rdata = JSON.parse(localStorage.getItem(rkey)||'{}'); } catch(_) {}
+    const dims = ['manager','company','environment'];
+    const scored = dims.map(d=>rdata[d]||0).filter(v=>v>0);
+    const avg = scored.length ? (scored.reduce((a,b)=>a+b,0)/scored.length) : 0;
+    function scoreCol(s){if(s<=0)return 'var(--muted)';if(s<=3)return '#EF5350';if(s<=5)return '#FFA726';if(s<=7)return '#9CCC65';return '#1A6BCC';}
+    const ratingBadge = avg > 0
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:700;color:${scoreCol(avg)};background:${scoreCol(avg)}18;border:1px solid ${scoreCol(avg)}44;border-radius:20px;padding:2px 8px">
+          <span class="material-icons-round" style="font-size:.75rem">star</span>${avg.toFixed(1)}
+        </span>` : '';
+    const commentBadge = rdata.notes && rdata.notes.trim()
+      ? `<span title="${esc(rdata.notes)}" style="display:inline-flex;align-items:center;color:var(--muted);opacity:.7">
+          <span class="material-icons-round" style="font-size:.95rem">comment</span>
+        </span>` : '';
     return `<div class="employer-card${isCurrent?' current':''}" onclick="window.location.href='employer-entry.html?idx=${isCurrent?'cur':idx}'">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-        <div style="flex:1;min-width:0">
-          <div class="employer-card-title">${isSet?esc(obj.company||obj.title):'<span style="color:var(--muted);font-style:italic;font-weight:400">Current employer not set</span>'}</div>
-          ${obj.title&&obj.company?`<div class="employer-card-sub">${esc(obj.title)}</div>`:''}
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div>
+            <div class="employer-card-title" style="display:flex;align-items:center;gap:6px">
+              ${isSet?esc(obj.company||obj.title):'<span style="color:var(--muted);font-style:italic;font-weight:400">Current employer not set</span>'}
+              ${ratingBadge}${commentBadge}
+            </div>
+            ${obj.title&&obj.company?`<div class="employer-card-sub">${esc(obj.title)}</div>`:''}
+          </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
           ${isCurrent&&obj.from?`<span class="employer-card-badge">${pf} – Present</span>`:''}
