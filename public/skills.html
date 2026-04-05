@@ -424,6 +424,22 @@
     }
     .em-custom-btn:hover { filter: brightness(1.1); }
     .em-custom-btn .material-icons-round { font-size: .8rem; }
+    .em-typeahead {
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+      background: var(--sf); border: 1.5px solid var(--pr);
+      border-radius: 10px; z-index: 200; max-height: 220px;
+      overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    }
+    .em-typeahead-item {
+      padding: 7px 12px; cursor: pointer; font-size: .82rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--bd);
+    }
+    .em-typeahead-item:last-child { border-bottom: none; }
+    .em-typeahead-item:hover, .em-typeahead-item.active { background: rgba(26,107,204,.08); }
+    .em-typeahead-item .em-ta-cat { font-size: .68rem; color: var(--mu); }
+    .em-typeahead-item .em-ta-rated { font-size: .68rem; color: var(--pr); font-weight:600; }
+    .em-custom-wrap-rel { position: relative; flex: 1; }
 
     /* ─── Animations ─────────────────────────────────────────────────────── */
     @keyframes em-fadein {
@@ -477,9 +493,19 @@
 
   <!-- ── Right: rated skills ── -->
   <main class="em-right">
-    <div class="em-right-head">
-      <h1>Skill Ratings</h1>
-      <p class="em-right-sub" id="em-sub">Select skills from the left, then click any pill to rate it</p>
+    <div class="em-right-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <h1>Skill Ratings</h1>
+        <p class="em-right-sub" id="em-sub">Select skills from the left, then click any pill to rate it</p>
+      </div>
+      <div class="em-custom-wrap-rel" style="position:relative;min-width:260px;max-width:380px;flex:1">
+        <span class="material-icons-round" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.9rem;color:var(--mu);pointer-events:none">search</span>
+        <input type="text" id="em-custom-input"
+          placeholder="Search or add a skill…" maxlength="60" autocomplete="off"
+          style="width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:7px 12px 7px 34px;background:var(--sf2);color:var(--tx);font:inherit;font-size:.82rem;outline:none;transition:border-color .15s" onfocus="this.style.borderColor='var(--pr)'" onblur="this.style.borderColor='var(--bd)'"/>
+        <div class="em-typeahead" id="em-typeahead" style="display:none"></div>
+      </div>
+      <button id="em-custom-btn" style="display:none"></button>
     </div>
 
     <!-- Summary -->
@@ -493,15 +519,7 @@
     <!-- Skill sections by category -->
     <div id="em-grid"></div>
 
-    <!-- Custom entry -->
-    <div class="em-custom" id="em-custom-wrap">
-      <span class="material-icons-round" style="color:var(--mu);font-size:1rem;flex-shrink:0">add_circle_outline</span>
-      <input type="text" id="em-custom-input"
-        placeholder="Add a custom skill not in the list…" maxlength="60"/>
-      <button class="em-custom-btn" id="em-custom-btn">
-        <span class="material-icons-round">add</span>Add
-      </button>
-    </div>
+
   </main>
 </div>
 
@@ -995,18 +1013,100 @@ window.addEventListener('beforeunload', () => {
   persistRatings();
 });
 
-/* ── Custom entry ────────────────────────────────────────────────────────── */
-function addCustom() {
-  const input = document.getElementById('em-custom-input');
-  const val   = input.value.trim();
-  if (!val) { input.focus(); return; }
-  input.value = '';
-  addSkill(val, 'Custom');
-}
-document.getElementById('em-custom-btn').addEventListener('click', addCustom);
-document.getElementById('em-custom-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); addCustom(); }
-});
+/* ── Custom entry + typeahead ────────────────────────────────────────────── */
+(function(){
+  const input    = document.getElementById('em-custom-input');
+  const dropdown = document.getElementById('em-typeahead');
+  const btn      = document.getElementById('em-custom-btn');
+  let activeIdx  = -1;
+  let taItems    = [];
+
+  // Build flat list of all catalogue skills
+  function allSkills() {
+    const out = [];
+    CATALOGUE.forEach(g => g.items.forEach(item => out.push({ skill: item, cat: g.cat })));
+    return out;
+  }
+
+  function showDropdown(q) {
+    const lq = q.toLowerCase().trim();
+    if (!lq) { dropdown.style.display = 'none'; return; }
+    const all = allSkills();
+    const matches = all.filter(s => s.skill.toLowerCase().includes(lq)).slice(0, 12);
+    // Also allow custom entry if not an exact match
+    const exact = all.find(s => s.skill.toLowerCase() === lq);
+    if (!exact && q.trim()) matches.push({ skill: q.trim(), cat: 'Custom', custom: true });
+    if (!matches.length) { dropdown.style.display = 'none'; return; }
+
+    taItems = matches;
+    activeIdx = -1;
+    dropdown.innerHTML = matches.map((m, i) => {
+      const rated = ratings[m.skill];
+      return `<div class="em-typeahead-item" data-idx="${i}">
+        <span>${esc(m.skill)}</span>
+        <span>${rated
+          ? `<span class="em-ta-rated">✓ ${rated.score}</span>`
+          : `<span class="em-ta-cat">${esc(m.cat)}</span>`}
+        </span>
+      </div>`;
+    }).join('');
+    dropdown.style.display = '';
+
+    dropdown.querySelectorAll('.em-typeahead-item').forEach(el => {
+      el.addEventListener('mousedown', e => {
+        e.preventDefault();
+        selectItem(Number(el.dataset.idx));
+      });
+    });
+  }
+
+  function selectItem(idx) {
+    const m = taItems[idx];
+    if (!m) return;
+    input.value = '';
+    dropdown.style.display = 'none';
+    activeIdx = -1;
+    addSkill(m.skill, m.custom ? 'Custom' : m.cat);
+  }
+
+  function addCustom() {
+    const val = input.value.trim();
+    if (!val) { input.focus(); return; }
+    // If there's an active typeahead item use it, else add as custom
+    if (activeIdx >= 0 && taItems[activeIdx]) {
+      selectItem(activeIdx);
+    } else {
+      input.value = '';
+      dropdown.style.display = 'none';
+      addSkill(val, 'Custom');
+    }
+  }
+
+  input.addEventListener('input', () => showDropdown(input.value));
+  input.addEventListener('focus', () => showDropdown(input.value));
+  input.addEventListener('blur',  () => setTimeout(() => { dropdown.style.display = 'none'; }, 150));
+
+  input.addEventListener('keydown', e => {
+    const items = dropdown.querySelectorAll('.em-typeahead-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, taItems.length - 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, -1);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIdx));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      addCustom();
+    } else if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+      activeIdx = -1;
+    }
+  });
+
+  btn.addEventListener('click', addCustom);
+})();
 
 /* ── Scroll to pill (accounts for sticky topbar) ────────────────────────── */
 function scrollToPill(skill) {
