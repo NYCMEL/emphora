@@ -1,184 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-	<meta charset="UTF-8"/>
-	<meta name="viewport" content="width=device-width,initial-scale=1"/>
-	<title>Emphora — Post a Job</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com"/>
-	<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
-	<link rel="stylesheet" href="css/job-post.css"/>
-    </head>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Emphora — Post a Job</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link rel="stylesheet" href="css/job-post.css"/>
+</head>
+<body>
+<nav class="topbar">
+  <a href="employer.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
+  <span class="bc-sep">›</span>
+  <a href="employer.html" class="bc-link">Employer Dashboard</a>
+  <span class="bc-sep">›</span>
+  <span class="bc-current" style="cursor:pointer" title="Click to fill test data" onclick="document.querySelector('.jp-right-head h1').click()">Post a Job</span>
+  <div class="spacer"></div>
+  <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 3px 3px 10px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
+    <div style="display:flex;flex-direction:column;gap:0;text-align:right">
+      <span id="topbar-name" style="font-size:.82rem;font-weight:700;color:var(--text);line-height:1.25"></span>
+      <span id="topbar-email" style="font-size:.68rem;color:var(--muted);line-height:1.25"></span>
+    </div>
+    <div id="topbar-initials" class="avatar" style="opacity:0"></div>
+  </a>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <a href="employer.html" class="icon-btn" title="Back"><span class="material-icons-round">arrow_back</span></a>
+</nav>
 
-    <body>
-	<nav class="topbar">
-	    <a href="employer.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
-	    <span class="bc-sep">›</span>
-	    <a href="employer.html" class="bc-link">Employer Dashboard</a>
-	    <span class="bc-sep">›</span>
-	    <span class="bc-current" style="cursor:pointer" title="Click to fill test data" onclick="document.querySelector('.jp-right-head h1').click()">Post a Job</span>
-	    <div class="spacer"></div>
-	    <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 3px 3px 10px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
-		<div style="display:flex;flex-direction:column;gap:0;text-align:right">
-		    <span id="topbar-name" style="font-size:.82rem;font-weight:700;color:var(--text);line-height:1.25"></span>
-		    <span id="topbar-email" style="font-size:.68rem;color:var(--muted);line-height:1.25"></span>
-		</div>
-		<div id="topbar-initials" class="avatar" style="opacity:0"></div>
-	    </a>
-	    <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
-	    <a href="employer.html" class="icon-btn" title="Back"><span class="material-icons-round">arrow_back</span></a>
-	</nav>
+<div class="jp-layout">
+  <!-- Left: skill picker -->
+  <aside class="jp-left">
+    <div class="jp-left-head">
+      <h2>Required Skills</h2>
+      <div class="jp-search-wrap">
+        <span class="jp-search-ico"><span class="material-icons-round">search</span></span>
+        <input class="jp-search" id="jp-search" type="search" placeholder="Search skills…" autocomplete="off"/>
+      </div>
+    </div>
+    <div class="jp-cats" id="jp-cats"></div>
+  </aside>
 
-	<div class="jp-layout">
-	    <!-- Left: skill picker -->
-	    <aside class="jp-left">
-		<div class="jp-left-head">
-		    <h2>Required Skills</h2>
-		    <div class="jp-search-wrap">
-			<span class="jp-search-ico"><span class="material-icons-round">search</span></span>
-			<input class="jp-search" id="jp-search" type="search" placeholder="Search skills…" autocomplete="off"/>
-		    </div>
-		</div>
-		<div class="jp-cats" id="jp-cats"></div>
-	    </aside>
+  <!-- Right: job form -->
+  <main class="jp-right">
+    <div class="jp-right-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px">
+        <h1 style="margin-bottom:0;cursor:pointer" title="Click to fill with test data">Post a Job</h1>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Role</label>
+        <div class="jpr-wrap" id="jpr-wrap">
+          <div class="jpr-trigger" id="jpr-trigger" style="padding:0;gap:0">
+            <input type="text" id="jpr-search" placeholder="Search or type a role…" autocomplete="off"
+              style="flex:1;border:none;background:transparent;color:var(--text);font:500 .84rem inherit;outline:none;padding:7px 10px;min-width:0"/>
+            <span class="material-icons-round" style="font-size:.85rem;color:var(--muted);padding-right:8px;flex-shrink:0">expand_more</span>
+          </div>
+          <div class="jpr-dropdown" id="jpr-dropdown">
+            <div class="jpr-scroll">
 
-	    <!-- Right: job form -->
-	    <main class="jp-right">
-		<div class="jp-right-head">
-		    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px">
-			<h1 style="margin-bottom:0;cursor:pointer" title="Click to fill with test data">Post a Job</h1>
-			<div style="display:flex;align-items:center;gap:8px">
-			    <label style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Role</label>
-			    <div class="jpr-wrap" id="jpr-wrap">
-				<div class="jpr-trigger" id="jpr-trigger" style="padding:0;gap:0">
-				    <input type="text" id="jpr-search" placeholder="Search or type a role…" autocomplete="off"
-					   style="flex:1;border:none;background:transparent;color:var(--text);font:500 .84rem inherit;outline:none;padding:7px 10px;min-width:0"/>
-				    <span class="material-icons-round" style="font-size:.85rem;color:var(--muted);padding-right:8px;flex-shrink:0">expand_more</span>
-				</div>
-				<div class="jpr-dropdown" id="jpr-dropdown">
-				    <div class="jpr-scroll">
+              <div class="jpr-group"><div class="jpr-group-label">Design &amp; UX</div><div class="jpr-item" data-value="Lead UX Designer">Lead UX Designer</div><div class="jpr-item" data-value="Senior UX Designer">Senior UX Designer</div><div class="jpr-item" data-value="UX Designer">UX Designer</div><div class="jpr-item" data-value="UI Designer">UI Designer</div><div class="jpr-item" data-value="UX Researcher">UX Researcher</div><div class="jpr-item" data-value="Product Designer">Product Designer</div><div class="jpr-item" data-value="Design Systems Lead">Design Systems Lead</div><div class="jpr-item" data-value="Head of Design">Head of Design</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Engineering</div><div class="jpr-item" data-value="Technical Lead">Technical Lead</div><div class="jpr-item" data-value="Senior Software Engineer">Senior Software Engineer</div><div class="jpr-item" data-value="Staff Engineer">Staff Engineer</div><div class="jpr-item" data-value="Principal Engineer">Principal Engineer</div><div class="jpr-item" data-value="Full-Stack Developer">Full-Stack Developer</div><div class="jpr-item" data-value="Frontend Engineer">Frontend Engineer</div><div class="jpr-item" data-value="Backend Engineer">Backend Engineer</div><div class="jpr-item" data-value="UX Engineer">UX Engineer</div><div class="jpr-item" data-value="DevOps Engineer">DevOps Engineer</div><div class="jpr-item" data-value="Solutions Architect">Solutions Architect</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Product &amp; Management</div><div class="jpr-item" data-value="Product Manager">Product Manager</div><div class="jpr-item" data-value="Senior Product Manager">Senior Product Manager</div><div class="jpr-item" data-value="Program Manager">Program Manager</div><div class="jpr-item" data-value="Project Manager">Project Manager</div><div class="jpr-item" data-value="Engineering Manager">Engineering Manager</div><div class="jpr-item" data-value="VP of Engineering">VP of Engineering</div><div class="jpr-item" data-value="CTO">CTO</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Research &amp; Analytics</div><div class="jpr-item" data-value="CDO Research Analyst">CDO Research Analyst</div><div class="jpr-item" data-value="Data Engineer">Data Engineer</div><div class="jpr-item" data-value="Data Scientist">Data Scientist</div><div class="jpr-item" data-value="Business Analyst">Business Analyst</div><div class="jpr-item" data-value="UX Strategist">UX Strategist</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Finance &amp; Operations</div><div class="jpr-item" data-value="FED Auction Specialist">FED Auction Specialist</div><div class="jpr-item" data-value="Treasury Analyst">Treasury Analyst</div><div class="jpr-item" data-value="Financial Systems Analyst">Financial Systems Analyst</div></div>
+            </div>
+          </div>
+          <input type="hidden" id="jp-role-select" value=""/>
+          <input type="hidden" id="jp-title" value=""/>
+        </div>
+        </div>
+      </div>
+      <p>Fill in the details below. Skills selected from the left will be matched against candidate profiles.</p>
+    </div>
 
-					<div class="jpr-group"><div class="jpr-group-label">Design &amp; UX</div><div class="jpr-item" data-value="Lead UX Designer">Lead UX Designer</div><div class="jpr-item" data-value="Senior UX Designer">Senior UX Designer</div><div class="jpr-item" data-value="UX Designer">UX Designer</div><div class="jpr-item" data-value="UI Designer">UI Designer</div><div class="jpr-item" data-value="UX Researcher">UX Researcher</div><div class="jpr-item" data-value="Product Designer">Product Designer</div><div class="jpr-item" data-value="Design Systems Lead">Design Systems Lead</div><div class="jpr-item" data-value="Head of Design">Head of Design</div></div>
-					<div class="jpr-group"><div class="jpr-group-label">Engineering</div><div class="jpr-item" data-value="Technical Lead">Technical Lead</div><div class="jpr-item" data-value="Senior Software Engineer">Senior Software Engineer</div><div class="jpr-item" data-value="Staff Engineer">Staff Engineer</div><div class="jpr-item" data-value="Principal Engineer">Principal Engineer</div><div class="jpr-item" data-value="Full-Stack Developer">Full-Stack Developer</div><div class="jpr-item" data-value="Frontend Engineer">Frontend Engineer</div><div class="jpr-item" data-value="Backend Engineer">Backend Engineer</div><div class="jpr-item" data-value="UX Engineer">UX Engineer</div><div class="jpr-item" data-value="DevOps Engineer">DevOps Engineer</div><div class="jpr-item" data-value="Solutions Architect">Solutions Architect</div></div>
-					<div class="jpr-group"><div class="jpr-group-label">Product &amp; Management</div><div class="jpr-item" data-value="Product Manager">Product Manager</div><div class="jpr-item" data-value="Senior Product Manager">Senior Product Manager</div><div class="jpr-item" data-value="Program Manager">Program Manager</div><div class="jpr-item" data-value="Project Manager">Project Manager</div><div class="jpr-item" data-value="Engineering Manager">Engineering Manager</div><div class="jpr-item" data-value="VP of Engineering">VP of Engineering</div><div class="jpr-item" data-value="CTO">CTO</div></div>
-					<div class="jpr-group"><div class="jpr-group-label">Research &amp; Analytics</div><div class="jpr-item" data-value="CDO Research Analyst">CDO Research Analyst</div><div class="jpr-item" data-value="Data Engineer">Data Engineer</div><div class="jpr-item" data-value="Data Scientist">Data Scientist</div><div class="jpr-item" data-value="Business Analyst">Business Analyst</div><div class="jpr-item" data-value="UX Strategist">UX Strategist</div></div>
-					<div class="jpr-group"><div class="jpr-group-label">Finance &amp; Operations</div><div class="jpr-item" data-value="FED Auction Specialist">FED Auction Specialist</div><div class="jpr-item" data-value="Treasury Analyst">Treasury Analyst</div><div class="jpr-item" data-value="Financial Systems Analyst">Financial Systems Analyst</div></div>
-				    </div>
-				</div>
-				<input type="hidden" id="jp-role-select" value=""/>
-				<input type="hidden" id="jp-title" value=""/>
-			    </div>
-			</div>
-		    </div>
-		    <p>Fill in the details below. Skills selected from the left will be matched against candidate profiles.</p>
-		</div>
+    <!-- Basic Info -->
+    <div class="jp-card">
+      <div class="jp-card-title">Job Details</div>
+      <div class="jp-field-grid">
 
-		<!-- Basic Info -->
-		<div class="jp-card">
-		    <div class="jp-card-title">Job Details</div>
-		    <div class="jp-field-grid">
+        <div class="jp-field">
+          <label class="jp-label" for="jp-dept">Department</label>
+          <input class="jp-input" type="text" id="jp-dept" placeholder="e.g. Product Design"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-type">Employment Type</label>
+          <select class="jp-input" id="jp-type">
+            <option value="Full-Time">Full-Time</option>
+            <option value="Part-Time">Part-Time</option>
+            <option value="Contract">Contract</option>
+            <option value="Internship">Internship</option>
+          </select>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-location">Location</label>
+          <input class="jp-input" type="text" id="jp-location" placeholder="e.g. New York, NY"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-workplace">Workplace Type</label>
+          <select class="jp-input" id="jp-workplace">
+            <option value="On-site">On-site</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Remote">Remote</option>
+            <option value="Remote (US only)">Remote (US only)</option>
+            <option value="Flexible">Flexible</option>
+          </select>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-salary-min">Salary Range (Min)</label>
+          <input class="jp-input" type="text" id="jp-salary-min" placeholder="e.g. $120,000"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-salary-max">Salary Range (Max)</label>
+          <input class="jp-input" type="text" id="jp-salary-max" placeholder="e.g. $160,000"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-reports">Reports To</label>
+          <input class="jp-input" type="text" id="jp-reports" placeholder="e.g. VP of Engineering"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-exp">Min. Years Experience</label>
+          <select class="jp-input" id="jp-exp">
+            <option value="0">Any</option>
+            <option value="1">1+ year</option>
+            <option value="2">2+ years</option>
+            <option value="3">3+ years</option>
+            <option value="5">5+ years</option>
+            <option value="7">7+ years</option>
+            <option value="10">10+ years</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-dept">Department</label>
-			    <input class="jp-input" type="text" id="jp-dept" placeholder="e.g. Product Design"/>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-type">Employment Type</label>
-			    <select class="jp-input" id="jp-type">
-				<option value="Full-Time">Full-Time</option>
-				<option value="Part-Time">Part-Time</option>
-				<option value="Contract">Contract</option>
-				<option value="Internship">Internship</option>
-			    </select>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-location">Location</label>
-			    <input class="jp-input" type="text" id="jp-location" placeholder="e.g. New York, NY"/>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-workplace">Workplace Type</label>
-			    <select class="jp-input" id="jp-workplace">
-				<option value="On-site">On-site</option>
-				<option value="Hybrid">Hybrid</option>
-				<option value="Remote">Remote</option>
-				<option value="Remote (US only)">Remote (US only)</option>
-				<option value="Flexible">Flexible</option>
-			    </select>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-salary-min">Salary Range (Min)</label>
-			    <input class="jp-input" type="text" id="jp-salary-min" placeholder="e.g. $120,000"/>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-salary-max">Salary Range (Max)</label>
-			    <input class="jp-input" type="text" id="jp-salary-max" placeholder="e.g. $160,000"/>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-reports">Reports To</label>
-			    <input class="jp-input" type="text" id="jp-reports" placeholder="e.g. VP of Engineering"/>
-			</div>
-			<div class="jp-field">
-			    <label class="jp-label" for="jp-exp">Min. Years Experience</label>
-			    <select class="jp-input" id="jp-exp">
-				<option value="0">Any</option>
-				<option value="1">1+ year</option>
-				<option value="2">2+ years</option>
-				<option value="3">3+ years</option>
-				<option value="5">5+ years</option>
-				<option value="7">7+ years</option>
-				<option value="10">10+ years</option>
-			    </select>
-			</div>
-		    </div>
-		</div>
+    <!-- Descriptions -->
+    <div class="jp-card">
+      <div class="jp-card-title">Job Description</div>
+      <div class="jp-field-grid">
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-overview">Role Overview *</label>
+          <textarea class="jp-textarea" id="jp-overview" rows="4" placeholder="Summarize the role, its purpose, and what success looks like…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-daytoday">Day-to-Day Responsibilities</label>
+          <textarea class="jp-textarea" id="jp-daytoday" rows="5" placeholder="Describe typical daily tasks and responsibilities…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-requirements">Requirements & Qualifications</label>
+          <textarea class="jp-textarea" id="jp-requirements" rows="4" placeholder="Required education, certifications, experience…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-nice">Nice to Have</label>
+          <textarea class="jp-textarea" id="jp-nice" rows="3" placeholder="Bonus skills or experience that would stand out…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-benefits">Benefits & Perks</label>
+          <textarea class="jp-textarea" id="jp-benefits" rows="3" placeholder="Health, 401k, remote policy, equity, PTO…"></textarea>
+        </div>
+      </div>
+    </div>
 
-		<!-- Descriptions -->
-		<div class="jp-card">
-		    <div class="jp-card-title">Job Description</div>
-		    <div class="jp-field-grid">
-			<div class="jp-field full">
-			    <label class="jp-label" for="jp-overview">Role Overview *</label>
-			    <textarea class="jp-textarea" id="jp-overview" rows="4" placeholder="Summarize the role, its purpose, and what success looks like…"></textarea>
-			</div>
-			<div class="jp-field full">
-			    <label class="jp-label" for="jp-daytoday">Day-to-Day Responsibilities</label>
-			    <textarea class="jp-textarea" id="jp-daytoday" rows="5" placeholder="Describe typical daily tasks and responsibilities…"></textarea>
-			</div>
-			<div class="jp-field full">
-			    <label class="jp-label" for="jp-requirements">Requirements & Qualifications</label>
-			    <textarea class="jp-textarea" id="jp-requirements" rows="4" placeholder="Required education, certifications, experience…"></textarea>
-			</div>
-			<div class="jp-field full">
-			    <label class="jp-label" for="jp-nice">Nice to Have</label>
-			    <textarea class="jp-textarea" id="jp-nice" rows="3" placeholder="Bonus skills or experience that would stand out…"></textarea>
-			</div>
-			<div class="jp-field full">
-			    <label class="jp-label" for="jp-benefits">Benefits & Perks</label>
-			    <textarea class="jp-textarea" id="jp-benefits" rows="3" placeholder="Health, 401k, remote policy, equity, PTO…"></textarea>
-			</div>
-		    </div>
-		</div>
+    <!-- Required skills -->
+    <div class="jp-card">
+      <div class="jp-skills-head">
+        <div class="jp-card-title" style="margin-bottom:0">Required Skills <span id="jp-skill-count" style="font-size:.7rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0"></span></div>
+        <span style="font-size:.72rem;color:var(--muted)">Select from the left panel</span>
+      </div>
+      <div id="jp-skills-panel">
+        <div class="jp-skills-empty">No skills added yet — use the left panel to add required skills</div>
+      </div>
+    </div>
 
-		<!-- Required skills -->
-		<div class="jp-card">
-		    <div class="jp-skills-head">
-			<div class="jp-card-title" style="margin-bottom:0">Required Skills <span id="jp-skill-count" style="font-size:.7rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0"></span></div>
-			<span style="font-size:.72rem;color:var(--muted)">Select from the left panel</span>
-		    </div>
-		    <div id="jp-skills-panel">
-			<div class="jp-skills-empty">No skills added yet — use the left panel to add required skills</div>
-		    </div>
-		</div>
+    <div class="jp-actions">
+      <button class="btn-publish" id="jp-publish"><span class="material-icons-round">publish</span>Publish Job</button>
+      <button class="btn-draft" id="jp-draft"><span class="material-icons-round">save</span>Save as Draft</button>
+      <button class="btn-cancel" onclick="window.location.href='employer.html'">Cancel</button>
+      <a href="employer.html" class="btn-cancel" style="text-decoration:none;margin-left:auto"><span class="material-icons-round" style="font-size:.9rem;vertical-align:middle">arrow_back</span> Back to Dashboard</a>
+    </div>
+  </main>
+</div>
 
-		<div class="jp-actions">
-		    <button class="btn-publish" id="jp-publish"><span class="material-icons-round">publish</span>Publish Job</button>
-		    <button class="btn-draft" id="jp-draft"><span class="material-icons-round">save</span>Save as Draft</button>
-		    <button class="btn-cancel" onclick="window.location.href='employer.html'">Cancel</button>
-		    <a href="employer.html" class="btn-cancel" style="text-decoration:none;margin-left:auto"><span class="material-icons-round" style="font-size:.9rem;vertical-align:middle">arrow_back</span> Back to Dashboard</a>
-		</div>
-	    </main>
-	</div>
-
-	<script src="js/job-post.js"></script>
-    </body>
+<script src="js/job-post.js"></script>
+</body>
 </html>
