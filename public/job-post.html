@@ -125,10 +125,13 @@
   <!-- Right: job form -->
   <main class="jp-right">
     <div class="jp-right-head">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px">
         <h1 style="margin-bottom:0">Post a Job</h1>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Role</label>
         <select id="jp-role-select" style="border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface2);color:var(--text);font:600 .82rem 'Plus Jakarta Sans',sans-serif;outline:none;max-width:240px;cursor:pointer">
         <option value="">— Select role —</option>
+        <option value="__custom__">✏️ Custom role…</option>
         <optgroup label="Design &amp; UX">
           <option>Lead UX Designer</option>
           <option>Senior UX Designer</option>
@@ -172,9 +175,9 @@
           <option>Treasury Analyst</option>
           <option>Financial Systems Analyst</option>
         </optgroup>
-        <option value="__custom__">✏️ Custom role…</option>
       </select>
       <input type="text" id="jp-title" placeholder="Custom role title…" style="display:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface2);color:var(--text);font:600 .82rem inherit;outline:none;max-width:220px"/>
+        </div>
       </div>
       <p>Fill in the details below. Skills selected from the left will be matched against candidate profiles.</p>
     </div>
