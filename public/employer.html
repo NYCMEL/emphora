@@ -395,14 +395,15 @@ function renderPostingsTable() {
   candidates = candidates.slice(0, 8);
 
   tbody.innerHTML = candidates.map(c => {
-    const url = `candidate-profile.html?name=${encodeURIComponent(c.name)}&score=${c.score}&match=${c.match}&role=${encodeURIComponent(c.role)}&status=${encodeURIComponent(c.status.label)}`;
-    return `<tr style="cursor:pointer" onclick="window.location.href='${url}'" title="View full profile">
-      <td class="primary">${esc(c.name)}</td>
-      <td><strong style="color:var(--primary)">${c.score}</strong></td>
-      <td>${esc(c.role)}</td>
-      <td><span class="pill pill-blue">${c.match}%</span></td>
-      <td><span class="pill ${c.status.pill}">${esc(c.status.label)}</span></td>
-    </tr>`;
+    const url = 'candidate-profile.html?name=' + encodeURIComponent(c.name) + '&score=' + c.score + '&match=' + c.match + '&role=' + encodeURIComponent(c.role) + '&status=' + encodeURIComponent(c.status.label);
+    return '<tr style="cursor:pointer" onclick="window.location.href='' + url + ''" title="View full profile">'
+      + '<td class="primary">' + esc(c.name) + '</td>'
+      + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
+      + '<td>' + esc(c.role) + '</td>'
+      + '<td><span class="pill pill-blue">' + c.match + '%</span></td>'
+      + '<td><span class="pill ' + c.status.pill + '">' + esc(c.status.label) + '</span></td>'
+      + '<td><a href="' + url + '" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
+      + '</tr>';
   }).join('');
 })();
 
