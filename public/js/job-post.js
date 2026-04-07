@@ -228,6 +228,76 @@ document.getElementById('jp-search').addEventListener('input',e=>buildLeft(e.tar
 
 
 
+
+// ── Edit mode — load existing posting if ?edit=id ────────────────────────────
+(function loadEditMode() {
+  const params = new URLSearchParams(location.search);
+  const editId = params.get('edit');
+  if (!editId) return;
+
+  const KEY = 'emphora_job_postings_' + user.email;
+  let postings = [];
+  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
+  const posting = postings.find(p => p.id === editId);
+  if (!posting) return;
+
+  // Update breadcrumb + heading
+  const bc = document.querySelector('.bc-current');
+  if (bc) bc.textContent = 'Edit Job Posting';
+  const h1 = document.querySelector('.jp-right-head h1');
+  if (h1) h1.textContent = 'Edit Job Posting';
+
+  // Role
+  const jprSearch = document.getElementById('jpr-search');
+  const jprHidden = document.getElementById('jp-role-select');
+  const jpTitle   = document.getElementById('jp-title');
+  if (jprSearch) jprSearch.value = posting.title || '';
+  if (jprHidden) jprHidden.value = posting.title || '';
+  if (jpTitle)   jpTitle.value   = posting.title || '';
+  document.querySelectorAll('.jpr-item').forEach(i =>
+    i.classList.toggle('selected', i.dataset.value === posting.title)
+  );
+
+  // Text fields
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('jp-dept',        posting.department);
+  set('jp-location',    posting.location);
+  set('jp-salary-min',  posting.salaryMin);
+  set('jp-salary-max',  posting.salaryMax);
+  set('jp-reports',     posting.reportsTo);
+  set('jp-overview',    posting.overview);
+  set('jp-daytoday',    posting.dayToDay);
+  set('jp-requirements',posting.requirements);
+  set('jp-nice',        posting.niceToHave);
+  set('jp-benefits',    posting.benefits);
+
+  // Dropdowns
+  const setSelect = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) [...el.options].forEach(o => o.selected = o.value === val);
+  };
+  setSelect('jp-type',      posting.type);
+  setSelect('jp-workplace', posting.workplace);
+  setSelect('jp-exp',       posting.minExp);
+  setSelect('jp-urgency',   posting.urgency);
+
+  // Skills
+  if (posting.skills) {
+    selectedSkills = posting.skills;
+    buildLeft();
+    renderSkillsPanel();
+  }
+
+  // Override save to UPDATE instead of create new
+  const publishBtn = document.getElementById('jp-publish');
+  if (publishBtn) {
+    publishBtn.innerHTML = '<span class="material-icons-round">save</span>Update Posting';
+  }
+
+  // Patch savePosting to update in place
+  window._editId = editId;
+})();
+
 buildLeft();
 renderSkillsPanel();
 
@@ -256,6 +326,7 @@ document.querySelector('.jp-right-head h1').addEventListener('click', () => {
   setSelect('jp-type',      'Full-Time');
   setSelect('jp-workplace', 'Hybrid');
   setSelect('jp-exp',       '5');
+  setSelect('jp-urgency',   'Within a month');
 
   // Descriptions
   set('jp-overview',     'We are looking for a Lead UX Designer to drive the end-to-end design experience of our flagship financial platform. You will work closely with product, engineering, and stakeholders to deliver intuitive, accessible interfaces used by thousands of users daily.');
@@ -296,6 +367,7 @@ function collectPosting(status){
     salaryMax:   document.getElementById('jp-salary-max').value.trim(),
     reportsTo:   document.getElementById('jp-reports').value.trim(),
     minExp:      document.getElementById('jp-exp').value,
+    urgency:     document.getElementById('jp-urgency').value,
     overview:    document.getElementById('jp-overview').value.trim(),
     dayToDay:    document.getElementById('jp-daytoday').value.trim(),
     requirements:document.getElementById('jp-requirements').value.trim(),
@@ -388,6 +460,13 @@ function savePosting(posting){
   const KEY='emphora_job_postings_'+user.email;
   let postings=[];
   try{postings=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
-  postings.unshift(posting);
+  if(window._editId){
+    // Update existing
+    posting.id = window._editId;
+    const idx = postings.findIndex(p=>p.id===window._editId);
+    if(idx>=0) postings[idx]=posting; else postings.unshift(posting);
+  } else {
+    postings.unshift(posting);
+  }
   try{localStorage.setItem(KEY,JSON.stringify(postings));}catch(_){}
 }
