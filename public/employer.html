@@ -325,26 +325,25 @@ function renderPostingsTable() {
 
 // ── Load job postings from localStorage ──────────────────────────────────────
 (function renderJobPostings() {
-  const tbody = document.getElementById('job-postings-tbody');
-  if (!tbody || !user) return;
+  try {
+    const KEY = 'emphora_job_postings_' + user.email;
+    let postings = [];
+    try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
 
-  const KEY = 'emphora_job_postings_' + user.email;
-  let postings = [];
-  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
+    if (!postings.length) {
+      // Seed fake postings for any employer with empty postings
+      postings = [
+        { id:'job_melify_1', status:'active',  postedBy:user.email, title:'Lead UX Designer',        department:'Product Design', type:'Full-Time', workplace:'Hybrid',  location:'New York, NY',    urgency:'Ready to hire now',  skills:{Figma:{minScore:8},React:{minScore:6},'UX/UI Design':{minScore:8}}, createdAt:'2026-03-15T10:00:00Z' },
+        { id:'job_melify_2', status:'active',  postedBy:user.email, title:'Senior UX Engineer',       department:'Engineering',    type:'Full-Time', workplace:'Remote',  location:'',                urgency:'Within 2 weeks',     skills:{JavaScript:{minScore:7},HTML5:{minScore:8},'Interaction Design':{minScore:7}}, createdAt:'2026-03-20T10:00:00Z' },
+        { id:'job_melify_3', status:'active',  postedBy:user.email, title:'Design Systems Lead',      department:'Design Ops',     type:'Full-Time', workplace:'Hybrid',  location:'New York, NY',    urgency:'Within a month',     skills:{Figma:{minScore:9},'Design Systems Development':{minScore:8}}, createdAt:'2026-03-25T10:00:00Z' },
+        { id:'job_melify_4', status:'expiring',postedBy:user.email, title:'UX Researcher',            department:'Product',        type:'Contract',  workplace:'Remote',  location:'',                urgency:'Exploratory',        skills:{'UX Strategy & Research':{minScore:7},'Usability Testing':{minScore:7}}, createdAt:'2026-02-01T10:00:00Z' },
+        { id:'job_melify_5', status:'draft',   postedBy:user.email, title:'Front-End Developer',      department:'Engineering',    type:'Full-Time', workplace:'On-site', location:'New York, NY',    urgency:'Future opening',     skills:{React:{minScore:7},JavaScript:{minScore:8},CSS3:{minScore:7}}, createdAt:'2026-04-01T10:00:00Z' },
+      ];
+      try { localStorage.setItem(KEY, JSON.stringify(postings)); } catch(_) {}
+    }
 
-  // Seed fake postings for Melify LLC on first load
-  if (!postings.length && user.email === 'hr@melify.emphora.dev') {
-    postings = [
-      { id:'job_melify_1', status:'active',  postedBy:user.email, title:'Lead UX Designer',        department:'Product Design', type:'Full-Time', workplace:'Hybrid',  location:'New York, NY',    urgency:'Ready to hire now',  skills:{Figma:{minScore:8},React:{minScore:6},'UX/UI Design':{minScore:8}}, createdAt:'2026-03-15T10:00:00Z' },
-      { id:'job_melify_2', status:'active',  postedBy:user.email, title:'Senior UX Engineer',       department:'Engineering',    type:'Full-Time', workplace:'Remote',  location:'',                urgency:'Within 2 weeks',     skills:{JavaScript:{minScore:7},HTML5:{minScore:8},'Interaction Design':{minScore:7}}, createdAt:'2026-03-20T10:00:00Z' },
-      { id:'job_melify_3', status:'active',  postedBy:user.email, title:'Design Systems Lead',      department:'Design Ops',     type:'Full-Time', workplace:'Hybrid',  location:'New York, NY',    urgency:'Within a month',     skills:{Figma:{minScore:9},'Design Systems Development':{minScore:8}}, createdAt:'2026-03-25T10:00:00Z' },
-      { id:'job_melify_4', status:'expiring',postedBy:user.email, title:'UX Researcher',            department:'Product',        type:'Contract',  workplace:'Remote',  location:'',                urgency:'Exploratory',        skills:{'UX Strategy & Research':{minScore:7},'Usability Testing':{minScore:7}}, createdAt:'2026-02-01T10:00:00Z' },
-      { id:'job_melify_5', status:'draft',   postedBy:user.email, title:'Front-End Developer',      department:'Engineering',    type:'Full-Time', workplace:'On-site', location:'New York, NY',    urgency:'Future opening',     skills:{React:{minScore:7},JavaScript:{minScore:8},CSS3:{minScore:7}}, createdAt:'2026-04-01T10:00:00Z' },
-    ];
-    try { localStorage.setItem(KEY, JSON.stringify(postings)); } catch(_) {}
-  }
-
-  renderPostingsTable();
+    renderPostingsTable();
+  } catch(e) { console.error('[Emphora] renderJobPostings error:', e); }
 })();
 
 // ── Render top candidates ─────────────────────────────────────────────────────
