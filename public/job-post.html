@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Emphora — Post a Job</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<style>
+  :root{--primary:#1A6BCC;--success:#2E7D32;--danger:#C62828;--bg:#F0F4F9;--surface:#FFFFFF;--surface2:#F0F4F9;--border:#D0DCE8;--text:#0D1B2A;--muted:#7A8FA6;}
+  [data-theme="dark"]{--bg:#0A0F1A;--surface:#111827;--surface2:#1A2236;--border:rgba(255,255,255,.10);--text:#E8F1FF;--muted:#5C7389;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .topbar{position:sticky;top:0;z-index:100;height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.25rem;gap:8px;}
+  .logo{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:1.3rem;color:var(--primary);text-decoration:none;flex-shrink:0;}
+  .logo b{color:#00897B;font-weight:400;}
+  .bc-sep{color:var(--border);margin:0 4px;font-size:.85rem;user-select:none;}
+  .bc-link{font-size:.8rem;color:var(--muted);text-decoration:none;white-space:nowrap;}
+  .bc-link:hover{color:var(--primary);}
+  .bc-current{font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap;}
+  .spacer{flex:1;}
+  .icon-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;text-decoration:none;}
+  .icon-btn:hover{color:var(--primary);border-color:var(--primary);}
+  .icon-btn .material-icons-round{font-size:1rem;}
+  .avatar{width:28px;height:28px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff;flex-shrink:0;}
+
+  /* Layout */
+  .jp-layout{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 54px);}
+  .jp-left{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+  .jp-left-head{padding:.75rem 1rem;border-bottom:1px solid var(--border);}
+  .jp-left-head h2{font-family:'DM Serif Display',serif;font-size:1rem;font-weight:400;margin-bottom:6px;}
+  .jp-search-wrap{position:relative;}
+  .jp-search-ico{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);}
+  .jp-search-ico .material-icons-round{font-size:.9rem;}
+  .jp-search{width:100%;border:1px solid var(--border);border-radius:8px;padding:6px 10px 6px 28px;background:var(--surface2);color:var(--text);font:inherit;font-size:.78rem;outline:none;}
+  .jp-search:focus{border-color:var(--primary);}
+  .jp-cats{flex:1;overflow-y:auto;padding:.3rem 0 1rem;}
+  .jp-cg{}
+  .jp-cg-label{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--muted);user-select:none;}
+  .jp-cg-label:hover{color:var(--text);}
+  .jp-cg-chevron{font-size:.8rem;transition:transform .2s;color:var(--border);}
+  .jp-cg.open .jp-cg-chevron{transform:rotate(90deg);}
+  .jp-cg-body{display:none;padding:0 8px 4px;}
+  .jp-cg.open .jp-cg-body{display:block;}
+  .jp-skill-row{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:.78rem;color:var(--text);}
+  .jp-skill-row:hover{background:rgba(26,107,204,.06);}
+  .jp-skill-row.selected{color:var(--primary);font-weight:600;}
+  .jp-skill-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;}
+  .jp-skill-row.selected .jp-skill-dot{background:var(--primary);}
+  .jp-badge{font-size:.62rem;font-weight:700;background:var(--primary);color:#fff;border-radius:10px;padding:1px 6px;margin-left:auto;}
+
+  /* Right panel */
+  .jp-right{overflow-y:auto;padding:1.5rem;}
+  .jp-right-head{margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+  .jp-right-head h1{font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400;}
+  .jp-right-head p{font-size:.78rem;color:var(--muted);margin-top:4px;}
+
+  /* Form */
+  .jp-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+  .jp-card-title{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+  .jp-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;}
+  .jp-field{display:flex;flex-direction:column;gap:4px;}
+  .jp-field.full{grid-column:1/-1;}
+  .jp-label{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .jp-input{border:1px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--surface2);color:var(--text);font:inherit;font-size:.84rem;outline:none;transition:border-color .15s;}
+  .jp-input:focus{border-color:var(--primary);}
+  .jp-textarea{border:1px solid var(--border);border-radius:8px;padding:8px 11px;background:var(--surface2);color:var(--text);font:inherit;font-size:.84rem;outline:none;transition:border-color .15s;resize:vertical;min-height:90px;}
+  .jp-textarea:focus{border-color:var(--primary);}
+  select.jp-input{cursor:pointer;}
+
+  /* Required skills */
+  .jp-skills-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;}
+  .jp-skills-empty{text-align:center;padding:1.5rem 0;color:var(--muted);font-size:.82rem;font-style:italic;}
+  .jp-skill-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 12px;border-radius:20px;font-size:.76rem;font-weight:600;border:1.5px solid;margin:3px;cursor:default;}
+  .jp-skill-tag button{background:none;border:none;cursor:pointer;color:inherit;opacity:.6;padding:0;display:flex;align-items:center;line-height:1;}
+  .jp-skill-tag button:hover{opacity:1;}
+  .jp-skill-tag button .material-icons-round{font-size:.72rem;}
+  .jp-min-select{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted);}
+  .jp-min-select select{border:1px solid var(--border);border-radius:6px;padding:2px 6px;background:var(--surface2);color:var(--text);font:inherit;font-size:.72rem;outline:none;}
+
+  /* Actions */
+  .jp-actions{display:flex;gap:10px;margin-top:1.25rem;}
+  .btn-publish{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border-radius:10px;background:var(--primary);border:none;color:#fff;font:700 .88rem inherit;cursor:pointer;transition:filter .15s;}
+  .btn-publish:hover{filter:brightness(1.1);}
+  .btn-cancel{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--muted);font:600 .88rem inherit;cursor:pointer;transition:all .15s;}
+  .btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
+  .btn-draft{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--text);font:600 .88rem inherit;cursor:pointer;transition:all .15s;}
+  .btn-draft:hover{border-color:var(--primary);color:var(--primary);}
+  .material-icons-round{font-family:'Material Icons Round';font-style:normal;}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <a href="employer.html" class="logo" id="nav-logo">Emph<b>ora</b></a>
+  <span class="bc-sep">›</span>
+  <a href="employer.html" class="bc-link">Employer Dashboard</a>
+  <span class="bc-sep">›</span>
+  <span class="bc-current">Post a Job</span>
+  <div class="spacer"></div>
+  <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 3px 3px 10px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
+    <div style="display:flex;flex-direction:column;gap:0;text-align:right">
+      <span id="topbar-name" style="font-size:.82rem;font-weight:700;color:var(--text);line-height:1.25"></span>
+      <span id="topbar-email" style="font-size:.68rem;color:var(--muted);line-height:1.25"></span>
+    </div>
+    <div id="topbar-initials" class="avatar" style="opacity:0"></div>
+  </a>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <a href="employer.html" class="icon-btn" title="Back"><span class="material-icons-round">arrow_back</span></a>
+</nav>
+
+<div class="jp-layout">
+  <!-- Left: skill picker -->
+  <aside class="jp-left">
+    <div class="jp-left-head">
+      <h2>Required Skills</h2>
+      <div class="jp-search-wrap">
+        <span class="jp-search-ico"><span class="material-icons-round">search</span></span>
+        <input class="jp-search" id="jp-search" type="search" placeholder="Search skills…" autocomplete="off"/>
+      </div>
+    </div>
+    <div class="jp-cats" id="jp-cats"></div>
+  </aside>
+
+  <!-- Right: job form -->
+  <main class="jp-right">
+    <div class="jp-right-head">
+      <h1>Post a Job</h1>
+      <p>Fill in the details below. Skills selected from the left will be matched against candidate profiles.</p>
+    </div>
+
+    <!-- Basic Info -->
+    <div class="jp-card">
+      <div class="jp-card-title">Job Details</div>
+      <div class="jp-field-grid">
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-role-select">Role *</label>
+          <select class="jp-input" id="jp-role-select">
+            <option value="">— Select a role —</option>
+            <optgroup label="Design & UX">
+              <option>Lead UX Designer</option>
+              <option>Senior UX Designer</option>
+              <option>UX Designer</option>
+              <option>UI Designer</option>
+              <option>UX Researcher</option>
+              <option>Product Designer</option>
+              <option>Design Systems Lead</option>
+              <option>Head of Design</option>
+            </optgroup>
+            <optgroup label="Engineering">
+              <option>Technical Lead</option>
+              <option>Senior Software Engineer</option>
+              <option>Staff Engineer</option>
+              <option>Principal Engineer</option>
+              <option>Full-Stack Developer</option>
+              <option>Frontend Engineer</option>
+              <option>Backend Engineer</option>
+              <option>UX Engineer</option>
+              <option>DevOps Engineer</option>
+              <option>Solutions Architect</option>
+            </optgroup>
+            <optgroup label="Product & Management">
+              <option>Product Manager</option>
+              <option>Senior Product Manager</option>
+              <option>Program Manager</option>
+              <option>Project Manager</option>
+              <option>Engineering Manager</option>
+              <option>VP of Engineering</option>
+              <option>CTO</option>
+            </optgroup>
+            <optgroup label="Research & Analytics">
+              <option>CDO Research Analyst</option>
+              <option>Data Engineer</option>
+              <option>Data Scientist</option>
+              <option>Business Analyst</option>
+              <option>UX Strategist</option>
+            </optgroup>
+            <optgroup label="Finance & Operations">
+              <option>FED Auction Specialist</option>
+              <option>Treasury Analyst</option>
+              <option>Financial Systems Analyst</option>
+            </optgroup>
+            <option value="__custom__">✏️ Custom role…</option>
+          </select>
+          <input class="jp-input" type="text" id="jp-title" placeholder="Enter custom role title…" style="margin-top:6px;display:none"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-dept">Department</label>
+          <input class="jp-input" type="text" id="jp-dept" placeholder="e.g. Product Design"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-type">Employment Type</label>
+          <select class="jp-input" id="jp-type">
+            <option value="Full-Time">Full-Time</option>
+            <option value="Part-Time">Part-Time</option>
+            <option value="Contract">Contract</option>
+            <option value="Internship">Internship</option>
+          </select>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-location">Location</label>
+          <input class="jp-input" type="text" id="jp-location" placeholder="e.g. New York, NY"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-workplace">Workplace Type</label>
+          <select class="jp-input" id="jp-workplace">
+            <option value="On-site">On-site</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Remote">Remote</option>
+            <option value="Remote (US only)">Remote (US only)</option>
+            <option value="Flexible">Flexible</option>
+          </select>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-salary-min">Salary Range (Min)</label>
+          <input class="jp-input" type="text" id="jp-salary-min" placeholder="e.g. $120,000"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-salary-max">Salary Range (Max)</label>
+          <input class="jp-input" type="text" id="jp-salary-max" placeholder="e.g. $160,000"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-reports">Reports To</label>
+          <input class="jp-input" type="text" id="jp-reports" placeholder="e.g. VP of Engineering"/>
+        </div>
+        <div class="jp-field">
+          <label class="jp-label" for="jp-exp">Min. Years Experience</label>
+          <select class="jp-input" id="jp-exp">
+            <option value="0">Any</option>
+            <option value="1">1+ year</option>
+            <option value="2">2+ years</option>
+            <option value="3">3+ years</option>
+            <option value="5">5+ years</option>
+            <option value="7">7+ years</option>
+            <option value="10">10+ years</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descriptions -->
+    <div class="jp-card">
+      <div class="jp-card-title">Job Description</div>
+      <div class="jp-field-grid">
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-overview">Role Overview *</label>
+          <textarea class="jp-textarea" id="jp-overview" rows="4" placeholder="Summarize the role, its purpose, and what success looks like…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-daytoday">Day-to-Day Responsibilities</label>
+          <textarea class="jp-textarea" id="jp-daytoday" rows="5" placeholder="Describe typical daily tasks and responsibilities…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-requirements">Requirements & Qualifications</label>
+          <textarea class="jp-textarea" id="jp-requirements" rows="4" placeholder="Required education, certifications, experience…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-nice">Nice to Have</label>
+          <textarea class="jp-textarea" id="jp-nice" rows="3" placeholder="Bonus skills or experience that would stand out…"></textarea>
+        </div>
+        <div class="jp-field full">
+          <label class="jp-label" for="jp-benefits">Benefits & Perks</label>
+          <textarea class="jp-textarea" id="jp-benefits" rows="3" placeholder="Health, 401k, remote policy, equity, PTO…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Required skills -->
+    <div class="jp-card">
+      <div class="jp-skills-head">
+        <div class="jp-card-title" style="margin-bottom:0">Required Skills <span id="jp-skill-count" style="font-size:.7rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0"></span></div>
+        <span style="font-size:.72rem;color:var(--muted)">Select from the left panel</span>
+      </div>
+      <div id="jp-skills-panel">
+        <div class="jp-skills-empty">No skills added yet — use the left panel to add required skills</div>
+      </div>
+    </div>
+
+    <div class="jp-actions">
+      <button class="btn-publish" id="jp-publish"><span class="material-icons-round">publish</span>Publish Job</button>
+      <button class="btn-draft" id="jp-draft"><span class="material-icons-round">save</span>Save as Draft</button>
+      <button class="btn-cancel" onclick="window.location.href='employer.html'">Cancel</button>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+const user=(()=>{try{return JSON.parse(sessionStorage.getItem('emphora_user')||'null');}catch{return null;}})();
+if(!user||user.accountType!=='employer') window.location.href='/';
+
+// User identity
+(function(){
+  const fn=user.firstName||'',ln=user.lastName||'';
+  const ini=((fn[0]||'')+(ln[0]||'')).toUpperCase()||'';
+  const ne=document.getElementById('topbar-name');
+  const ee=document.getElementById('topbar-email');
+  const ae=document.getElementById('topbar-initials');
+  if(ne) ne.textContent=(fn+' '+ln).trim();
+  if(ee) ee.textContent=user.email||'';
+  if(ae){ae.textContent=ini;ae.style.opacity='1';}
+  try{const img=localStorage.getItem('emphora_avatar_'+user.email);if(img&&ae){ae.style.backgroundImage=`url(${img})`;ae.style.backgroundSize='cover';ae.style.backgroundPosition='center';ae.style.color='transparent';}}catch(_){}
+})();
+
+let theme=localStorage.getItem('em-theme')||'light';
+function applyTheme(t){theme=t;document.body.dataset.theme=t;document.querySelector('#theme-btn .material-icons-round').textContent=t==='dark'?'dark_mode':'light_mode';localStorage.setItem('em-theme',t);}
+applyTheme(theme);
+document.getElementById('theme-btn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}
+
+// ── Skill state ───────────────────────────────────────────────────────────────
+// { skillName: { category, minScore } }
+let selectedSkills = {};
+
+function scoreColor(s){
+  if(s<=2)return '#EF5350';if(s<=4)return '#FF7043';if(s<=5)return '#FFA726';
+  if(s<=6)return '#FFCA28';if(s<=7)return '#9CCC65';if(s<=8)return '#26A69A';
+  if(s<=9)return '#1E88E5';return '#1A6BCC';
+}
+
+// ── Catalogue ─────────────────────────────────────────────────────────────────
+const CATALOGUE = [
+  { cat:'Operating Systems',     icon:'computer',        items:['Windows','macOS','Linux (Ubuntu)','Linux (Red Hat)','Unix','Android','iOS'] },
+  { cat:'Devices',               icon:'devices',         items:['Desktops','Laptops','Tablets','Smartphones','Servers','IoT Devices'] },
+  { cat:'Productivity & Office', icon:'work',            items:['Microsoft Office Suite','Google Workspace','LibreOffice','Adobe Creative Suite','Notion','Slack','Trello'] },
+  { cat:'Programming Languages', icon:'code',            items:['Python','Java','C','C++','C#','Go','Rust','PHP','Ruby','JavaScript','TypeScript','Shell/Bash','PowerShell','SQL'] },
+  { cat:'Web Technologies',      icon:'language',        items:['HTML5','CSS3','Sass/SCSS','JavaScript','TypeScript','Webpack','Node.js','REST APIs','GraphQL','JSON','AJAX'] },
+  { cat:'Frameworks & Libraries',icon:'view_quilt',      items:['React','Angular','Vue.js','jQuery','jQuery UI','Bootstrap','Tailwind CSS','Express.js','Django','Flask','Spring Boot'] },
+  { cat:'Specializations',       icon:'auto_awesome',    items:['Web Components','Progressive Web Apps (PWA)','UX/UI Design','Interaction Design','Responsive Design','Hi-Fidelity Prototyping','Mobile App Development','Cloud Architecture'] },
+  { cat:'Prototyping & Design',  icon:'design_services', items:['Figma','Sketch','Adobe XD','Axure','Miro','InVision','Balsamiq','Canva'] },
+  { cat:'Databases',             icon:'storage',         items:['MySQL','PostgreSQL','MongoDB','Redis','Oracle DB','Firebase','Microsoft SQL Server','Cassandra'] },
+  { cat:'DevOps & Cloud',        icon:'cloud',           items:['AWS','Azure','Google Cloud Platform','Docker','Kubernetes','Jenkins','GitLab CI/CD','Terraform','Ansible'] },
+  { cat:'Networking & Security', icon:'security',        items:['TCP/IP','DNS','VPNs','Firewalls','Penetration Testing','Cybersecurity Tools','Wireshark','SSL/TLS','Encryption'] },
+  { cat:'Testing & QA',          icon:'bug_report',      items:['Selenium','Jest','Mocha','Cypress','JUnit','Postman','TestRail','Load Testing Tools'] },
+  { cat:'Leadership & Strategy', icon:'military_tech',   items:['Agile Development','Scrum','Kanban','Product Management','UX Strategy','Design Thinking','Stakeholder Communication','Team Leadership','Mentoring'] },
+];
+
+// ── Left panel ────────────────────────────────────────────────────────────────
+function buildLeft(q=''){
+  const container=document.getElementById('jp-cats');
+  container.innerHTML='';
+  const lq=q.toLowerCase().trim();
+
+  [...CATALOGUE].sort((a,b)=>a.cat.localeCompare(b.cat)).forEach(group=>{
+    const visible=group.items.filter(item=>!lq||item.toLowerCase().includes(lq)||group.cat.toLowerCase().includes(lq));
+    if(!visible.length)return;
+    const selCount=visible.filter(i=>selectedSkills[i]).length;
+    const isOpen=!!lq||selCount>0;
+    const div=document.createElement('div');
+    div.className='jp-cg'+(isOpen?' open':'');
+    div.innerHTML=`
+      <div class="jp-cg-label">
+        <span>
+          <span class="material-icons-round" style="font-size:.78rem;vertical-align:middle;margin-right:4px">${group.icon}</span>
+          ${esc(group.cat)}
+          ${selCount>0?`<span class="jp-badge">${selCount}</span>`:''}
+        </span>
+        <span class="material-icons-round jp-cg-chevron">chevron_right</span>
+      </div>
+      <div class="jp-cg-body">
+        ${visible.map(item=>{
+          const sel=!!selectedSkills[item];
+          return `<div class="jp-skill-row${sel?' selected':''}" data-skill="${esc(item)}" data-cat="${esc(group.cat)}">
+            <span class="jp-skill-dot"></span>
+            <span style="flex:1">${esc(item)}</span>
+            ${sel?`<span class="material-icons-round" style="font-size:.8rem;color:var(--primary)">check</span>`:''}
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    div.querySelector('.jp-cg-label').addEventListener('click',()=>div.classList.toggle('open'));
+    div.querySelectorAll('.jp-skill-row').forEach(row=>{
+      row.addEventListener('click',()=>{
+        const skill=row.dataset.skill, cat=row.dataset.cat;
+        if(selectedSkills[skill]){
+          delete selectedSkills[skill];
+        } else {
+          selectedSkills[skill]={category:cat,minScore:5};
+        }
+        buildLeft(q);
+        renderSkillsPanel();
+      });
+    });
+    container.appendChild(div);
+  });
+}
+
+// ── Right skills panel ────────────────────────────────────────────────────────
+function renderSkillsPanel(){
+  const panel=document.getElementById('jp-skills-panel');
+  const countEl=document.getElementById('jp-skill-count');
+  const keys=Object.keys(selectedSkills);
+  if(countEl) countEl.textContent=keys.length?`(${keys.length})`:'';
+  if(!keys.length){
+    panel.innerHTML='<div class="jp-skills-empty">No skills added yet — use the left panel to add required skills</div>';
+    return;
+  }
+  // Group by category
+  const bycat={};
+  keys.forEach(k=>{
+    const cat=selectedSkills[k].category||'Other';
+    if(!bycat[cat])bycat[cat]=[];
+    bycat[cat].push(k);
+  });
+  panel.innerHTML=Object.keys(bycat).sort().map(cat=>`
+    <div style="margin-bottom:.75rem">
+      <div style="font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">${esc(cat)}</div>
+      <div>
+        ${bycat[cat].map(skill=>{
+          const minScore=selectedSkills[skill].minScore||5;
+          const col=scoreColor(minScore);
+          return `<span class="jp-skill-tag" style="color:${col};background:${col}12;border-color:${col}44">
+            ${esc(skill)}
+            <span class="jp-min-select">
+              <select data-skill="${esc(skill)}" title="Minimum score required">
+                ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${n===minScore?' selected':''}>${n}</option>`).join('')}
+              </select>
+              min
+            </span>
+            <button data-skill="${esc(skill)}" aria-label="Remove"><span class="material-icons-round">close</span></button>
+          </span>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+
+  // Events
+  panel.querySelectorAll('select[data-skill]').forEach(sel=>{
+    sel.addEventListener('change',()=>{
+      if(selectedSkills[sel.dataset.skill]) selectedSkills[sel.dataset.skill].minScore=Number(sel.value);
+      renderSkillsPanel();
+    });
+  });
+  panel.querySelectorAll('button[data-skill]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      delete selectedSkills[btn.dataset.skill];
+      buildLeft(document.getElementById('jp-search').value);
+      renderSkillsPanel();
+    });
+  });
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+document.getElementById('jp-search').addEventListener('input',e=>buildLeft(e.target.value));
+
+// Role dropdown → custom input toggle
+const roleSelect = document.getElementById('jp-role-select');
+const roleTitleInput = document.getElementById('jp-title');
+roleSelect.addEventListener('change', () => {
+  if (roleSelect.value === '__custom__') {
+    roleTitleInput.style.display = '';
+    roleTitleInput.focus();
+  } else {
+    roleTitleInput.style.display = 'none';
+    roleTitleInput.value = '';
+  }
+});
+
+buildLeft();
+renderSkillsPanel();
+
+// ── Publish / Draft ───────────────────────────────────────────────────────────
+function collectPosting(status){
+  return {
+    id: 'job_'+(Date.now()),
+    status,
+    postedBy: user.email,
+    title:       (document.getElementById('jp-role-select').value === '__custom__' || document.getElementById('jp-role-select').value === '')
+                   ? document.getElementById('jp-title').value.trim()
+                   : document.getElementById('jp-role-select').value,
+    department:  document.getElementById('jp-dept').value.trim(),
+    type:        document.getElementById('jp-type').value,
+    location:    document.getElementById('jp-location').value.trim(),
+    workplace:   document.getElementById('jp-workplace').value,
+    salaryMin:   document.getElementById('jp-salary-min').value.trim(),
+    salaryMax:   document.getElementById('jp-salary-max').value.trim(),
+    reportsTo:   document.getElementById('jp-reports').value.trim(),
+    minExp:      document.getElementById('jp-exp').value,
+    overview:    document.getElementById('jp-overview').value.trim(),
+    dayToDay:    document.getElementById('jp-daytoday').value.trim(),
+    requirements:document.getElementById('jp-requirements').value.trim(),
+    niceToHave:  document.getElementById('jp-nice').value.trim(),
+    benefits:    document.getElementById('jp-benefits').value.trim(),
+    skills:      {...selectedSkills},
+    createdAt:   new Date().toISOString(),
+  };
+}
+
+document.getElementById('jp-publish').addEventListener('click',()=>{
+  const posting=collectPosting('active');
+  if(!posting.title){
+    if(document.getElementById('jp-role-select').value==='__custom__'||document.getElementById('jp-role-select').value===''){
+      document.getElementById('jp-title').focus();
+    } else {
+      document.getElementById('jp-role-select').focus();
+    }
+    return;
+  }
+  savePosting(posting);
+  window.location.href='employer.html';
+});
+
+document.getElementById('jp-draft').addEventListener('click',()=>{
+  const posting=collectPosting('draft');
+  savePosting(posting);
+  window.location.href='employer.html';
+});
+
+function savePosting(posting){
+  const KEY='emphora_job_postings_'+user.email;
+  let postings=[];
+  try{postings=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
+  postings.unshift(posting);
+  try{localStorage.setItem(KEY,JSON.stringify(postings));}catch(_){}
+}
+</script>
+</body>
+</html>
