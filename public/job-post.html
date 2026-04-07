@@ -88,6 +88,20 @@
   .btn-draft{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--text);font:600 .88rem inherit;cursor:pointer;transition:all .15s;}
   .btn-draft:hover{border-color:var(--primary);color:var(--primary);}
   .material-icons-round{font-family:'Material Icons Round';font-style:normal;}
+  /* ── Role custom dropdown ────────────────────────────────────────────────── */
+  .jpr-wrap{position:relative;min-width:220px;}
+  .jpr-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:pointer;font-size:.84rem;font-weight:500;min-width:200px;transition:border-color .15s;user-select:none;}
+  .jpr-trigger:hover,.jpr-trigger:focus{border-color:var(--primary);outline:none;}
+  .jpr-wrap.open .jpr-trigger{border-color:var(--primary);}
+  .jpr-dropdown{display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:230px;background:var(--surface);border:1.5px solid var(--primary);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.13);z-index:200;overflow:hidden;}
+  .jpr-wrap.open .jpr-dropdown{display:block;}
+  .jpr-scroll{max-height:280px;overflow-y:auto;}
+  .jpr-group{padding:6px 0;}
+  .jpr-group-label{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 14px 2px;}
+  .jpr-item{font-size:.82rem;padding:7px 14px;cursor:pointer;color:var(--text);transition:background .1s;}
+  .jpr-item:hover{background:rgba(26,107,204,.08);color:var(--primary);}
+  .jpr-item.selected{color:var(--primary);font-weight:600;background:rgba(26,107,204,.06);}
+
 </style>
 </head>
 <body>
@@ -129,54 +143,25 @@
         <h1 style="margin-bottom:0">Post a Job</h1>
         <div style="display:flex;align-items:center;gap:8px">
           <label style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Role</label>
-        <select id="jp-role-select" style="border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface2);color:var(--text);font:600 .82rem 'Plus Jakarta Sans',sans-serif;outline:none;max-width:240px;cursor:pointer">
-        <option value="">— Select role —</option>
-        <option value="__custom__">✏️ Custom role…</option>
-        <optgroup label="Design &amp; UX">
-          <option>Lead UX Designer</option>
-          <option>Senior UX Designer</option>
-          <option>UX Designer</option>
-          <option>UI Designer</option>
-          <option>UX Researcher</option>
-          <option>Product Designer</option>
-          <option>Design Systems Lead</option>
-          <option>Head of Design</option>
-        </optgroup>
-        <optgroup label="Engineering">
-          <option>Technical Lead</option>
-          <option>Senior Software Engineer</option>
-          <option>Staff Engineer</option>
-          <option>Principal Engineer</option>
-          <option>Full-Stack Developer</option>
-          <option>Frontend Engineer</option>
-          <option>Backend Engineer</option>
-          <option>UX Engineer</option>
-          <option>DevOps Engineer</option>
-          <option>Solutions Architect</option>
-        </optgroup>
-        <optgroup label="Product &amp; Management">
-          <option>Product Manager</option>
-          <option>Senior Product Manager</option>
-          <option>Program Manager</option>
-          <option>Project Manager</option>
-          <option>Engineering Manager</option>
-          <option>VP of Engineering</option>
-          <option>CTO</option>
-        </optgroup>
-        <optgroup label="Research &amp; Analytics">
-          <option>CDO Research Analyst</option>
-          <option>Data Engineer</option>
-          <option>Data Scientist</option>
-          <option>Business Analyst</option>
-          <option>UX Strategist</option>
-        </optgroup>
-        <optgroup label="Finance &amp; Operations">
-          <option>FED Auction Specialist</option>
-          <option>Treasury Analyst</option>
-          <option>Financial Systems Analyst</option>
-        </optgroup>
-      </select>
-      <input type="text" id="jp-title" placeholder="Custom role title…" style="display:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface2);color:var(--text);font:600 .82rem inherit;outline:none;max-width:220px"/>
+        <div class="jpr-wrap" id="jpr-wrap">
+          <div class="jpr-trigger" id="jpr-trigger" style="padding:0;gap:0">
+            <input type="text" id="jpr-search" placeholder="Search or type a role…" autocomplete="off"
+              style="flex:1;border:none;background:transparent;color:var(--text);font:500 .84rem inherit;outline:none;padding:7px 10px;min-width:0"/>
+            <span class="material-icons-round" style="font-size:.85rem;color:var(--muted);padding-right:8px;flex-shrink:0">expand_more</span>
+          </div>
+          <div class="jpr-dropdown" id="jpr-dropdown">
+            <div class="jpr-scroll">
+
+              <div class="jpr-group"><div class="jpr-group-label">Design &amp; UX</div><div class="jpr-item" data-value="Lead UX Designer">Lead UX Designer</div><div class="jpr-item" data-value="Senior UX Designer">Senior UX Designer</div><div class="jpr-item" data-value="UX Designer">UX Designer</div><div class="jpr-item" data-value="UI Designer">UI Designer</div><div class="jpr-item" data-value="UX Researcher">UX Researcher</div><div class="jpr-item" data-value="Product Designer">Product Designer</div><div class="jpr-item" data-value="Design Systems Lead">Design Systems Lead</div><div class="jpr-item" data-value="Head of Design">Head of Design</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Engineering</div><div class="jpr-item" data-value="Technical Lead">Technical Lead</div><div class="jpr-item" data-value="Senior Software Engineer">Senior Software Engineer</div><div class="jpr-item" data-value="Staff Engineer">Staff Engineer</div><div class="jpr-item" data-value="Principal Engineer">Principal Engineer</div><div class="jpr-item" data-value="Full-Stack Developer">Full-Stack Developer</div><div class="jpr-item" data-value="Frontend Engineer">Frontend Engineer</div><div class="jpr-item" data-value="Backend Engineer">Backend Engineer</div><div class="jpr-item" data-value="UX Engineer">UX Engineer</div><div class="jpr-item" data-value="DevOps Engineer">DevOps Engineer</div><div class="jpr-item" data-value="Solutions Architect">Solutions Architect</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Product &amp; Management</div><div class="jpr-item" data-value="Product Manager">Product Manager</div><div class="jpr-item" data-value="Senior Product Manager">Senior Product Manager</div><div class="jpr-item" data-value="Program Manager">Program Manager</div><div class="jpr-item" data-value="Project Manager">Project Manager</div><div class="jpr-item" data-value="Engineering Manager">Engineering Manager</div><div class="jpr-item" data-value="VP of Engineering">VP of Engineering</div><div class="jpr-item" data-value="CTO">CTO</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Research &amp; Analytics</div><div class="jpr-item" data-value="CDO Research Analyst">CDO Research Analyst</div><div class="jpr-item" data-value="Data Engineer">Data Engineer</div><div class="jpr-item" data-value="Data Scientist">Data Scientist</div><div class="jpr-item" data-value="Business Analyst">Business Analyst</div><div class="jpr-item" data-value="UX Strategist">UX Strategist</div></div>
+              <div class="jpr-group"><div class="jpr-group-label">Finance &amp; Operations</div><div class="jpr-item" data-value="FED Auction Specialist">FED Auction Specialist</div><div class="jpr-item" data-value="Treasury Analyst">Treasury Analyst</div><div class="jpr-item" data-value="Financial Systems Analyst">Financial Systems Analyst</div></div>
+            </div>
+          </div>
+          <input type="hidden" id="jp-role-select" value=""/>
+          <input type="hidden" id="jp-title" value=""/>
+        </div>
         </div>
       </div>
       <p>Fill in the details below. Skills selected from the left will be matched against candidate profiles.</p>
@@ -446,18 +431,67 @@ function renderSkillsPanel(){
 // ── Search ────────────────────────────────────────────────────────────────────
 document.getElementById('jp-search').addEventListener('input',e=>buildLeft(e.target.value));
 
-// Role dropdown → custom input toggle
-const roleSelect = document.getElementById('jp-role-select');
-const roleTitleInput = document.getElementById('jp-title');
-roleSelect.addEventListener('change', () => {
-  if (roleSelect.value === '__custom__') {
-    roleTitleInput.style.display = '';
-    roleTitleInput.focus();
-  } else {
-    roleTitleInput.style.display = 'none';
-    roleTitleInput.value = '';
+// ── Role dropdown with typeahead ─────────────────────────────────────────────
+(function(){
+  const wrap     = document.getElementById('jpr-wrap');
+  const trigger  = document.getElementById('jpr-trigger');
+  const search   = document.getElementById('jpr-search');
+  const dropdown = document.getElementById('jpr-dropdown');
+  const hidden   = document.getElementById('jp-role-select');
+  const titleHid = document.getElementById('jp-title');
+
+  function openDD(){ wrap.classList.add('open'); filterItems(search.value); }
+  function closeDD(){ wrap.classList.remove('open'); }
+
+  function filterItems(q){
+    const lq = q.toLowerCase().trim();
+    dropdown.querySelectorAll('.jpr-item').forEach(item => {
+      item.style.display = !lq || item.dataset.value.toLowerCase().includes(lq) ? '' : 'none';
+    });
+    dropdown.querySelectorAll('.jpr-group').forEach(g => {
+      const anyVisible = [...g.querySelectorAll('.jpr-item')].some(i=>i.style.display!=='none');
+      g.style.display = anyVisible ? '' : 'none';
+    });
   }
-});
+
+  function selectValue(val){
+    hidden.value = val;
+    titleHid.value = val;
+    search.value = val;
+    dropdown.querySelectorAll('.jpr-item').forEach(i=>i.classList.toggle('selected', i.dataset.value===val));
+    closeDD();
+  }
+
+  trigger.addEventListener('click', () => wrap.classList.contains('open') ? closeDD() : openDD());
+  search.addEventListener('focus', openDD);
+  search.addEventListener('input', () => { filterItems(search.value); wrap.classList.add('open'); });
+  search.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeDD(); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Use typed value as role if no exact match
+      const val = search.value.trim();
+      if (val) { selectValue(val); } else { closeDD(); }
+    }
+  });
+  search.addEventListener('blur', () => {
+    setTimeout(() => {
+      // If user typed something not in list, keep it as custom
+      const val = search.value.trim();
+      if (val && hidden.value !== val) { selectValue(val); }
+      closeDD();
+    }, 200);
+  });
+
+  dropdown.querySelectorAll('.jpr-item').forEach(item => {
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      selectValue(item.dataset.value);
+    });
+  });
+
+  document.addEventListener('click', e => { if(!wrap.contains(e.target)) closeDD(); });
+})();
 
 buildLeft();
 renderSkillsPanel();
@@ -468,9 +502,7 @@ function collectPosting(status){
     id: 'job_'+(Date.now()),
     status,
     postedBy: user.email,
-    title:       (document.getElementById('jp-role-select').value === '__custom__' || document.getElementById('jp-role-select').value === '')
-                   ? document.getElementById('jp-title').value.trim()
-                   : document.getElementById('jp-role-select').value,
+    title:       document.getElementById('jp-title').value.trim(),
     department:  document.getElementById('jp-dept').value.trim(),
     type:        document.getElementById('jp-type').value,
     location:    document.getElementById('jp-location').value.trim(),
@@ -491,14 +523,40 @@ function collectPosting(status){
 
 document.getElementById('jp-publish').addEventListener('click',()=>{
   const posting=collectPosting('active');
-  if(!posting.title){
-    if(document.getElementById('jp-role-select').value==='__custom__'||document.getElementById('jp-role-select').value===''){
-      document.getElementById('jp-title').focus();
-    } else {
-      document.getElementById('jp-role-select').focus();
-    }
-    return;
+  if(!posting.title){ document.getElementById('jpr-search').focus(); return; }
+  // Log all fields to console before publishing
+  console.group('%c📋 Emphora — Publishing Job Posting', 'color:#1A6BCC;font-weight:700;font-size:14px');
+  console.log('%cRole & Details','font-weight:700;color:#00897B');
+  console.table({
+    Title:         posting.title,
+    Department:    posting.department||'—',
+    Type:          posting.type,
+    Workplace:     posting.workplace||'—',
+    Location:      posting.location||'—',
+    'Salary Min':  posting.salaryMin||'—',
+    'Salary Max':  posting.salaryMax||'—',
+    'Reports To':  posting.reportsTo||'—',
+    'Min Exp':     posting.minExp ? posting.minExp+' yr(s)' : 'Any',
+    Status:        posting.status,
+    'Posted By':   posting.postedBy,
+    'Created At':  posting.createdAt,
+  });
+  console.log('%cDescriptions','font-weight:700;color:#00897B');
+  console.log('Overview:',       posting.overview||'—');
+  console.log('Day-to-Day:',     posting.dayToDay||'—');
+  console.log('Requirements:',   posting.requirements||'—');
+  console.log('Nice to Have:',   posting.niceToHave||'—');
+  console.log('Benefits:',       posting.benefits||'—');
+  const skillKeys = Object.keys(posting.skills||{});
+  console.log('%cRequired Skills ('+skillKeys.length+')','font-weight:700;color:#00897B');
+  if(skillKeys.length){
+    console.table(skillKeys.reduce((acc,k)=>{acc[k]='min score: '+(posting.skills[k].minScore||5)+' · category: '+(posting.skills[k].category||'—');return acc;},{}));
+  } else {
+    console.log('No skills specified');
   }
+  console.log('%cFull Posting Object','font-weight:700;color:#555');
+  console.log(posting);
+  console.groupEnd();
   savePosting(posting);
   window.location.href='employer.html';
 });
