@@ -164,7 +164,7 @@ document.getElementById('theme-btn').onclick=()=>applyTheme(theme==='dark'?'ligh
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function scoreColor(s){if(s<=3)return '#EF5350';if(s<=5)return '#FFA726';if(s<=7)return '#9CCC65';return '#1A6BCC';}
 
-const params=new URLSearchParams(location.search);
+const params=new URLSearchParams(window.location.search);
 const candName=params.get('name')||'Candidate';
 const candScore=parseFloat(params.get('score')||'0');
 const candMatch=params.get('match')||'--';
@@ -210,7 +210,7 @@ const ini=((firstName[0]||'')+(lastName[0]||'')).toUpperCase()||'?';
 const LOCATIONS=['New York, NY','San Francisco, CA','Austin, TX','Seattle, WA','Boston, MA','Chicago, IL','Remote'];
 const TITLES=['Lead UX Designer','Senior UX Engineer','Staff Engineer','Principal Engineer','Frontend Engineer','Product Designer','Design Systems Lead','Full-Stack Developer'];
 const SUMMARIES=['Passionate technologist with a track record of delivering scalable systems and mentoring high-performing teams.','Results-driven designer focused on building intuitive, user-centric products that solve real-world problems.','Collaborative problem-solver with deep expertise in UX and front-end systems, passionate about accessibility.','Strategic technical leader bridging the gap between business goals and engineering execution.'];
-const location=LOCATIONS[rand(LOCATIONS.length)];
+const candLocation=LOCATIONS[rand(LOCATIONS.length)];
 const title=TITLES[rand(TITLES.length)];
 const summary=SUMMARIES[rand(SUMMARIES.length)];
 const linkedin='https://linkedin.com/in/'+firstName.toLowerCase()+'-'+lastName.toLowerCase().replace(/\s+/g,'-');
@@ -220,7 +220,7 @@ document.getElementById('hero-avatar').textContent=ini;
 document.getElementById('hero-name').textContent=candName;
 document.getElementById('hero-sub').textContent=title;
 const pills=[];
-if(location)pills.push('<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>'+esc(location)+'</span>');
+if(candLocation)pills.push('<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>'+esc(location)+'</span>');
 if(candScore>0)pills.push('<span class="profile-hero-pill"><span class="material-icons-round">stars</span>'+candScore.toFixed(1)+' Score</span>');
 pills.push('<span class="profile-hero-pill" style="background:rgba(46,125,50,.1);color:#2E7D32;border-color:rgba(46,125,50,.2)"><span class="material-icons-round">verified</span>Verified</span>');
 document.getElementById('hero-pills').innerHTML=pills.join('');
@@ -228,7 +228,7 @@ document.getElementById('hero-pills').innerHTML=pills.join('');
 const FIELDS=[
   {label:'First Name',val:firstName},{label:'Last Name',val:lastName},
   {label:'Email Address',val:firstName.toLowerCase()+'.'+lastName.toLowerCase().replace(/\s+/g,'.')+'@emphora.dev'},
-  {label:'Phone',val:phone},{label:'Location',val:location},
+  {label:'Phone',val:phone},{label:'Location',val:candLocation},
   {label:'LinkedIn URL',val:linkedin,isUrl:true},{label:'Website',val:''},
   {label:'Job Title',val:title},{divider:true},
   {label:'Professional Summary',val:summary,full:true},
