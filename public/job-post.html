@@ -125,7 +125,57 @@
   <!-- Right: job form -->
   <main class="jp-right">
     <div class="jp-right-head">
-      <h1>Post a Job</h1>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+        <h1 style="margin-bottom:0">Post a Job</h1>
+        <select id="jp-role-select" style="border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface2);color:var(--text);font:600 .82rem 'Plus Jakarta Sans',sans-serif;outline:none;max-width:240px;cursor:pointer">
+        <option value="">— Select role —</option>
+        <optgroup label="Design &amp; UX">
+          <option>Lead UX Designer</option>
+          <option>Senior UX Designer</option>
+          <option>UX Designer</option>
+          <option>UI Designer</option>
+          <option>UX Researcher</option>
+          <option>Product Designer</option>
+          <option>Design Systems Lead</option>
+          <option>Head of Design</option>
+        </optgroup>
+        <optgroup label="Engineering">
+          <option>Technical Lead</option>
+          <option>Senior Software Engineer</option>
+          <option>Staff Engineer</option>
+          <option>Principal Engineer</option>
+          <option>Full-Stack Developer</option>
+          <option>Frontend Engineer</option>
+          <option>Backend Engineer</option>
+          <option>UX Engineer</option>
+          <option>DevOps Engineer</option>
+          <option>Solutions Architect</option>
+        </optgroup>
+        <optgroup label="Product &amp; Management">
+          <option>Product Manager</option>
+          <option>Senior Product Manager</option>
+          <option>Program Manager</option>
+          <option>Project Manager</option>
+          <option>Engineering Manager</option>
+          <option>VP of Engineering</option>
+          <option>CTO</option>
+        </optgroup>
+        <optgroup label="Research &amp; Analytics">
+          <option>CDO Research Analyst</option>
+          <option>Data Engineer</option>
+          <option>Data Scientist</option>
+          <option>Business Analyst</option>
+          <option>UX Strategist</option>
+        </optgroup>
+        <optgroup label="Finance &amp; Operations">
+          <option>FED Auction Specialist</option>
+          <option>Treasury Analyst</option>
+          <option>Financial Systems Analyst</option>
+        </optgroup>
+        <option value="__custom__">✏️ Custom role…</option>
+      </select>
+      <input type="text" id="jp-title" placeholder="Custom role title…" style="display:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface2);color:var(--text);font:600 .82rem inherit;outline:none;max-width:220px"/>
+      </div>
       <p>Fill in the details below. Skills selected from the left will be matched against candidate profiles.</p>
     </div>
 
@@ -133,57 +183,7 @@
     <div class="jp-card">
       <div class="jp-card-title">Job Details</div>
       <div class="jp-field-grid">
-        <div class="jp-field full">
-          <label class="jp-label" for="jp-role-select">Role *</label>
-          <select class="jp-input" id="jp-role-select">
-            <option value="">— Select a role —</option>
-            <optgroup label="Design & UX">
-              <option>Lead UX Designer</option>
-              <option>Senior UX Designer</option>
-              <option>UX Designer</option>
-              <option>UI Designer</option>
-              <option>UX Researcher</option>
-              <option>Product Designer</option>
-              <option>Design Systems Lead</option>
-              <option>Head of Design</option>
-            </optgroup>
-            <optgroup label="Engineering">
-              <option>Technical Lead</option>
-              <option>Senior Software Engineer</option>
-              <option>Staff Engineer</option>
-              <option>Principal Engineer</option>
-              <option>Full-Stack Developer</option>
-              <option>Frontend Engineer</option>
-              <option>Backend Engineer</option>
-              <option>UX Engineer</option>
-              <option>DevOps Engineer</option>
-              <option>Solutions Architect</option>
-            </optgroup>
-            <optgroup label="Product & Management">
-              <option>Product Manager</option>
-              <option>Senior Product Manager</option>
-              <option>Program Manager</option>
-              <option>Project Manager</option>
-              <option>Engineering Manager</option>
-              <option>VP of Engineering</option>
-              <option>CTO</option>
-            </optgroup>
-            <optgroup label="Research & Analytics">
-              <option>CDO Research Analyst</option>
-              <option>Data Engineer</option>
-              <option>Data Scientist</option>
-              <option>Business Analyst</option>
-              <option>UX Strategist</option>
-            </optgroup>
-            <optgroup label="Finance & Operations">
-              <option>FED Auction Specialist</option>
-              <option>Treasury Analyst</option>
-              <option>Financial Systems Analyst</option>
-            </optgroup>
-            <option value="__custom__">✏️ Custom role…</option>
-          </select>
-          <input class="jp-input" type="text" id="jp-title" placeholder="Enter custom role title…" style="margin-top:6px;display:none"/>
-        </div>
+
         <div class="jp-field">
           <label class="jp-label" for="jp-dept">Department</label>
           <input class="jp-input" type="text" id="jp-dept" placeholder="e.g. Product Design"/>
