@@ -1,45 +1,95 @@
-// ── Emphora Job Post — Variables ──────────────────────────────────────────────
-$primary:   #1A6BCC;
-$success:   #2E7D32;
-$danger:    #C62828;
-$bg:        #F0F4F9;
-$surface:   #FFFFFF;
-$surface2:  #F0F4F9;
-$border:    #D0DCE8;
-$text:      #0D1B2A;
-$muted:     #7A8FA6;
+// ── Emphora — Job Post Page ────────────────────────────────────────────────────
+// Compile: sass css/job-post.scss css/job-post.css
 
-// Dark theme overrides
-$dark-bg:       #0A0F1A;
-$dark-surface:  #111827;
-$dark-surface2: #1A2236;
-$dark-border:   rgba(255,255,255,.10);
-$dark-text:     #E8F1FF;
-$dark-muted:    #5C7389;
+// ── Variables ──────────────────────────────────────────────────────────────────
+$primary:    #1A6BCC;
+$success:    #2E7D32;
+$danger:     #C62828;
+$bg:         #F0F4F9;
+$surface:    #FFFFFF;
+$surface2:   #F0F4F9;
+$border:     #D0DCE8;
+$text:       #0D1B2A;
+$muted:      #7A8FA6;
 
-// ── CSS Custom Properties (runtime theming) ────────────────────────────────
+$dark-bg:      #0A0F1A;
+$dark-surface: #111827;
+$dark-surface2:#1A2236;
+$dark-border:  rgba(255,255,255,.10);
+$dark-text:    #E8F1FF;
+$dark-muted:   #5C7389;
+
+$font-main: 'Plus Jakarta Sans', sans-serif;
+$font-serif: 'DM Serif Display', Georgia, serif;
+
+$radius-sm:  6px;
+$radius-md:  8px;
+$radius-lg:  10px;
+$radius-xl:  12px;
+$radius-pill:20px;
+
+$topbar-h:   54px;
+$left-w:     260px;
+$transition: .15s;
+
+// ── Theme tokens ───────────────────────────────────────────────────────────────
 :root {
-  --primary:   #{$primary};
-  --success:   #{$success};
-  --danger:    #{$danger};
-  --bg:        #{$bg};
-  --surface:   #{$surface};
-  --surface2:  #{$surface2};
-  --border:    #{$border};
-  --text:      #{$text};
-  --muted:     #{$muted};
+  --primary:  #{$primary};
+  --success:  #{$success};
+  --danger:   #{$danger};
+  --bg:       #{$bg};
+  --surface:  #{$surface};
+  --surface2: #{$surface2};
+  --border:   #{$border};
+  --text:     #{$text};
+  --muted:    #{$muted};
 }
 
 [data-theme="dark"] {
-  --bg:        #{$dark-bg};
-  --surface:   #{$dark-surface};
-  --surface2:  #{$dark-surface2};
-  --border:    #{$dark-border};
-  --text:      #{$dark-text};
-  --muted:     #{$dark-muted};
+  --bg:       #{$dark-bg};
+  --surface:  #{$dark-surface};
+  --surface2: #{$dark-surface2};
+  --border:   #{$dark-border};
+  --text:     #{$dark-text};
+  --muted:    #{$dark-muted};
 }
 
-// ── Reset ──────────────────────────────────────────────────────────────────
+// ── Reset ──────────────────────────────────────────────────────────────────────
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: $font-main;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+// ── Topbar ─────────────────────────────────────────────────────────────────────
+$surface2:  #F0F4F9;
+
+$dark-surface2: #1A2236;
+
+:root {
+  --primary:   $primary;
+  --success:   $success;
+  --danger:    $danger;
+  --bg:        $bg;
+  --surface:   $surface;
+  --surface2:  $surface2;
+  --border:    $border;
+  --text:      $text;
+  --muted:     $muted;
+}
+
+[data-theme="dark"] {
+  --bg:        $dark-bg;
+  --surface:   $dark-surface;
+  --surface2:  $dark-surface2;
+  --border:    $dark-border;
+  --text:      $dark-text;
+  --muted:     $dark-muted;
+}
+
 *  { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -49,7 +99,6 @@ body {
   min-height: 100vh;
 }
 
-// ── Topbar ─────────────────────────────────────────────────────────────────
 .topbar {
   position:sticky;
   top:0;
