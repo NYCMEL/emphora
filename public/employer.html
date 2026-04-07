@@ -132,7 +132,16 @@
     </div>
     <div class="section-body" id="job-postings-body">
       <table>
-        <thead><tr><th>Role</th><th>Department</th><th>Type</th><th>Location</th><th>Skills</th><th>Status</th><th>Required By</th><th></th></tr></thead>
+        <thead><tr>
+  <th data-col="title"      style="cursor:pointer;user-select:none" onclick="sortPostings('title')">Role <span id="sort-title"></span></th>
+  <th data-col="department" style="cursor:pointer;user-select:none" onclick="sortPostings('department')">Department <span id="sort-department"></span></th>
+  <th data-col="type"       style="cursor:pointer;user-select:none" onclick="sortPostings('type')">Type <span id="sort-type"></span></th>
+  <th data-col="location"   style="cursor:pointer;user-select:none" onclick="sortPostings('location')">Location <span id="sort-location"></span></th>
+  <th>Skills</th>
+  <th data-col="status"     style="cursor:pointer;user-select:none" onclick="sortPostings('status')">Status <span id="sort-status"></span></th>
+  <th data-col="urgency"    style="cursor:pointer;user-select:none" onclick="sortPostings('urgency')">Required By <span id="sort-urgency"></span></th>
+  <th></th>
+</tr></thead>
         <tbody id="job-postings-tbody">
           <tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet — click Post Job to create one</td></tr>
         </tbody>
@@ -247,6 +256,87 @@ if (user) {
       initAvatar(user.email, heroEl, topbarEl, ini);
     });
   
+// ── Job postings sort state ───────────────────────────────────────────────────
+let _sortCol = 'urgency', _sortDir = 1;
+
+function sortPostings(col) {
+  if (_sortCol === col) {
+    _sortDir *= -1;
+  } else {
+    _sortCol = col;
+    _sortDir = 1;
+  }
+  renderPostingsTable();
+}
+
+function renderPostingsTable() {
+  const tbody = document.getElementById('job-postings-tbody');
+  if (!tbody) return;
+  const KEY = 'emphora_job_postings_' + user.email;
+  let postings = [];
+  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
+
+  // Update sort indicators
+  ['title','department','type','location','status','urgency'].forEach(c => {
+    const el = document.getElementById('sort-' + c);
+    if (!el) return;
+    el.textContent = _sortCol === c ? (_sortDir === 1 ? ' ↑' : ' ↓') : '';
+  });
+
+  if (!postings.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet — click Post Job to create one</td></tr>';
+    return;
+  }
+
+  const URGENCY_ORDER = ['Ready to hire now','Within 2 weeks','Within a month','1–3 months','Future opening','Exploratory / Just looking',''];
+  const URGENCY_COLOR = {
+    'Ready to hire now':         '#D32F2F',
+    'Within 2 weeks':            '#E65100',
+    'Within a month':            '#F57C00',
+    '1–3 months':                '#1A6BCC',
+    'Future opening':            '#7A8FA6',
+    'Exploratory / Just looking':'#7A8FA6',
+  };
+  const STATUS_PILL = { active:'pill-blue', draft:'pill-amber', closed:'pill-grey', expiring:'pill-amber' };
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const sorted = [...postings].sort((a, b) => {
+    let va, vb;
+    if (_sortCol === 'urgency') {
+      va = URGENCY_ORDER.indexOf(a.urgency || '');
+      vb = URGENCY_ORDER.indexOf(b.urgency || '');
+      if (va === -1) va = 999;
+      if (vb === -1) vb = 999;
+      return (va - vb) * _sortDir;
+    }
+    va = (a[_sortCol] || '').toLowerCase();
+    vb = (b[_sortCol] || '').toLowerCase();
+    return va < vb ? -_sortDir : va > vb ? _sortDir : 0;
+  });
+
+  tbody.innerHTML = sorted.map(p => {
+    const skillCount = Object.keys(p.skills || {}).length;
+    const status = p.status || 'active';
+    const pillClass = STATUS_PILL[status] || 'pill-blue';
+    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+    const urgColor = URGENCY_COLOR[p.urgency] || 'var(--muted)';
+    return `<tr style="cursor:pointer" onclick="editPosting('${esc(p.id)}')" title="Click to edit">
+      <td class="primary">${esc(p.title || '—')}</td>
+      <td>${esc(p.department || '—')}</td>
+      <td>${esc(p.type || '—')}</td>
+      <td>${esc([p.workplace, p.location].filter(Boolean).join(' · ') || '—')}</td>
+      <td>${skillCount > 0 ? `<span class="pill pill-blue">${skillCount}</span>` : '—'}</td>
+      <td><span class="pill ${pillClass}">${statusLabel}</span></td>
+      <td style="font-size:.78rem;color:${urgColor};font-weight:600;white-space:nowrap">${esc(p.urgency || '—')}</td>
+      <td style="text-align:right" onclick="event.stopPropagation()">
+        <button onclick="deletePosting('${esc(p.id)}')" title="Delete" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px" onmouseover="this.style.color='#EF5350'" onmouseout="this.style.color='var(--muted)'">
+          <span class="material-icons-round" style="font-size:1rem;vertical-align:middle">delete_outline</span>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
 // ── Load job postings from localStorage ──────────────────────────────────────
 (function renderJobPostings() {
   const tbody = document.getElementById('job-postings-tbody');
@@ -268,60 +358,7 @@ if (user) {
     try { localStorage.setItem(KEY, JSON.stringify(postings)); } catch(_) {}
   }
 
-  if (!postings.length) return; // keep default empty message
 
-  const STATUS_PILL = { active: 'pill-blue', draft: 'pill-amber', closed: 'pill-grey', expiring: 'pill-amber' };
-  const URGENCY_ORDER = ['Ready to hire now','Within 2 weeks','Within a month','1–3 months','Future opening','Exploratory / Just looking',''];
-  const URGENCY_COLOR = {
-    'Ready to hire now':       '#D32F2F',
-    'Within 2 weeks':          '#E65100',
-    'Within a month':          '#F57C00',
-    '1–3 months':              '#1A6BCC',
-    'Future opening':          '#7A8FA6',
-    'Exploratory / Just looking':'#7A8FA6',
-  };
-  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-  // Group by urgency
-  const groups = {};
-  URGENCY_ORDER.forEach(u => { groups[u] = []; });
-  postings.forEach(p => {
-    const u = p.urgency || '';
-    if (!groups[u]) groups[u] = [];
-    groups[u].push(p);
-  });
-
-  let html = '';
-  URGENCY_ORDER.forEach(urgency => {
-    const group = groups[urgency];
-    if (!group || !group.length) return;
-    const color = URGENCY_COLOR[urgency] || 'var(--muted)';
-    const label = urgency || 'Unspecified';
-    html += `<tr style="pointer-events:none">
-      <td colspan="8" style="background:rgba(0,0,0,.025);padding:6px 12px;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:${color};border-bottom:1px solid var(--border)">${esc(label)}</td>
-    </tr>`;
-    group.forEach(p => {
-      const skillCount = Object.keys(p.skills || {}).length;
-      const status = p.status || 'active';
-      const pillClass = STATUS_PILL[status] || 'pill-blue';
-      const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
-      html += `<tr style="cursor:pointer" onclick="editPosting('${esc(p.id)}')" title="Click to edit">
-        <td class="primary">${esc(p.title || '—')}</td>
-        <td>${esc(p.department || '—')}</td>
-        <td>${esc(p.type || '—')}</td>
-        <td>${esc([p.workplace, p.location].filter(Boolean).join(' · ') || '—')}</td>
-        <td>${skillCount > 0 ? `<span class="pill pill-blue">${skillCount}</span>` : '—'}</td>
-        <td><span class="pill ${pillClass}">${statusLabel}</span></td>
-        <td style="font-size:.78rem;color:${color};font-weight:600;white-space:nowrap">${esc(p.urgency || '—')}</td>
-        <td style="text-align:right" onclick="event.stopPropagation()">
-          <button onclick="deletePosting('${esc(p.id)}')" title="Delete" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px" onmouseover="this.style.color='#EF5350'" onmouseout="this.style.color='var(--muted)'">
-            <span class="material-icons-round" style="font-size:1rem;vertical-align:middle">delete_outline</span>
-          </button>
-        </td>
-      </tr>`;
-    });
-  });
-  tbody.innerHTML = html;
 })();
 
 function editPosting(id) {
