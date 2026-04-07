@@ -167,8 +167,8 @@ function scoreColor(s){if(s<=3)return '#EF5350';if(s<=5)return '#FFA726';if(s<=7
 const params=new URLSearchParams(location.search);
 const candName=params.get('name')||'Candidate';
 const candScore=parseFloat(params.get('score')||'0');
-const candMatch=params.get('match')||'—';
-const candRole=params.get('role')||'—';
+const candMatch=params.get('match')||'--';
+const candRole=params.get('role')||'--';
 const initStatus=params.get('status')||'New';
 const STATE_KEY='emphora_candidate_'+user.email+'_'+encodeURIComponent(candName+'_'+candRole);
 let state={status:initStatus,note:''};
@@ -176,7 +176,7 @@ try{Object.assign(state,JSON.parse(localStorage.getItem(STATE_KEY)||'{}'));}catc
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify(state));}catch(_){}}
 
 document.getElementById('bc-name').textContent=candName;
-document.title='Emphora — '+candName;
+document.title='Emphora -- '+candName;
 document.getElementById('match-val').textContent=candMatch+'%';
 document.getElementById('role-val').textContent=candRole;
 
@@ -274,7 +274,7 @@ document.getElementById('profile-fields').innerHTML=FIELDS.map(f=>{
     const fromY=endY-durY,fromM=endM-durM<1?12:endM-durM;
     const ini2=co.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const isCurrent=i===0;
-    html+='<div class="work-item"><div class="work-logo">'+esc(ini2)+'</div><div class="work-info"><div class="work-company">'+esc(co)+'</div><div class="work-role">'+esc(jt)+'</div><div class="work-dates">'+fmt(fromY,Math.max(1,fromM))+' – '+(isCurrent?'Present':fmt(endY,endM))+'</div></div>'+(isCurrent?'<span style="font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(26,107,204,.1);color:var(--primary)">Current</span>':'')+'</div>';
+    html+='<div class="work-item"><div class="work-logo">'+esc(ini2)+'</div><div class="work-info"><div class="work-company">'+esc(co)+'</div><div class="work-role">'+esc(jt)+'</div><div class="work-dates">'+fmt(fromY,Math.max(1,fromM))+' - '+(isCurrent?'Present':fmt(endY,endM))+'</div></div>'+(isCurrent?'<span style="font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(26,107,204,.1);color:var(--primary)">Current</span>':'')+'</div>';
     endY=fromY;endM=Math.max(1,fromM);
   }
   document.getElementById('work-history').innerHTML=html;
