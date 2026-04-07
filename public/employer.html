@@ -199,7 +199,7 @@ function initUser() {
   const ln  = user.lastName  || '';
   const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase();
   document.getElementById('hero-name').textContent      = `${fn} ${ln}`.trim();
-  document.getElementById('hero-sub').textContent       = `${user.email||''} · ${user.isVerified?'✓ Verified':'Unverified'}`;
+  document.getElementById('hero-sub').textContent       = `${user.email||''}  |  ${user.isVerified?'✓ Verified':'Unverified'}`;
   document.getElementById('hero-avatar').textContent    = ini||'?';
   document.getElementById('topbar-name').textContent    = fn;
   document.getElementById('topbar-initials').textContent = ini||'?';
@@ -310,7 +310,7 @@ function renderPostingsTable() {
       <td class="primary">${esc(p.title || '—')}</td>
       <td>${esc(p.department || '—')}</td>
       <td>${esc(p.type || '—')}</td>
-      <td>${esc([p.workplace, p.location].filter(Boolean).join(' · ') || '—')}</td>
+      <td>${esc([p.workplace, p.location].filter(Boolean).join('  |  ') || '—')}</td>
       <td>${skillCount > 0 ? `<span class="pill pill-blue">${skillCount}</span>` : '—'}</td>
       <td><span class="pill ${pillClass}">${statusLabel}</span></td>
       <td style="font-size:.78rem;color:${urgColor};font-weight:600;white-space:nowrap">${esc(p.urgency || '—')}</td>
