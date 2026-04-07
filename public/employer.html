@@ -155,23 +155,9 @@
     </div>
     <div class="section-body">
       <table>
-        <thead><tr><th>Candidate</th><th>Score</th><th>Role Applied</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody>
-          <tr>
-            <td class="primary">Candidate #CR-4821</td><td><strong style="color:var(--primary)">92.6</strong></td>
-            <td>Technical Lead</td><td><span class="pill pill-blue">Resume Received</span></td>
-            <td><button class="btn" style="padding:4px 10px;font-size:.72rem">Review</button></td>
-          </tr>
-          <tr>
-            <td class="primary">Candidate #CR-3317</td><td><strong style="color:var(--primary)">89.1</strong></td>
-            <td>Project Manager</td><td><span class="pill pill-green">Interview Set</span></td>
-            <td><button class="btn" style="padding:4px 10px;font-size:.72rem">Review</button></td>
-          </tr>
-          <tr>
-            <td class="primary">Candidate #CR-5502</td><td><strong style="color:var(--primary)">87.4</strong></td>
-            <td>FED Specialist</td><td><span class="pill pill-amber">Pending</span></td>
-            <td><button class="btn" style="padding:4px 10px;font-size:.72rem">Review</button></td>
-          </tr>
+        <thead><tr><th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="candidates-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates yet — post a job to start matching</td></tr>
         </tbody>
       </table>
     </div>
@@ -358,7 +344,64 @@ function renderPostingsTable() {
     try { localStorage.setItem(KEY, JSON.stringify(postings)); } catch(_) {}
   }
 
+  renderPostingsTable();
+})();
 
+// ── Render top candidates ─────────────────────────────────────────────────────
+(function renderCandidates() {
+  const tbody = document.getElementById('candidates-tbody');
+  if (!tbody || !user) return;
+
+  const KEY = 'emphora_job_postings_' + user.email;
+  let postings = [];
+  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
+
+  const activePostings = postings.filter(p => p.status === 'active' || p.status === 'expiring');
+  if (!activePostings.length) return;
+
+  // Seed fake candidates per active posting for Melify
+  const STATUSES = [
+    { label:'Resume Received', pill:'pill-blue'  },
+    { label:'Interview Set',   pill:'pill-green' },
+    { label:'Pending Review',  pill:'pill-amber' },
+    { label:'Offer Extended',  pill:'pill-green' },
+    { label:'Screening',       pill:'pill-blue'  },
+  ];
+  const NAMES = [
+    'Sarah Chen','Marcus Webb','Priya Sharma','Devon Okafor','Lin Xiao',
+    'Jordan Reyes','Aisha Patel','Tom Nakamura','Kendall Davis','Lane Diaz',
+    'Morgan Evans','Parker Garcia','Riley Green','Rowan Harris','Demi Morris',
+  ];
+
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Generate 2-3 candidates per active posting, seeded by posting id
+  let candidates = [];
+  activePostings.forEach(p => {
+    let rng = p.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*31;
+    function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
+    const count = 2 + rand(2);
+    for (let i = 0; i < count; i++) {
+      const score  = (75 + rand(20) + (rand(10)/10)).toFixed(1);
+      const match  = 80 + rand(18);
+      const status = STATUSES[rand(STATUSES.length)];
+      const name   = NAMES[(rand(NAMES.length) + i) % NAMES.length];
+      candidates.push({ name, score: parseFloat(score), match, status, role: p.title });
+    }
+  });
+
+  // Sort by score desc, top 8
+  candidates.sort((a,b) => b.score - a.score);
+  candidates = candidates.slice(0, 8);
+
+  tbody.innerHTML = candidates.map(c => `<tr>
+    <td class="primary">${esc(c.name)}</td>
+    <td><strong style="color:var(--primary)">${c.score}</strong></td>
+    <td>${esc(c.role)}</td>
+    <td><span class="pill pill-blue">${c.match}%</span></td>
+    <td><span class="pill ${c.status.pill}">${esc(c.status.label)}</span></td>
+    <td><a href="candidate-profile.html?name=${encodeURIComponent(c.name)}&score=${c.score}&match=${c.match}&role=${encodeURIComponent(c.role)}&status=${encodeURIComponent(c.status.label)}" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>
+  </tr>`).join('');
 })();
 
 function editPosting(id) {
