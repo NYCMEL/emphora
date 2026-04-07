@@ -220,7 +220,7 @@ document.getElementById('hero-avatar').textContent=ini;
 document.getElementById('hero-name').textContent=candName;
 document.getElementById('hero-sub').textContent=title;
 const pills=[];
-if(candLocation)pills.push('<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>'+esc(location)+'</span>');
+if(candLocation)pills.push('<span class="profile-hero-pill"><span class="material-icons-round">location_on</span>'+esc(candLocation)+'</span>');
 if(candScore>0)pills.push('<span class="profile-hero-pill"><span class="material-icons-round">stars</span>'+candScore.toFixed(1)+' Score</span>');
 pills.push('<span class="profile-hero-pill" style="background:rgba(46,125,50,.1);color:#2E7D32;border-color:rgba(46,125,50,.2)"><span class="material-icons-round">verified</span>Verified</span>');
 document.getElementById('hero-pills').innerHTML=pills.join('');
