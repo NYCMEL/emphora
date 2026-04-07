@@ -46,7 +46,7 @@
     .profile-hero-pills { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
     .profile-hero-pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:.68rem; font-weight:700; background:rgba(26,107,204,.1); color:var(--primary); border:1px solid rgba(26,107,204,.2); }
     .profile-hero-pill .material-icons-round { font-size:.78rem; }
-    .profile-page { max-width:860px; margin:0 auto; padding:2rem 2rem 2rem; }
+    .profile-page { max-width:100%; padding:2rem 2.5rem 2rem; }
     .profile-page-title { font-family:'DM Serif Display',Georgia,serif; font-size:1.2rem; font-weight:400; color:var(--text); margin-bottom:1.5rem; }
     .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem 2rem; }
     @media(max-width:560px){.profile-grid{grid-template-columns:1fr;}}
@@ -57,7 +57,7 @@
     .profile-value.empty { color:var(--muted); font-style:italic; font-weight:400; }
     .profile-value a { color:var(--primary); }
     .profile-divider { grid-column:1/-1; border:none; border-top:1px solid var(--border); margin:.25rem 0; }
-    .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; margin:0 auto 1rem; max-width:860px; overflow:hidden; }
+    .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; margin:0 2.5rem 1rem; overflow:hidden; }
     .section-header { display:flex; align-items:center; padding:.85rem 1.1rem; border-bottom:1px solid var(--border); }
     .section-title { font-size:.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:7px; }
     .section-title .material-icons-round { font-size:.9rem; }
@@ -137,7 +137,7 @@
   <div class="section-body"><div class="skills-grid" id="skills-grid"></div></div>
 </div>
 
-<div class="section" style="margin-bottom:3rem">
+<div class="section" style="margin-bottom:3rem;margin-left:2.5rem;margin-right:2.5rem">
   <div class="section-header"><div class="section-title"><span class="material-icons-round">business_center</span>Work History</div></div>
   <div class="section-body" id="work-history"></div>
 </div>
@@ -213,7 +213,7 @@ const SUMMARIES=['Passionate technologist with a track record of delivering scal
 const candLocation=LOCATIONS[rand(LOCATIONS.length)];
 const title=TITLES[rand(TITLES.length)];
 const summary=SUMMARIES[rand(SUMMARIES.length)];
-const linkedin='https://linkedin.com/in/'+firstName.toLowerCase()+'-'+lastName.toLowerCase().replace(/\s+/g,'-');
+const candLinkedin='https://linkedin.com/in/'+firstName.toLowerCase()+'-'+lastName.toLowerCase().replace(/\s+/g,'-');
 const phone=['(415)','(212)','(512)','(617)','(206)'][rand(5)]+' 555-'+String(1000+rand(9000)).slice(0,4);
 
 document.getElementById('hero-avatar').textContent=ini;
@@ -229,7 +229,7 @@ const FIELDS=[
   {label:'First Name',val:firstName},{label:'Last Name',val:lastName},
   {label:'Email Address',val:firstName.toLowerCase()+'.'+lastName.toLowerCase().replace(/\s+/g,'.')+'@emphora.dev'},
   {label:'Phone',val:phone},{label:'Location',val:candLocation},
-  {label:'LinkedIn URL',val:linkedin,isUrl:true},{label:'Website',val:''},
+  {label:'LinkedIn URL',val:candLinkedin,isUrl:true},{label:'Website',val:''},
   {label:'Job Title',val:title},{divider:true},
   {label:'Professional Summary',val:summary,full:true},
 ];
