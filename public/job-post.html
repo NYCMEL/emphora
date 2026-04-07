@@ -110,7 +110,7 @@
   <span class="bc-sep">›</span>
   <a href="employer.html" class="bc-link">Employer Dashboard</a>
   <span class="bc-sep">›</span>
-  <span class="bc-current">Post a Job</span>
+  <span class="bc-current" style="cursor:pointer" title="Click to fill test data" onclick="document.querySelector('.jp-right-head h1').click()">Post a Job</span>
   <div class="spacer"></div>
   <a href="profile.html" title="Edit profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding:3px 3px 3px 10px;border-radius:30px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.04)'" onmouseout="this.style.background='transparent'">
     <div style="display:flex;flex-direction:column;gap:0;text-align:right">
@@ -140,7 +140,7 @@
   <main class="jp-right">
     <div class="jp-right-head">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px">
-        <h1 style="margin-bottom:0">Post a Job</h1>
+        <h1 style="margin-bottom:0;cursor:pointer" title="Click to fill with test data">Post a Job</h1>
         <div style="display:flex;align-items:center;gap:8px">
           <label style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap">Role</label>
         <div class="jpr-wrap" id="jpr-wrap">
@@ -268,6 +268,7 @@
       <button class="btn-publish" id="jp-publish"><span class="material-icons-round">publish</span>Publish Job</button>
       <button class="btn-draft" id="jp-draft"><span class="material-icons-round">save</span>Save as Draft</button>
       <button class="btn-cancel" onclick="window.location.href='employer.html'">Cancel</button>
+      <a href="employer.html" class="btn-cancel" style="text-decoration:none;margin-left:auto"><span class="material-icons-round" style="font-size:.9rem;vertical-align:middle">arrow_back</span> Back to Dashboard</a>
     </div>
   </main>
 </div>
@@ -493,8 +494,60 @@ document.getElementById('jp-search').addEventListener('input',e=>buildLeft(e.tar
   document.addEventListener('click', e => { if(!wrap.contains(e.target)) closeDD(); });
 })();
 
+
+
 buildLeft();
 renderSkillsPanel();
+
+// ── Dev: click "Post a Job" h1 to fill test data ─────────────────────────────
+document.querySelector('.jp-right-head h1').addEventListener('click', () => {
+  // Role
+  const search = document.getElementById('jpr-search');
+  const hidden  = document.getElementById('jp-role-select');
+  const titleH  = document.getElementById('jp-title');
+  if(search){ search.value='Lead UX Designer'; }
+  if(hidden){ hidden.value='Lead UX Designer'; }
+  if(titleH){ titleH.value='Lead UX Designer'; }
+  // Select the item visually
+  document.querySelectorAll('.jpr-item').forEach(i=>i.classList.toggle('selected',i.dataset.value==='Lead UX Designer'));
+
+  // Details
+  const set = (id,val) => { const el=document.getElementById(id); if(el) el.value=val; };
+  set('jp-dept',       'Product Design');
+  set('jp-location',   'New York, NY');
+  set('jp-salary-min', '$150,000');
+  set('jp-salary-max', '$190,000');
+  set('jp-reports',    'VP of Product Design');
+
+  // Dropdowns
+  const setSelect = (id,val) => { const el=document.getElementById(id); if(el){[...el.options].forEach(o=>o.selected=o.value===val);} };
+  setSelect('jp-type',      'Full-Time');
+  setSelect('jp-workplace', 'Hybrid');
+  setSelect('jp-exp',       '5');
+
+  // Descriptions
+  set('jp-overview',     'We are looking for a Lead UX Designer to drive the end-to-end design experience of our flagship financial platform. You will work closely with product, engineering, and stakeholders to deliver intuitive, accessible interfaces used by thousands of users daily.');
+  set('jp-daytoday',     '\u2022 Lead design sprints and daily standups with the product team\n\u2022 Create wireframes, prototypes, and high-fidelity mockups in Figma\n\u2022 Conduct user research and usability testing sessions\n\u2022 Review and maintain the design system\n\u2022 Collaborate with engineers on implementation and QA');
+  set('jp-requirements', '\u2022 5+ years of UX/UI design experience\n\u2022 Proficiency in Figma and prototyping tools\n\u2022 Strong portfolio demonstrating complex product design\n\u2022 Experience with accessibility (WCAG) standards\n\u2022 Excellent communication and presentation skills');
+  set('jp-nice',         '\u2022 Experience in fintech or enterprise SaaS\n\u2022 Familiarity with design tokens and component libraries\n\u2022 Knowledge of front-end HTML/CSS');
+  set('jp-benefits',     '\u2022 Comprehensive health, dental, and vision\n\u2022 401(k) with 4% company match\n\u2022 Flexible hybrid work (3 days in-office)\n\u2022 $2,000 annual learning & development budget\n\u2022 Unlimited PTO');
+
+  // Skills
+  selectedSkills = {
+    'Figma':              { category:'Prototyping & Design', minScore:8 },
+    'UX/UI Design':       { category:'Specializations',      minScore:8 },
+    'Interaction Design': { category:'Specializations',      minScore:7 },
+    'Responsive Design':  { category:'Specializations',      minScore:7 },
+    'HTML5':              { category:'Web Technologies',      minScore:5 },
+    'CSS3':               { category:'Web Technologies',      minScore:5 },
+    'Axure':              { category:'Prototyping & Design',  minScore:6 },
+    'Sketch':             { category:'Prototyping & Design',  minScore:6 },
+  };
+  buildLeft();
+  renderSkillsPanel();
+  console.log('%c✅ Test data filled','color:#2E7D32;font-weight:700');
+});
+
 
 // ── Publish / Draft ───────────────────────────────────────────────────────────
 function collectPosting(status){
@@ -520,6 +573,38 @@ function collectPosting(status){
     createdAt:   new Date().toISOString(),
   };
 }
+
+// Track whether form has changed since last publish
+let lastPublishedSnapshot = null;
+function formSnapshot(){
+  const p = collectPosting('active');
+  return JSON.stringify({...p, createdAt:null, id:null});
+}
+function markPublished(){
+  lastPublishedSnapshot = formSnapshot();
+  const btn = document.getElementById('jp-publish');
+  btn.innerHTML = '<span class="material-icons-round">check_circle</span>Job Posted';
+  btn.style.background = '#2E7D32';
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+  btn.style.cursor = 'not-allowed';
+}
+function watchFormChanges(){
+  // Re-enable publish button if form drifts from snapshot
+  if(!lastPublishedSnapshot) return;
+  if(formSnapshot() !== lastPublishedSnapshot){
+    lastPublishedSnapshot = null;
+    const btn = document.getElementById('jp-publish');
+    btn.innerHTML = '<span class="material-icons-round">publish</span>Publish Job';
+    btn.style.background = '';
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+  }
+}
+// Watch all inputs for changes
+document.querySelector('.jp-right').addEventListener('input', watchFormChanges);
+document.querySelector('.jp-right').addEventListener('change', watchFormChanges);
 
 document.getElementById('jp-publish').addEventListener('click',()=>{
   const posting=collectPosting('active');
@@ -558,7 +643,7 @@ document.getElementById('jp-publish').addEventListener('click',()=>{
   console.log(posting);
   console.groupEnd();
   savePosting(posting);
-  window.location.href='employer.html';
+  markPublished();
 });
 
 document.getElementById('jp-draft').addEventListener('click',()=>{
