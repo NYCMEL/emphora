@@ -39,8 +39,8 @@
     .stat-value{font-size:1.6rem;font-weight:700;letter-spacing:-.03em;color:var(--text);line-height:1;}
     .stat-sub{font-size:.72rem;color:var(--muted);margin-top:4px;}
     .stat-card.accent .stat-value{color:var(--primary);}
-    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;overflow:visible;}
-    .section-header{border-radius:14px 14px 0 0;overflow:hidden;}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;overflow:hidden;width:100%;}
+    .send-wrap{z-index:9999;}
     .section-header{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--border);}
     .section-title{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;}
     .section-title .material-icons-round{font-size:1rem;color:var(--primary);}
@@ -81,13 +81,14 @@
     .pin-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;transition:color .15s;}
     .pin-btn:hover{color:#E65100;}
     .pin-btn.pinned{color:#E65100;}
-    .pinned-row td{background:rgba(230,81,0,.04) !important;border-bottom:none !important;padding-bottom:4px;}
+    #pinned-tbody tr td{background:rgba(230,81,0,.04);border-bottom:none;}
+    #pinned-tbody tr.skills-row td{background:rgba(230,81,0,.04);border-bottom:2px solid var(--border) !important;}
     td.match-score{font-weight:700;}
     .send-wrap{position:relative;display:inline-block;margin-right:4px;}
     .send-btn{display:inline-flex;align-items:center;gap:2px;padding:3px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font:600 .7rem inherit;cursor:pointer;transition:all .15s;}
     .send-btn:hover{border-color:var(--primary);color:var(--primary);}
     .send-btn .material-icons-round{font-size:.75rem;}
-    .send-menu{display:none;position:absolute;right:0;top:calc(100% + 4px);min-width:160px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:9999;max-height:220px;overflow-y:auto;}
+    .send-menu{display:none;position:fixed;min-width:160px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:9999;max-height:220px;overflow-y:auto;}
     .send-menu.open{display:block;}
     .send-menu-hdr{font-size:.58rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:5px 10px 4px;border-bottom:1px solid var(--border);background:var(--surface2);position:sticky;top:0;}
     .send-menu-item{display:block;padding:5px 10px;font-size:.78rem;color:var(--text);cursor:pointer;transition:background .1s;border-bottom:1px solid var(--border);}
@@ -178,7 +179,7 @@
     <div style="padding:0">
       <table style="width:100%;border-collapse:collapse;font-size:.82rem">
         <thead><tr>
-          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Skills Matched</th><th>Managed By</th><th></th>
+          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Managed By</th><th style="width:1%"></th>
         </tr></thead>
         <tbody id="pinned-tbody">
           <tr><td colspan="7" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>
@@ -445,10 +446,17 @@ function setCandStatus(key, status) {
   try{ localStorage.setItem(CAND_STATUS_KEY, JSON.stringify(candStatuses)); }catch(_){}
   renderPinnedTable();
 }
+function positionMenu(btn, id) {
+  var menu = document.getElementById(id);
+  var r = btn.getBoundingClientRect();
+  menu.style.top = (r.bottom + 4) + 'px';
+  menu.style.left = r.left + 'px';
+  menu.classList.toggle('open');
+}
 function sendMenuHtml(key) {
   var id = 'sm-' + key.replace(/[^a-z0-9]/gi,'');
   return '<div class="send-wrap">'
-    + '<button class="send-btn" onclick="event.stopPropagation();document.getElementById(\''+id+'\').classList.toggle(\'open\')">'
+    + '<button class="send-btn" onclick="event.stopPropagation();positionMenu(this,\''+id+'\')">'
     + '<span class="material-icons-round">person_add</span>Send to<span class="material-icons-round">arrow_drop_down</span></button>'
     + '<div class="send-menu" id="'+id+'">'
     + '<div class="send-menu-hdr">Send to</div>'
@@ -466,7 +474,7 @@ function renderPinnedTable(){
     const filters=[...activeSkillFilters];
     const matched=filters.filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase())));
     const skillsHtml=matched.length?matched.slice(0,6).map(s=>'<span class="pill pill-green" style="margin:1px 2px">'+esc(s)+'</span>').join(''):'<span style="color:var(--muted);font-size:.72rem">--</span>';
-    return '<tr class="pinned-row" style="cursor:pointer;border-bottom:none" onclick="window.location.href=this.dataset.url" data-url="'+url+'">'
+    return '<tr class="pinned-row" style="cursor:pointer" onclick="window.location.href=this.dataset.url" data-url="'+url+'">'
       +'<td class="primary"><span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:4px">push_pin</span>'+esc(c.name)+'</td>'
       +'<td><strong style="color:var(--primary)">'+c.score+'</strong></td>'
       +'<td>'+esc(c.role)+'</td>'
@@ -474,7 +482,7 @@ function renderPinnedTable(){
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+(candStatuses[c.name+'|'+c.role]?'<span style="font-size:.78rem;font-weight:600;color:var(--primary)">'+esc(candStatuses[c.name+'|'+c.role])+'</span>':'<span style="color:var(--muted);font-size:.72rem">--</span>')+'</td>'
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+sendMenuHtml(esc(c.name+'|'+c.role))+'<button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
       +'</tr>'
-      +(matched.length?'<tr class="pinned-row" style="border-top:none;border-bottom:none"><td style="padding:0 12px 5px 28px;border-bottom:2px solid var(--border) !important" colspan="5"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
+      +(skillsHtml!='<span style="color:var(--muted);font-size:.72rem">--</span>'?'<tr class="skills-row"><td colspan="6" style="padding:2px 12px 6px 28px;border-bottom:2px solid var(--border)"><span style="font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+skillsHtml+'</td></tr>':'<tr class="skills-row"><td colspan="6" style="border-bottom:2px solid var(--border);padding:0"></td></tr>');
   }).join('');
   tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
 }
