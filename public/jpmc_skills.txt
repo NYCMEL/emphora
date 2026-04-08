@@ -1,3 +1,7 @@
+- An employer uses skill sets within the company. We need to display those in a section on top of the page and initially hidden content.
+- Employer can open this section and pick a few skillset and while doing so, the "Top Candidates" should change dynamically to reflect which employee has the required skillset in that table.
+
+- Here are employer's skillset:
 Programming Languages: - Java - Python - JavaScript / TypeScript - C++ - SQL - Kotlin - Scala - Go
 Cloud & Infrastructure: - AWS - Private / Hybrid Cloud - Kubernetes - Docker - Terraform
 Architecture & Systems: - Microservices - REST APIs / GraphQL - Event-driven architecture (Kafka) - Distributed systems - High-availability systems
@@ -11,3 +15,7 @@ Data Skills: - SQL - Data modeling - Big data processing - Data pipelines
 Security Skills: - Authentication & authorization - Secure design - Risk awareness
 Domain Knowledge: - Banking systems - Financial markets - Payments - Risk management
 Soft Skills: - Communication - Problem-solving - Teamwork - Working in regulated environments
+
+
+spread these skillsets amongts employees currently in "Top Candidates", so filtering works.
+-Employer can then pin one or more employees and they should be present on top of "Top Candidates" list
