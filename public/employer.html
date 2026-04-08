@@ -397,9 +397,7 @@ function renderCandidatesTable(){
     const vb=_csortCol==='status'?b.status.label.toLowerCase():(b[_csortCol]||'').toLowerCase();
     return va<vb?_csortDir:va>vb?-_csortDir:0;
   });
-  const pinned=list.filter(c=>pinnedCandidates.has(c.name+'|'+c.role));
-  const rest=list.filter(c=>!pinnedCandidates.has(c.name+'|'+c.role));
-  const sorted=[...pinned,...rest].slice(0,12);
+  const sorted=list.slice(0,12);
   if(!sorted.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates match selected skills</td></tr>';renderPinnedTable();return;}
   tbody.innerHTML=sorted.map(c=>{
     const isPinned=pinnedCandidates.has(c.name+'|'+c.role);
