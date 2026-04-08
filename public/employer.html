@@ -174,7 +174,7 @@
       <table style="width:100%;border-collapse:collapse;font-size:.82rem">
         <thead><tr>
           <th style="width:32px;padding:8px 4px 8px 12px"></th>
-          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Skills Matched</th><th>Status</th><th></th>
+          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th><th></th>
         </tr></thead>
         <tbody id="candidates-tbody">
           <tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Select skills above to find matching candidates</td></tr>
@@ -790,6 +790,14 @@ function renderCandidatesTable() {
   if (label) label.textContent = list.length + ' candidate' + (list.length!==1?'s':'') + ' matching';
 
   // Pinned always on top
+  // Deduplicate by name - keep highest matchedFilters count
+  const seen = new Map();
+  list.forEach(c => {
+    const key = c.name;
+    if (!seen.has(key) || c.matchedFilters.length > seen.get(key).matchedFilters.length) seen.set(key, c);
+  });
+  list = [...seen.values()];
+  list.sort((a,b) => b.matchedFilters.length - a.matchedFilters.length || b.score - a.score);
   const pinned = list.filter(c => pinnedCandidates.has(c.name + '|' + c.role));
   const rest   = list.filter(c => !pinnedCandidates.has(c.name + '|' + c.role));
   const sorted = [...pinned, ...rest].slice(0, 12);
@@ -811,11 +819,14 @@ function renderCandidatesTable() {
       +   '<button class="pin-btn ' + (isPinned?'pinned':'') + '" data-pinkey="' + esc(c.name+'|'+c.role) + '" title="' + (isPinned?'Unpin':'Pin to top') + '">'
       +   '<span class="material-icons-round" style="font-size:1rem">' + (isPinned?'push_pin':'push_pin') + '</span></button>'
       + '</td>'
-      + '<td class="primary">' + (isPinned ? '<span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:3px">push_pin</span>' : '') + esc(c.name) + '</td>'
+      + '<td class="primary">'
+      + (isPinned ? '<span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:3px">push_pin</span>' : '')
+      + esc(c.name)
+      + (c.matchedFilters && c.matchedFilters.length ? ' <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:10px;background:#00897B;color:#fff;font-size:.65rem;font-weight:700;padding:0 5px;margin-left:5px;vertical-align:middle">' + c.matchedFilters.length + '</span>' : '')
+      + '</td>'
       + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
       + '<td>' + esc(c.role) + '</td>'
       + '<td class="match-score"><span class="pill pill-blue">' + c.match + '%</span></td>'
-      + '<td style="max-width:220px">' + matchedHtml + '</td>'
       + '<td><span class="pill ' + c.status.pill + '">' + esc(c.status.label) + '</span></td>'
       + '<td onclick="event.stopPropagation()"><a href="' + url + '" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
       + '</tr>';
