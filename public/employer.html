@@ -39,7 +39,8 @@
     .stat-value{font-size:1.6rem;font-weight:700;letter-spacing:-.03em;color:var(--text);line-height:1;}
     .stat-sub{font-size:.72rem;color:var(--muted);margin-top:4px;}
     .stat-card.accent .stat-value{color:var(--primary);}
-    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;overflow:hidden;}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;overflow:visible;}
+    .section-header{border-radius:14px 14px 0 0;overflow:hidden;}
     .section-header{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--border);}
     .section-title{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;}
     .section-title .material-icons-round{font-size:1rem;color:var(--primary);}
@@ -86,10 +87,11 @@
     .send-btn{display:inline-flex;align-items:center;gap:2px;padding:3px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font:600 .7rem inherit;cursor:pointer;transition:all .15s;}
     .send-btn:hover{border-color:var(--primary);color:var(--primary);}
     .send-btn .material-icons-round{font-size:.75rem;}
-    .send-menu{display:none;position:absolute;right:0;top:calc(100% + 4px);min-width:150px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:300;overflow:hidden;}
+    .send-menu{display:none;position:absolute;right:0;top:calc(100% + 4px);min-width:160px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:9999;max-height:220px;overflow-y:auto;}
     .send-menu.open{display:block;}
-    .send-menu-hdr{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:6px 12px 4px;border-bottom:1px solid var(--border);}
-    .send-menu-item{display:block;padding:6px 12px;font-size:.78rem;color:var(--text);cursor:pointer;transition:background .1s;}
+    .send-menu-hdr{font-size:.58rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:5px 10px 4px;border-bottom:1px solid var(--border);background:var(--surface2);position:sticky;top:0;}
+    .send-menu-item{display:block;padding:5px 10px;font-size:.78rem;color:var(--text);cursor:pointer;transition:background .1s;border-bottom:1px solid var(--border);}
+    .send-menu-item:last-child{border-bottom:none;}
     .send-menu-item:hover{background:rgba(0,137,123,.08);color:var(--primary);}
   </style>
 </head>
@@ -297,6 +299,23 @@ try{pinnedCandidates=new Set(JSON.parse(localStorage.getItem(PINS_KEY)||'[]'));}
   ).join('');
 })();
 
+const FILTER_KEY='emphora_skill_filters_'+(user?user.email:'');
+function saveFilters(){try{localStorage.setItem(FILTER_KEY,JSON.stringify([...activeSkillFilters]));}catch(_){}}
+
+// Restore persisted filters
+(function restoreFilters(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(FILTER_KEY)||'[]');
+    saved.forEach(function(skill){
+      activeSkillFilters.add(skill);
+      document.querySelectorAll('.skill-filter-chip').forEach(function(c){
+        if(c.dataset.skill===skill)c.classList.add('active');
+      });
+    });
+    if(activeSkillFilters.size){updateActiveFiltersBar();}
+  }catch(_){}
+})();
+
 function toggleSkillset(){
   const panel=document.getElementById('skillset-panel');
   const icon=document.getElementById('skillset-icon');
@@ -309,7 +328,7 @@ function toggleSkillFilter(chip){
   const skill=chip.dataset.skill;
   if(activeSkillFilters.has(skill)){activeSkillFilters.delete(skill);chip.classList.remove('active');}
   else{activeSkillFilters.add(skill);chip.classList.add('active');}
-  updateActiveFiltersBar();renderCandidatesTable();
+  saveFilters();updateActiveFiltersBar();renderCandidatesTable();
 }
 
 function removeSkillFilter(skill){
@@ -333,7 +352,7 @@ function updateActiveFiltersBar(){
 function clearAllFilters(){
   activeSkillFilters.clear();
   document.querySelectorAll('.skill-filter-chip.active').forEach(c=>c.classList.remove('active'));
-  updateActiveFiltersBar();renderCandidatesTable();
+  saveFilters();updateActiveFiltersBar();renderCandidatesTable();
 }
 
 function togglePin(key){
@@ -420,7 +439,7 @@ function renderPinnedTable(){
   tbody.innerHTML=pinned.map(c=>{
     const url='candidate-profile.html?name='+encodeURIComponent(c.name)+'&score='+c.score+'&match='+c.match+'&role='+encodeURIComponent(c.role)+'&status='+encodeURIComponent(c.status.label);
     const filters=[...activeSkillFilters];
-    const matched=filters.length?filters.filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase()))):Object.values(EMPLOYER_SKILLSETS).flat().filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase())));
+    const matched=filters.filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase())));
     const skillsHtml=matched.length?matched.slice(0,6).map(s=>'<span class="pill pill-green" style="margin:1px 2px">'+esc(s)+'</span>').join(''):'<span style="color:var(--muted);font-size:.72rem">--</span>';
     return '<tr class="pinned-row" style="cursor:pointer" onclick="window.location.href=this.dataset.url" data-url="'+url+'">'
       +'<td class="primary"><span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:4px">push_pin</span>'+esc(c.name)+'</td>'
