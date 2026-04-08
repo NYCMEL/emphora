@@ -76,6 +76,36 @@
     .em-avatar-overlay .material-icons-round { font-size:1.4rem; color:#fff; }
     .em-avatar-upload:hover .em-avatar-overlay { opacity:1; }
     .em-avatar-upload:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
+
+    /* ── Skillset filter panel ── */
+    .skillset-panel { overflow:hidden; max-height:0; transition:max-height .35s ease; }
+    .skillset-panel.open { max-height:800px; }
+    .skillset-toggle { cursor:pointer; display:flex; align-items:center; gap:6px; }
+    .skillset-toggle .toggle-icon { transition:transform .3s; font-size:1rem; }
+    .skillset-panel.open ~ * .toggle-icon,
+    .toggle-icon.open { transform:rotate(180deg); }
+    .skillset-body { padding:1rem 1.1rem; border-top:1px solid var(--border); }
+    .skillset-cats { display:flex; flex-wrap:wrap; gap:1.5rem; }
+    .skillset-cat-label { font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+    .skillset-chips { display:flex; flex-wrap:wrap; gap:5px; }
+    .skill-filter-chip {
+      display:inline-flex; align-items:center; gap:4px;
+      padding:3px 10px; border-radius:20px; font-size:.73rem; font-weight:600;
+      border:1.5px solid var(--border); background:var(--surface2); color:var(--muted);
+      cursor:pointer; user-select:none; transition:all .15s;
+    }
+    .skill-filter-chip:hover { border-color:var(--primary); color:var(--primary); }
+    .skill-filter-chip.active { background:rgba(0,137,123,.12); border-color:#00897B; color:#00897B; }
+    .skill-filter-chip .material-icons-round { font-size:.72rem; }
+    .active-filters { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:.5rem 1.1rem; border-top:1px solid var(--border); background:var(--surface2); }
+    .active-filter-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:12px; font-size:.7rem; font-weight:700; background:rgba(0,137,123,.12); color:#00897B; border:1px solid rgba(0,137,123,.25); }
+    .active-filter-tag button { background:none; border:none; cursor:pointer; color:inherit; padding:0; display:flex; line-height:1; opacity:.7; }
+    .active-filter-tag button:hover { opacity:1; }
+    .pin-btn { background:none; border:none; cursor:pointer; color:var(--muted); padding:2px 4px; transition:color .15s; }
+    .pin-btn:hover { color:#E65100; }
+    .pin-btn.pinned { color:#E65100; }
+    .pinned-row td { background:rgba(230,81,0,.04) !important; }
+    td.match-score { font-weight:700; }
   </style>
 </head>
 <body>
@@ -199,7 +229,7 @@ function initUser() {
   const ln  = user.lastName  || '';
   const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase();
   document.getElementById('hero-name').textContent      = `${fn} ${ln}`.trim();
-  document.getElementById('hero-sub').textContent       = `${user.email||''}  |  ${user.isVerified?'✓ Verified':'Unverified'}`;
+  document.getElementById('hero-sub').textContent       = `${user.email||''}  |  ${user.isVerified?'Verified':'Unverified'}`;
   document.getElementById('hero-avatar').textContent    = ini||'?';
   document.getElementById('topbar-name').textContent    = fn;
   document.getElementById('topbar-initials').textContent = ini||'?';
@@ -219,7 +249,7 @@ document.getElementById('logout-btn').onclick  = signOut;
 document.getElementById('logout-btn2').onclick = signOut;
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function fmtDate(iso){if(!iso)return'—';try{return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});}catch{return iso;}}
+function fmtDate(iso){if(!iso)return'--';try{return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});}catch{return iso;}}
 
 
 if (user) {
@@ -242,7 +272,7 @@ if (user) {
       initAvatar(user.email, heroEl, topbarEl, ini);
     });
   
-// ── Job postings sort state ───────────────────────────────────────────────────
+// ?? Job postings sort state ???????????????????????????????????????????????????
 let _sortCol = 'urgency', _sortDir = 1;
 
 function sortPostings(col) {
@@ -266,20 +296,20 @@ function renderPostingsTable() {
   ['title','department','type','location','status','urgency'].forEach(c => {
     const el = document.getElementById('sort-' + c);
     if (!el) return;
-    el.textContent = _sortCol === c ? (_sortDir === 1 ? ' ↑' : ' ↓') : '';
+    el.textContent = _sortCol === c ? (_sortDir === 1 ? ' ?' : ' ?') : '';
   });
 
   if (!postings.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet — click Post Job to create one</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet -- click Post Job to create one</td></tr>';
     return;
   }
 
-  const URGENCY_ORDER = ['Ready to hire now','Within 2 weeks','Within a month','1–3 months','Future opening','Exploratory / Just looking',''];
+  const URGENCY_ORDER = ['Ready to hire now','Within 2 weeks','Within a month','1-3 months','Future opening','Exploratory / Just looking',''];
   const URGENCY_COLOR = {
     'Ready to hire now':         '#D32F2F',
     'Within 2 weeks':            '#E65100',
     'Within a month':            '#F57C00',
-    '1–3 months':                '#1A6BCC',
+    '1-3 months':                '#1A6BCC',
     'Future opening':            '#7A8FA6',
     'Exploratory / Just looking':'#7A8FA6',
   };
@@ -307,13 +337,13 @@ function renderPostingsTable() {
     const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
     const urgColor = URGENCY_COLOR[p.urgency] || 'var(--muted)';
     return `<tr style="cursor:pointer" onclick="editPosting('${esc(p.id)}')" title="Click to edit">
-      <td class="primary">${esc(p.title || '—')}</td>
-      <td>${esc(p.department || '—')}</td>
-      <td>${esc(p.type || '—')}</td>
-      <td>${esc([p.workplace, p.location].filter(Boolean).join('  |  ') || '—')}</td>
-      <td>${skillCount > 0 ? `<span class="pill pill-blue">${skillCount}</span>` : '—'}</td>
+      <td class="primary">${esc(p.title || '--')}</td>
+      <td>${esc(p.department || '--')}</td>
+      <td>${esc(p.type || '--')}</td>
+      <td>${esc([p.workplace, p.location].filter(Boolean).join('  |  ') || '--')}</td>
+      <td>${skillCount > 0 ? `<span class="pill pill-blue">${skillCount}</span>` : '--'}</td>
       <td><span class="pill ${pillClass}">${statusLabel}</span></td>
-      <td style="font-size:.78rem;color:${urgColor};font-weight:600;white-space:nowrap">${esc(p.urgency || '—')}</td>
+      <td style="font-size:.78rem;color:${urgColor};font-weight:600;white-space:nowrap">${esc(p.urgency || '--')}</td>
       <td style="text-align:right" onclick="event.stopPropagation()">
         <button onclick="deletePosting('${esc(p.id)}')" title="Delete" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px" onmouseover="this.style.color='#EF5350'" onmouseout="this.style.color='var(--muted)'">
           <span class="material-icons-round" style="font-size:1rem;vertical-align:middle">delete_outline</span>
@@ -323,7 +353,7 @@ function renderPostingsTable() {
   }).join('');
 }
 
-// ── Load job postings from localStorage ──────────────────────────────────────
+// ?? Load job postings from localStorage ??????????????????????????????????????
 (function renderJobPostings() {
   try {
     const KEY = 'emphora_job_postings_' + user.email;
@@ -343,22 +373,142 @@ function renderPostingsTable() {
     }
 
     renderPostingsTable();
+    buildCandidates();
   } catch(e) { console.error('[Emphora] renderJobPostings error:', e); }
 })();
 
-// ── Render top candidates ─────────────────────────────────────────────────────
-(function renderCandidates() {
-  const tbody = document.getElementById('candidates-tbody');
-  if (!tbody || !user) return;
+// -- Employer skillsets --------------------------------------------------------
+const EMPLOYER_SKILLSETS = {
+  'Programming Languages':   ['Java','Python','JavaScript / TypeScript','C++','SQL','Kotlin','Scala','Go'],
+  'Cloud & Infrastructure':  ['AWS','Private / Hybrid Cloud','Kubernetes','Docker','Terraform'],
+  'Architecture & Systems':  ['Microservices','REST APIs / GraphQL','Event-driven architecture (Kafka)','Distributed systems','High-availability systems'],
+  'Data & Big Data':         ['Hadoop','Spark','Kafka','ETL pipelines','Data lakes / warehouses','Data governance'],
+  'AI / Machine Learning':   ['NumPy / Pandas / Scikit-learn','TensorFlow','PyTorch','Fraud detection','Risk modeling','NLP'],
+  'Cybersecurity':           ['IAM','Encryption','Secure coding','Threat detection','Compliance'],
+  'DevOps & Engineering':    ['CI/CD (Jenkins, GitHub Actions)','Automated testing','Monitoring & observability','Agile / Scrum'],
+  'Core Skills':             ['Data structures & algorithms','System design','API development','Performance optimization'],
+  'Data Skills':             ['SQL','Data modeling','Big data processing','Data pipelines'],
+  'Domain Knowledge':        ['Banking systems','Financial markets','Payments','Risk management'],
+  'Soft Skills':             ['Communication','Problem-solving','Teamwork','Working in regulated environments'],
+};
 
+// Assign skills to candidates deterministically
+const CANDIDATE_SKILL_POOL = Object.values(EMPLOYER_SKILLSETS).flat();
+
+function seedCandidateSkills(name) {
+  let rng = name.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*97+7;
+  function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
+  const count = 6 + rand(10);
+  const pool = [...CANDIDATE_SKILL_POOL];
+  const skills = [];
+  for(let i=0;i<count&&pool.length;i++){
+    const idx = rand(pool.length);
+    skills.push(pool.splice(idx,1)[0]);
+  }
+  return skills;
+}
+
+// State
+let activeSkillFilters = new Set();
+let pinnedCandidates = new Set();
+let allCandidates = [];
+
+const PINS_KEY = 'emphora_pinned_candidates_' + (user ? user.email : '');
+try { pinnedCandidates = new Set(JSON.parse(localStorage.getItem(PINS_KEY)||'[]')); } catch(_) {}
+
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// -- Build skillset filter panel ------------------------------------------------
+(function buildSkillsetPanel() {
+  const container = document.getElementById('skillset-cats');
+  if (!container) return;
+  container.innerHTML = Object.entries(EMPLOYER_SKILLSETS).map(([cat, skills]) =>
+    '<div style="min-width:180px;flex:1">'
+    + '<div class="skillset-cat-label">' + esc(cat) + '</div>'
+    + '<div class="skillset-chips">'
+    + skills.map(s =>
+        '<span class="skill-filter-chip" data-skill="' + esc(s) + '" onclick="toggleSkillFilter(this)">'
+        + esc(s) + '</span>'
+      ).join('')
+    + '</div></div>'
+  ).join('');
+})();
+
+function toggleSkillset() {
+  const panel = document.getElementById('skillset-panel');
+  const icon  = document.getElementById('skillset-icon');
+  panel.classList.toggle('open');
+  icon.style.transform = panel.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function toggleSkillFilter(chip) {
+  const skill = chip.dataset.skill;
+  if (activeSkillFilters.has(skill)) {
+    activeSkillFilters.delete(skill);
+    chip.classList.remove('active');
+  } else {
+    activeSkillFilters.add(skill);
+    chip.classList.add('active');
+  }
+  updateActiveFiltersBar();
+  renderCandidatesTable();
+}
+
+function removeSkillFilter(skill) {
+  activeSkillFilters.delete(skill);
+  // Deactivate chip
+  document.querySelectorAll('.skill-filter-chip').forEach(c => {
+    if (c.dataset.skill === skill) c.classList.remove('active');
+  });
+  updateActiveFiltersBar();
+  renderCandidatesTable();
+}
+
+function updateActiveFiltersBar() {
+  const bar = document.getElementById('active-filters');
+  const countEl = document.getElementById('active-count');
+  if (!activeSkillFilters.size) {
+    bar.style.display = 'none';
+    countEl.textContent = '';
+    return;
+  }
+  countEl.textContent = '(' + activeSkillFilters.size + ' filter' + (activeSkillFilters.size>1?'s':'') + ' active)';
+  bar.style.display = 'flex';
+  bar.innerHTML = '<span style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Filtering by:</span>'
+    + [...activeSkillFilters].map(s =>
+        '<span class="active-filter-tag">' + esc(s)
+        + '<button class="rm-skill-btn" data-skill="' + esc(s) + '" title="Remove"><span class="material-icons-round" style="font-size:.7rem">close</span></button>'
+        + '</span>'
+      ).join('')
+    + '<button onclick="clearAllFilters()" style="margin-left:auto;font-size:.68rem;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline">Clear all</button>';
+  bar.querySelectorAll('.rm-skill-btn').forEach(function(b){ b.addEventListener('click', function(){ removeSkillFilter(b.dataset.skill); }); });
+}
+
+function clearAllFilters() {
+  activeSkillFilters.clear();
+  document.querySelectorAll('.skill-filter-chip.active').forEach(c => c.classList.remove('active'));
+  updateActiveFiltersBar();
+  renderCandidatesTable();
+}
+
+function togglePin(name) {
+  if (pinnedCandidates.has(name)) {
+    pinnedCandidates.delete(name);
+  } else {
+    pinnedCandidates.add(name);
+  }
+  try { localStorage.setItem(PINS_KEY, JSON.stringify([...pinnedCandidates])); } catch(_) {}
+  renderCandidatesTable();
+}
+
+// -- Build candidate pool --------------------------------------------------------
+function buildCandidates() {
   const KEY = 'emphora_job_postings_' + user.email;
   let postings = [];
   try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
-
   const activePostings = postings.filter(p => p.status === 'active' || p.status === 'expiring');
   if (!activePostings.length) return;
 
-  // Seed fake candidates per active posting for Melify
   const STATUSES = [
     { label:'Resume Received', pill:'pill-blue'  },
     { label:'Interview Set',   pill:'pill-green' },
@@ -372,39 +522,81 @@ function renderPostingsTable() {
     'Morgan Evans','Parker Garcia','Riley Green','Rowan Harris','Demi Morris',
   ];
 
-  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-  // Generate 2-3 candidates per active posting, seeded by posting id
-  let candidates = [];
+  const seen = new Set();
   activePostings.forEach(p => {
     let rng = p.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*31;
     function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
     const count = 2 + rand(2);
     for (let i = 0; i < count; i++) {
-      const score  = (75 + rand(20) + (rand(10)/10)).toFixed(1);
+      const name = NAMES[(rand(NAMES.length) + i) % NAMES.length];
+      if (seen.has(name + p.title)) continue;
+      seen.add(name + p.title);
+      const score  = parseFloat((75 + rand(20) + (rand(10)/10)).toFixed(1));
       const match  = 80 + rand(18);
       const status = STATUSES[rand(STATUSES.length)];
-      const name   = NAMES[(rand(NAMES.length) + i) % NAMES.length];
-      candidates.push({ name, score: parseFloat(score), match, status, role: p.title });
+      const skills = seedCandidateSkills(name);
+      allCandidates.push({ name, score, match, status, role: p.title, skills });
     }
   });
 
-  // Sort by score desc, top 8
-  candidates.sort((a,b) => b.score - a.score);
-  candidates = candidates.slice(0, 8);
+  allCandidates.sort((a,b) => b.score - a.score);
+  renderCandidatesTable();
+}
 
-  tbody.innerHTML = candidates.map(c => {
+function renderCandidatesTable() {
+  const tbody = document.getElementById('candidates-tbody');
+  const label = document.getElementById('candidates-filter-label');
+  if (!tbody) return;
+
+  let list = [...allCandidates];
+
+  // Filter by active skills
+  if (activeSkillFilters.size > 0) {
+    const filters = [...activeSkillFilters];
+    list = list.map(c => {
+      const matched = filters.filter(f => c.skills.some(s => s.toLowerCase().includes(f.toLowerCase()) || f.toLowerCase().includes(s.toLowerCase())));
+      return { ...c, matchedFilters: matched };
+    }).filter(c => c.matchedFilters.length > 0);
+    list.sort((a,b) => b.matchedFilters.length - a.matchedFilters.length || b.score - a.score);
+    if (label) label.textContent = list.length + ' candidate' + (list.length!==1?'s':'') + ' match ' + activeSkillFilters.size + ' skill filter' + (activeSkillFilters.size!==1?'s':'');
+  } else {
+    list = list.map(c => ({ ...c, matchedFilters: [] }));
+    if (label) label.textContent = '';
+  }
+
+  // Pinned always on top
+  const pinned = list.filter(c => pinnedCandidates.has(c.name + '|' + c.role));
+  const rest   = list.filter(c => !pinnedCandidates.has(c.name + '|' + c.role));
+  const sorted = [...pinned, ...rest].slice(0, 12);
+
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates match selected skills</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = sorted.map(c => {
+    const isPinned = pinnedCandidates.has(c.name + '|' + c.role);
     const url = 'candidate-profile.html?name=' + encodeURIComponent(c.name) + '&score=' + c.score + '&match=' + c.match + '&role=' + encodeURIComponent(c.role) + '&status=' + encodeURIComponent(c.status.label);
-    return '<tr style="cursor:pointer" onclick="window.location.href=\'' + url + '\'" title="View full profile">'
-      + '<td class="primary">' + esc(c.name) + '</td>'
+    const matchedHtml = c.matchedFilters && c.matchedFilters.length
+      ? c.matchedFilters.map(s => '<span class="pill pill-green" style="margin:1px">' + esc(s) + '</span>').join('')
+      : '<span style="color:var(--muted);font-size:.72rem">--</span>';
+    return '<tr class="' + (isPinned ? 'pinned-row' : '') + '" style="cursor:pointer" onclick="window.location.href=this.dataset.url" data-url="' + url + '" title="View profile">'
+      + '<td onclick="event.stopPropagation()" style="padding:0 0 0 8px">'
+      +   '<button class="pin-btn ' + (isPinned?'pinned':'') + '" data-pinkey="' + esc(c.name+'|'+c.role) + '" title="' + (isPinned?'Unpin':'Pin to top') + '">'
+      +   '<span class="material-icons-round" style="font-size:1rem">' + (isPinned?'push_pin':'push_pin') + '</span></button>'
+      + '</td>'
+      + '<td class="primary">' + (isPinned ? '<span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:3px">push_pin</span>' : '') + esc(c.name) + '</td>'
       + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
       + '<td>' + esc(c.role) + '</td>'
-      + '<td><span class="pill pill-blue">' + c.match + '%</span></td>'
+      + '<td class="match-score"><span class="pill pill-blue">' + c.match + '%</span></td>'
+      + '<td style="max-width:220px">' + matchedHtml + '</td>'
       + '<td><span class="pill ' + c.status.pill + '">' + esc(c.status.label) + '</span></td>'
-      + '<td><a href="' + url + '" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
+      + '<td onclick="event.stopPropagation()"><a href="' + url + '" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
       + '</tr>';
   }).join('');
-})();
+  // Pin button delegation
+  tbody.querySelectorAll('.pin-btn').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); togglePin(b.dataset.pinkey); }); });
+}
 
 function editPosting(id) {
   window.location.href = 'job-post.html?edit=' + encodeURIComponent(id);
