@@ -408,7 +408,7 @@ function renderCandidatesTable(){
       +'<td><strong style="color:var(--primary)">'+c.score+'</strong></td>'
       +'<td>'+esc(c.role)+'</td>'
       +'<td><span class="pill pill-blue">'+c.match+'%</span></td>'
-      +'<td><span class="pill '+c.status.pill+'">'+esc(c.status.label)+'</span></td>'
+      +'<td class="cand-status" data-key="'+esc(c.name+'|'+c.role)+'">'+getCandStatus(c.name+'|'+c.role)+'</td>'
       +'<td onclick="event.stopPropagation()"><a href="'+url+'" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
       +'</tr>';
   }).join('');
@@ -418,6 +418,28 @@ function renderCandidatesTable(){
 
 
 var MANAGERS = ['Alex Thornton','Maria Santos','David Kim','Rachel Osei','James Whitfield','Priya Nair','Carlos Vega'];
+var CAND_STATUS_KEY = 'emphora_cand_status_'+(user?user.email:'');
+var candStatuses = {};
+try{
+  candStatuses = JSON.parse(localStorage.getItem(CAND_STATUS_KEY)||'{}');
+  // Migrate: remove any 'Active' placeholder values
+  Object.keys(candStatuses).forEach(function(k){ if(candStatuses[k]==='Active') delete candStatuses[k]; });
+  localStorage.setItem(CAND_STATUS_KEY, JSON.stringify(candStatuses));
+}catch(_){}
+
+function getCandStatus(key) {
+  var s = candStatuses[key];
+  if (!s) return '<span style="color:var(--muted);font-size:.72rem">--</span>';
+  return '<span class="pill pill-green">'+esc(s)+'</span>';
+}
+function setCandStatus(key, status) {
+  candStatuses[key] = status;
+  try{ localStorage.setItem(CAND_STATUS_KEY, JSON.stringify(candStatuses)); }catch(_){}
+  // Update all cells for this candidate
+  document.querySelectorAll('.cand-status[data-key="'+key+'"]').forEach(function(td){
+    td.innerHTML = getCandStatus(key);
+  });
+}
 function sendMenuHtml(key) {
   var id = 'sm-' + key.replace(/[^a-z0-9]/gi,'');
   return '<div class="send-wrap">'
@@ -425,7 +447,7 @@ function sendMenuHtml(key) {
     + '<span class="material-icons-round">person_add</span>Send to<span class="material-icons-round">arrow_drop_down</span></button>'
     + '<div class="send-menu" id="'+id+'">'
     + '<div class="send-menu-hdr">Send to</div>'
-    + MANAGERS.map(function(m){ return '<div class="send-menu-item" onclick="event.stopPropagation();document.getElementById(\''+id+'\').classList.remove(\'open\');showToast(\'Forwarded to '+m+'\',\'success\')">'+esc(m)+'</div>'; }).join('')
+    + MANAGERS.map(function(m){ return '<div class="send-menu-item" onclick="event.stopPropagation();document.getElementById(\''+id+'\').classList.remove(\'open\');setCandStatus(\''+key+'\',\''+m+'\');showToast(\'Sent to '+m+'\',\'success\')">'+esc(m)+'</div>'; }).join('')
     + '</div></div>';
 }
 document.addEventListener('click', function(){ document.querySelectorAll('.send-menu.open').forEach(function(m){ m.classList.remove('open'); }); });
@@ -444,7 +466,7 @@ function renderPinnedTable(){
       +'<td><strong style="color:var(--primary)">'+c.score+'</strong></td>'
       +'<td>'+esc(c.role)+'</td>'
       +'<td><span class="pill pill-blue">'+c.match+'%</span></td>'
-      +'<td><span class="pill '+c.status.pill+'">'+esc(c.status.label)+'</span></td>'
+      +'<td class="cand-status" data-key="'+esc(c.name+'|'+c.role)+'">'+getCandStatus(c.name+'|'+c.role)+'</td>'
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+sendMenuHtml(esc(c.name+'|'+c.role))+'<button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
       +'</tr>'
       +(matched.length?'<tr style="background:rgba(0,137,123,.02)"><td colspan="6" style="padding:1px 12px 3px 28px;border-bottom:none"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
