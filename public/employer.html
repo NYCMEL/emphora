@@ -185,11 +185,10 @@
 
     
 
-  <!-- Pinned Candidates + Job Postings -->
-  <div class="section">
+  <!-- Pinned Candidates -->
+  <div class="section" style="margin-bottom:1.25rem">
     <div class="section-header">
       <div class="section-title"><span class="material-icons-round">push_pin</span>Pinned Candidates</div>
-      <a href="job-post.html" class="btn btn-primary" style="text-decoration:none"><span class="material-icons-round">add</span>Post Job</a>
     </div>
     <div style="padding:0">
       <table style="width:100%;border-collapse:collapse;font-size:.82rem">
@@ -197,12 +196,17 @@
           <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th><th></th>
         </tr></thead>
         <tbody id="pinned-tbody">
-          <tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Pin candidates above to show them here</td></tr>
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="section-header" style="border-top:2px solid var(--border);margin-top:0">
+  </div>
+
+  <!-- Job Postings -->
+  <div class="section" style="margin-bottom:1.25rem">
+    <div class="section-header">
       <div class="section-title"><span class="material-icons-round">work</span>Job Postings</div>
+      <a href="job-post.html" class="btn btn-primary" style="text-decoration:none"><span class="material-icons-round">add</span>Post Job</a>
     </div>
     <div class="section-body" id="job-postings-body">
       <table>
