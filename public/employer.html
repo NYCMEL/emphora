@@ -833,7 +833,7 @@ function renderPinnedTable(pool) {
   }
   ptbody.innerHTML = pinned.map(function(c){
     var url = 'candidate-profile.html?name=' + encodeURIComponent(c.name) + '&score=' + c.score + '&match=' + c.match + '&role=' + encodeURIComponent(c.role) + '&status=' + encodeURIComponent(c.status.label);
-    return '<tr style="cursor:pointer;background:rgba(230,81,0,.04)" onclick="window.location.href='' + url + ''">'
+    return '<tr style="cursor:pointer;background:rgba(230,81,0,.04)" onclick="window.location.href=this.dataset.url" data-url="' + url + '">'  
       + '<td class="primary"><span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:4px">push_pin</span>' + esc(c.name) + '</td>'
       + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
       + '<td>' + esc(c.role) + '</td>'
