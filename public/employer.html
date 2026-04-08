@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Emphora — Employer Dashboard</title>
+  <title>Emphora - Employer Dashboard</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="css/emphora.css"/>
@@ -64,48 +64,24 @@
     .progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px;}
     .progress-fill{height:100%;border-radius:3px;background:var(--primary);transition:width .6s ease;}
     @media(max-width:600px){.page-hero{flex-wrap:wrap;}.hero-actions{width:100%;}.stats{grid-template-columns:1fr 1fr;}}
-
-    /* ── Avatar upload ── */
-    .em-avatar-upload { position:relative; cursor:pointer; transition:filter .2s; overflow:hidden; }
-    .em-avatar-upload:hover { filter:brightness(.75); }
-    .em-avatar-overlay {
-      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      opacity:0; transition:opacity .2s; pointer-events:none; border-radius:50%;
-      background:rgba(0,0,0,.35);
-    }
-    .em-avatar-overlay .material-icons-round { font-size:1.4rem; color:#fff; }
-    .em-avatar-upload:hover .em-avatar-overlay { opacity:1; }
-    .em-avatar-upload:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
-
-    /* ── Skillset filter panel ── */
-    .skillset-panel { overflow:hidden; max-height:0; transition:max-height .35s ease; }
-    .skillset-panel.open { max-height:800px; }
-    .skillset-toggle { cursor:pointer; display:flex; align-items:center; gap:6px; }
-    .skillset-toggle .toggle-icon { transition:transform .3s; font-size:1rem; }
-    .skillset-panel.open ~ * .toggle-icon,
-    .toggle-icon.open { transform:rotate(180deg); }
-    .skillset-body { padding:1rem 1.1rem; border-top:1px solid var(--border); }
-    .skillset-cats { display:flex; flex-wrap:wrap; gap:1.5rem; }
-    .skillset-cat-label { font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
-    .skillset-chips { display:flex; flex-wrap:wrap; gap:5px; }
-    .skill-filter-chip {
-      display:inline-flex; align-items:center; gap:4px;
-      padding:3px 10px; border-radius:20px; font-size:.73rem; font-weight:600;
-      border:1.5px solid var(--border); background:var(--surface2); color:var(--muted);
-      cursor:pointer; user-select:none; transition:all .15s;
-    }
-    .skill-filter-chip:hover { border-color:var(--primary); color:var(--primary); }
-    .skill-filter-chip.active { background:rgba(0,137,123,.12); border-color:#00897B; color:#00897B; }
-    .skill-filter-chip .material-icons-round { font-size:.72rem; }
-    .active-filters { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:.5rem 1.1rem; border-top:1px solid var(--border); background:var(--surface2); }
-    .active-filter-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:12px; font-size:.7rem; font-weight:700; background:rgba(0,137,123,.12); color:#00897B; border:1px solid rgba(0,137,123,.25); }
-    .active-filter-tag button { background:none; border:none; cursor:pointer; color:inherit; padding:0; display:flex; line-height:1; opacity:.7; }
-    .active-filter-tag button:hover { opacity:1; }
-    .pin-btn { background:none; border:none; cursor:pointer; color:var(--muted); padding:2px 4px; transition:color .15s; }
-    .pin-btn:hover { color:#E65100; }
-    .pin-btn.pinned { color:#E65100; }
-    .pinned-row td { background:rgba(230,81,0,.04) !important; }
-    td.match-score { font-weight:700; }
+    .skillset-panel{overflow:hidden;max-height:0;transition:max-height .35s ease;}
+    .skillset-panel.open{max-height:1200px;}
+    .skillset-body{padding:1rem 1.1rem;border-top:1px solid var(--border);}
+    .skillset-cats{display:flex;flex-wrap:wrap;gap:1.5rem;}
+    .skillset-cat-label{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .skillset-chips{display:flex;flex-wrap:wrap;gap:5px;}
+    .skill-filter-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:600;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;user-select:none;transition:all .15s;}
+    .skill-filter-chip:hover{border-color:var(--primary);color:var(--primary);}
+    .skill-filter-chip.active{background:rgba(0,137,123,.12);border-color:#00897B;color:#00897B;}
+    .active-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:.5rem 1.1rem;border-top:1px solid var(--border);background:var(--surface2);}
+    .active-filter-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700;background:rgba(0,137,123,.12);color:#00897B;border:1px solid rgba(0,137,123,.25);}
+    .active-filter-tag button{background:none;border:none;cursor:pointer;color:inherit;padding:0;display:flex;line-height:1;opacity:.7;}
+    .active-filter-tag button:hover{opacity:1;}
+    .pin-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;transition:color .15s;}
+    .pin-btn:hover{color:#E65100;}
+    .pin-btn.pinned{color:#E65100;}
+    .pinned-row td{background:rgba(230,81,0,.04) !important;}
+    td.match-score{font-weight:700;}
   </style>
 </head>
 <body>
@@ -114,48 +90,34 @@
   <a href="employer.html" class="logo">Emph<b>ora</b></a>
   <span class="role-tag"><span class="material-icons-round">business</span><span id="role-label">Employer</span></span>
   <div class="spacer"></div>
-  <a href="profile.html" class="user-info" id="topbar-avatar-link" title="View profile" style="text-decoration:none;cursor:pointer"><span id="topbar-name" style="font-size:.8rem;color:var(--muted)">—</span><div class="avatar" id="topbar-initials" style="transition:opacity .15s" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">?</div></a>
-  <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme"><span class="material-icons-round">light_mode</span></button>
-  <button class="icon-btn" id="logout-btn" title="Sign out" aria-label="Sign out"><span class="material-icons-round">logout</span></button>
+  <a href="profile.html" class="user-info" id="topbar-avatar-link" title="View profile" style="text-decoration:none;cursor:pointer">
+    <span id="topbar-name" style="font-size:.8rem;color:var(--muted)"></span>
+    <div class="avatar" id="topbar-initials" style="transition:opacity .15s">?</div>
+  </a>
+  <button class="icon-btn" id="theme-btn" title="Toggle theme"><span class="material-icons-round">light_mode</span></button>
+  <button class="icon-btn" id="logout-btn" title="Sign out"><span class="material-icons-round">logout</span></button>
 </nav>
 
 <div class="page">
   <div class="page-hero">
     <div class="hero-avatar" id="hero-avatar">?</div>
     <div>
-      <div class="hero-name" id="hero-name">Loading…</div>
-      <div class="hero-sub" id="hero-sub">—</div>
+      <div class="hero-name" id="hero-name">Loading...</div>
+      <div class="hero-sub" id="hero-sub"></div>
     </div>
     <div class="hero-actions">
       <button class="btn btn-danger" id="logout-btn2"><span class="material-icons-round">logout</span>Sign Out</button>
     </div>
   </div>
 
-  
   <div class="stats">
-    <div class="stat-card accent">
-      <div class="stat-label">Company Score</div>
-      <div class="stat-value" id="s-score">89.4</div>
-      <div class="stat-sub">Emphora rating</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Active Jobs</div>
-      <div class="stat-value">18</div>
-      <div class="stat-sub">2 expiring soon</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Candidates</div>
-      <div class="stat-value">143</div>
-      <div class="stat-sub">In pipeline</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Hired This Mo.</div>
-      <div class="stat-value">4</div>
-      <div class="stat-sub">vs 3 last month</div>
-    </div>
+    <div class="stat-card accent"><div class="stat-label">Company Score</div><div class="stat-value" id="s-score">92.0</div><div class="stat-sub">Emphora rating</div></div>
+    <div class="stat-card"><div class="stat-label">Active Jobs</div><div class="stat-value">18</div><div class="stat-sub">2 expiring soon</div></div>
+    <div class="stat-card"><div class="stat-label">Candidates</div><div class="stat-value">143</div><div class="stat-sub">In pipeline</div></div>
+    <div class="stat-card"><div class="stat-label">Hired This Mo.</div><div class="stat-value">4</div><div class="stat-sub">vs 3 last month</div></div>
   </div>
 
-  <!-- Skillset Filter -->
+  <!-- Company Skill Requirements -->
   <div class="section" id="skillset-section">
     <div class="section-header" style="cursor:pointer" onclick="toggleSkillset()">
       <div class="section-title"><span class="material-icons-round">layers</span>Company Skill Requirements&nbsp;<span id="active-count" style="font-size:.7rem;color:var(--primary)"></span></div>
@@ -165,7 +127,7 @@
       <div class="skillset-body"><div class="skillset-cats" id="skillset-cats"></div></div>
     </div>
     <div class="active-filters" id="active-filters" style="display:none"></div>
-    <!-- Matching candidates (shown when skills selected) -->
+    <!-- Matching candidates -->
     <div id="skill-candidates-wrap" style="display:none;border-top:2px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.1rem;border-bottom:1px solid var(--border)">
         <span style="font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px"><span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">people</span>Matching Candidates</span>
@@ -189,8 +151,6 @@
     </div>
   </div>
 
-    
-
   <!-- Pinned Candidates -->
   <div class="section" style="margin-bottom:1.25rem">
     <div class="section-header">
@@ -202,13 +162,13 @@
           <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th><th></th>
         </tr></thead>
         <tbody id="pinned-tbody">
-          <tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>
+          <tr><td colspan="7" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Job Postings -->
+  <!-- Currently Looking For -->
   <div class="section" style="margin-bottom:1.25rem">
     <div class="section-header">
       <div class="section-title"><span class="material-icons-round">work</span>Currently Looking For</div>
@@ -217,13 +177,13 @@
     <div class="section-body" id="job-postings-body">
       <table>
         <thead><tr>
-          <th data-col="title" style="cursor:pointer;user-select:none" onclick="sortPostings('title')">Role <span id="sort-title"></span></th>
-          <th data-col="department" style="cursor:pointer;user-select:none" onclick="sortPostings('department')">Department <span id="sort-department"></span></th>
-          <th data-col="type" style="cursor:pointer;user-select:none" onclick="sortPostings('type')">Type <span id="sort-type"></span></th>
-          <th data-col="location" style="cursor:pointer;user-select:none" onclick="sortPostings('location')">Location <span id="sort-location"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortPostings('title')">Role <span id="sort-title"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortPostings('department')">Department <span id="sort-department"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortPostings('type')">Type <span id="sort-type"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortPostings('location')">Location <span id="sort-location"></span></th>
           <th>Skills</th>
-          <th data-col="status" style="cursor:pointer;user-select:none" onclick="sortPostings('status')">Status <span id="sort-status"></span></th>
-          <th data-col="urgency" style="cursor:pointer;user-select:none" onclick="sortPostings('urgency')">Required By <span id="sort-urgency"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortPostings('status')">Status <span id="sort-status"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortPostings('urgency')">Required By <span id="sort-urgency"></span></th>
           <th></th>
         </tr></thead>
         <tbody id="job-postings-tbody">
@@ -233,6 +193,7 @@
     </div>
   </div>
 
+  <!-- Divisional Scores -->
   <div class="section">
     <div class="section-header">
       <div class="section-title"><span class="material-icons-round">bar_chart</span>Divisional Scores</div>
@@ -250,684 +211,286 @@
 
 <script>
 'use strict';
-const user = (() => { try { return JSON.parse(sessionStorage.getItem('emphora_user')||'null'); } catch{return null;} })();
-if (!user) window.location.href = '/';
-const API = window.location.protocol==='file:' ? 'http://localhost:3001' : '';
+const user=(()=>{try{return JSON.parse(sessionStorage.getItem('emphora_user')||'null');}catch{return null;}})();
+if(!user) window.location.href='/';
+const API=window.location.protocol==='file:'?'http://localhost:3001':'';
 
-let theme = localStorage.getItem('em-theme') || 'light';
-function applyTheme(t) {
-  theme=t; document.body.dataset.theme=t;
-  document.querySelector('#theme-btn .material-icons-round').textContent = t==='dark'?'dark_mode':'light_mode';
-  localStorage.setItem('em-theme',t);
-}
+let theme=localStorage.getItem('em-theme')||'light';
+function applyTheme(t){theme=t;document.body.dataset.theme=t;document.querySelector('#theme-btn .material-icons-round').textContent=t==='dark'?'dark_mode':'light_mode';localStorage.setItem('em-theme',t);}
 applyTheme(theme);
-document.getElementById('theme-btn').onclick = () => applyTheme(theme==='dark'?'light':'dark');
+document.getElementById('theme-btn').onclick=()=>applyTheme(theme==='dark'?'light':'dark');
 
-function initUser() {
-  if (!user) return;
-  const fn  = user.firstName || user.email?.split('@')[0] || 'User';
-  const ln  = user.lastName  || '';
-  const ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase();
-  document.getElementById('hero-name').textContent      = `${fn} ${ln}`.trim();
-  document.getElementById('hero-sub').textContent       = `${user.email||''}  |  ${user.isVerified?'Verified':'Unverified'}`;
-  document.getElementById('hero-avatar').textContent    = ini||'?';
-  document.getElementById('topbar-name').textContent    = fn;
-  document.getElementById('topbar-initials').textContent = ini||'?';
-
-  const LABELS = {employee:'Professional',employer:'Employer',researcher:'Researcher'};
-  const rl = document.getElementById('role-label');
-  if (rl) rl.textContent = LABELS[user.accountType]||user.accountType||'Employer';
-}
-initUser();
-
-function signOut() {
-  sessionStorage.removeItem('emphora_user');
-  try { fetch(`${API}/api/auth/logout`,{method:'POST',credentials:'include'}).catch(()=>{}); } catch(_){}
-  window.location.href = '/';
-}
-document.getElementById('logout-btn').onclick  = signOut;
-document.getElementById('logout-btn2').onclick = signOut;
-
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function fmtDate(iso){if(!iso)return'--';try{return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});}catch{return iso;}}
-
-
-if (user) {
-  const scoreEl = document.getElementById('s-score');
-  if (scoreEl && user.emphoraScore > 0) scoreEl.textContent = user.emphoraScore.toFixed(1);
-}
-
-</script>
-
-  <!-- Avatar upload -->
-  <script>
-/**
- * avatar-upload.js
- * -----------------------------------------------------------------------------
- * Shared avatar upload module for Emphora dashboards.
- *
- * Usage:
- *   initAvatar(email, heroAvatarEl, topbarAvatarEl);
- *
- * - Hover the avatar - shows "+" overlay
- * - Click - opens hidden file input (jpg/png/gif/webp, max 5MB)
- * - Crops to square, resizes to 200-200, converts to base64
- * - Saves to localStorage keyed by email
- * - Syncs hero + topbar avatars immediately
- * - Shows a subtle toast on save
- * -----------------------------------------------------------------------------
- */
-
-(function () {
-  'use strict';
-
-  const STORAGE_KEY  = (email) => `emphora_avatar_${email}`;
-  const SIZE         = 200;   // output canvas size px
-  const MAX_BYTES    = 5 * 1024 * 1024; // 5 MB input limit
-  const QUALITY      = 0.88;  // jpeg quality
-
-  /**
-   * Initialise avatar upload on a dashboard page.
-   * @param {string}      email         - user's email (used as storage key)
-   * @param {HTMLElement} heroEl        - the large hero avatar div
-   * @param {HTMLElement} [topbarEl]    - the small topbar avatar div (optional)
-   * @param {string}      [initials]    - fallback text when no image saved
-   */
-  window.initAvatar = function (email, heroEl, topbarEl, initials) {
-    if (!heroEl || !email) return;
-
-    // -- Load saved image ---------------------------------------------------
-    const saved = loadAvatar(email);
-    if (saved) {
-      applyImage(heroEl, topbarEl, saved);
-    }
-
-    // -- Build the hidden file input ----------------------------------------
-    const fileInput = document.createElement('input');
-    fileInput.type   = 'file';
-    fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
-    fileInput.style.display = 'none';
-    fileInput.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(fileInput);
-
-    // -- Make hero avatar interactive ---------------------------------------
-    heroEl.classList.add('em-avatar-upload');
-    heroEl.setAttribute('role', 'button');
-    heroEl.setAttribute('tabindex', '0');
-    heroEl.setAttribute('aria-label', 'Change profile picture');
-    heroEl.title = 'Click to change profile picture';
-
-    // "+" overlay inside the avatar
-    const overlay = document.createElement('span');
-    overlay.className   = 'em-avatar-overlay';
-    overlay.innerHTML   = '<span class="material-icons-round">add_a_photo</span>';
-    overlay.setAttribute('aria-hidden', 'true');
-    heroEl.appendChild(overlay);
-
-    // -- Events -------------------------------------------------------------
-    heroEl.addEventListener('click', () => fileInput.click());
-    heroEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
-    });
-
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      fileInput.value = ''; // reset so same file can be re-selected
-      if (!file) return;
-      if (file.size > MAX_BYTES) {
-        showToast('Image too large - max 5 MB', 'warning');
-        return;
-      }
-      processImage(file, email, heroEl, topbarEl);
-    });
-  };
-
-  // -- Image processing -------------------------------------------------------
-  function processImage(file, email, heroEl, topbarEl) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const dataUrl = cropAndResize(img);
-        saveAvatar(email, dataUrl);
-        applyImage(heroEl, topbarEl, dataUrl);
-        showToast('Profile picture updated', 'success');
-      };
-      img.onerror = () => showToast('Could not load image', 'error');
-      img.src = e.target.result;
-    };
-    reader.onerror = () => showToast('Could not read file', 'error');
-    reader.readAsDataURL(file);
-  }
-
-  function cropAndResize(img) {
-    const canvas = document.createElement('canvas');
-    canvas.width  = SIZE;
-    canvas.height = SIZE;
-    const ctx = canvas.getContext('2d');
-
-    // Crop to square from centre
-    const side = Math.min(img.width, img.height);
-    const sx   = (img.width  - side) / 2;
-    const sy   = (img.height - side) / 2;
-
-    // Clip to circle
-    ctx.beginPath();
-    ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2);
-    ctx.clip();
-
-    ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
-    return canvas.toDataURL('image/jpeg', QUALITY);
-  }
-
-  // -- Apply image to avatar elements -----------------------------------------
-  function applyImage(heroEl, topbarEl, dataUrl) {
-    // Hero
-    heroEl.style.backgroundImage  = `url(${dataUrl})`;
-    heroEl.style.backgroundSize   = 'cover';
-    heroEl.style.backgroundPosition = 'center';
-    heroEl.style.color            = 'transparent';
-    heroEl.dataset.hasImage       = 'true';
-
-    // Topbar (small circle)
-    if (topbarEl) {
-      topbarEl.style.backgroundImage    = `url(${dataUrl})`;
-      topbarEl.style.backgroundSize     = 'cover';
-      topbarEl.style.backgroundPosition = 'center';
-      topbarEl.style.color              = 'transparent';
-      topbarEl.dataset.hasImage         = 'true';
-    }
-  }
-
-  // -- localStorage helpers ----------------------------------------------------
-  function saveAvatar(email, dataUrl) {
-    try { localStorage.setItem(STORAGE_KEY(email), dataUrl); }
-    catch (e) {
-      // localStorage full - try clearing old avatars first
-      try {
-        for (const k of Object.keys(localStorage)) {
-          if (k.startsWith('emphora_avatar_') && k !== STORAGE_KEY(email)) {
-            localStorage.removeItem(k);
-          }
-        }
-        localStorage.setItem(STORAGE_KEY(email), dataUrl);
-      } catch (_) {
-        showToast('Could not save - storage full', 'error');
-      }
-    }
-  }
-
-  function loadAvatar(email) {
-    try { return localStorage.getItem(STORAGE_KEY(email)); }
-    catch { return null; }
-  }
-
-  // -- Toast notification ------------------------------------------------------
-  function showToast(message, type) {
-    const ICONS = { success: 'check_circle', warning: 'warning', error: 'error', info: 'info' };
-    const COLORS = {
-      success: '#2E7D32',
-      warning: '#E65100',
-      error:   '#C62828',
-      info:    '#1A6BCC',
-    };
-
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-      position:fixed; bottom:1.25rem; left:50%; transform:translateX(-50%) translateY(20px) scale(.95);
-      background:#fff; color:#0D1B2A; border-radius:12px;
-      padding:.7rem 1rem; display:flex; align-items:center; gap:.6rem;
-      font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-size:.82rem; font-weight:500;
-      box-shadow:0 8px 32px rgba(0,0,0,.18); z-index:9999; min-width:220px; max-width:340px;
-      border-left:3.5px solid ${COLORS[type]||COLORS.info};
-      transition:transform .28s cubic-bezier(.34,1.4,.64,1), opacity .25s ease;
-      opacity:0; pointer-events:none;
-    `;
-    toast.innerHTML = `
-      <span class="material-icons-round" style="font-size:1.1rem;color:${COLORS[type]||COLORS.info};flex-shrink:0">${ICONS[type]||'info'}</span>
-      <span>${message}</span>`;
-    document.body.appendChild(toast);
-
-    // Dark mode
-    if (document.body.dataset.theme === 'dark') {
-      toast.style.background = '#111827';
-      toast.style.color      = '#E8F1FF';
-    }
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        toast.style.transform = 'translateX(-50%) translateY(0) scale(1)';
-        toast.style.opacity   = '1';
-      });
-    });
-
-    setTimeout(() => {
-      toast.style.transform = 'translateX(-50%) translateY(12px) scale(.95)';
-      toast.style.opacity   = '0';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-
+(function initUser(){
+  if(!user)return;
+  const fn=user.firstName||user.email.split('@')[0]||'';
+  const ln=user.lastName||'';
+  const ini=((fn[0]||'')+(ln[0]||'')).toUpperCase()||'?';
+  document.getElementById('hero-name').textContent=(fn+' '+ln).trim()||user.email;
+  document.getElementById('hero-sub').textContent=user.email+(user.isVerified?' | Verified':'');
+  document.getElementById('hero-avatar').textContent=ini;
+  document.getElementById('topbar-name').textContent=fn;
+  const av=document.getElementById('topbar-initials');
+  if(av){av.textContent=ini;}
+  if(user.emphoraScore>0){const el=document.getElementById('s-score');if(el)el.textContent=Number(user.emphoraScore).toFixed(1);}
+  try{const img=localStorage.getItem('emphora_avatar_'+user.email);if(img){[document.getElementById('hero-avatar'),document.getElementById('topbar-initials')].forEach(el=>{if(el){el.style.backgroundImage='url('+img+')';el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.style.color='transparent';}});}}catch(_){}
+  const LABELS={employee:'Professional',employer:'Employer',researcher:'Researcher'};
+  const rl=document.getElementById('role-label');if(rl)rl.textContent=LABELS[user.accountType]||'Employer';
 })();
 
+function signOut(){sessionStorage.removeItem('emphora_user');try{fetch(API+'/api/auth/logout',{method:'POST',credentials:'include'}).catch(()=>{});}catch(_){}window.location.href='/';}
+document.getElementById('logout-btn').onclick=signOut;
+document.getElementById('logout-btn2').onclick=signOut;
 
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!user) return;
-      var heroEl   = document.getElementById('hero-avatar');
-      var topbarEl = document.getElementById('topbar-initials');
-      var fn  = user.firstName || '';
-      var ln  = user.lastName  || '';
-      var ini = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
-      if (typeof initAvatar === 'function') initAvatar(user.email, heroEl, topbarEl, ini);
-    });
-  
-// ?? Job postings sort state ???????????????????????????????????????????????????
-let _sortCol = 'urgency', _sortDir = 1;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function sortPostings(col) {
-  if (_sortCol === col) {
-    _sortDir *= -1;
-  } else {
-    _sortCol = col;
-    _sortDir = 1;
-  }
-  renderPostingsTable();
-}
+// Sort state
+let _sortCol='urgency',_sortDir=1;
+function sortPostings(col){_sortCol===col?_sortDir*=-1:(_sortCol=col,_sortDir=1);renderPostingsTable();}
 
-function renderPostingsTable() {
-  const tbody = document.getElementById('job-postings-tbody');
-  if (!tbody) return;
-  const KEY = 'emphora_job_postings_' + user.email;
-  let postings = [];
-  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
-
-  // Update sort indicators
-  ['title','department','type','location','status','urgency'].forEach(c => {
-    const el = document.getElementById('sort-' + c);
-    if (!el) return;
-    el.textContent = _sortCol === c ? (_sortDir === 1 ? ' ?' : ' ?') : '';
-  });
-
-  if (!postings.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet -- click Post Job to create one</td></tr>';
-    return;
-  }
-
-  const URGENCY_ORDER = ['Ready to hire now','Within 2 weeks','Within a month','1-3 months','Future opening','Exploratory / Just looking',''];
-  const URGENCY_COLOR = {
-    'Ready to hire now':         '#D32F2F',
-    'Within 2 weeks':            '#E65100',
-    'Within a month':            '#F57C00',
-    '1-3 months':                '#1A6BCC',
-    'Future opening':            '#7A8FA6',
-    'Exploratory / Just looking':'#7A8FA6',
-  };
-  const STATUS_PILL = { active:'pill-blue', draft:'pill-amber', closed:'pill-grey', expiring:'pill-amber' };
-
-  const sorted = [...postings].sort((a, b) => {
-    let va, vb;
-    if (_sortCol === 'urgency') {
-      va = URGENCY_ORDER.indexOf(a.urgency || '');
-      vb = URGENCY_ORDER.indexOf(b.urgency || '');
-      if (va === -1) va = 999;
-      if (vb === -1) vb = 999;
-      return (va - vb) * _sortDir;
-    }
-    va = (a[_sortCol] || '').toLowerCase();
-    vb = (b[_sortCol] || '').toLowerCase();
-    return va < vb ? -_sortDir : va > vb ? _sortDir : 0;
-  });
-
-  tbody.innerHTML = sorted.map(p => {
-    const skillCount = Object.keys(p.skills || {}).length;
-    const status = p.status || 'active';
-    const pillClass = STATUS_PILL[status] || 'pill-blue';
-    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
-    const urgColor = URGENCY_COLOR[p.urgency] || 'var(--muted)';
-    return `<tr style="cursor:pointer" onclick="editPosting('${esc(p.id)}')" title="Click to edit">
-      <td class="primary">${esc(p.title || '--')}</td>
-      <td>${esc(p.department || '--')}</td>
-      <td>${esc(p.type || '--')}</td>
-      <td>${esc([p.workplace, p.location].filter(Boolean).join('  |  ') || '--')}</td>
-      <td>${skillCount > 0 ? `<span class="pill pill-blue">${skillCount}</span>` : '--'}</td>
-      <td><span class="pill ${pillClass}">${statusLabel}</span></td>
-      <td style="font-size:.78rem;color:${urgColor};font-weight:600;white-space:nowrap">${esc(p.urgency || '--')}</td>
-      <td style="text-align:right" onclick="event.stopPropagation()">
-        <button onclick="deletePosting('${esc(p.id)}')" title="Delete" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px" onmouseover="this.style.color='#EF5350'" onmouseout="this.style.color='var(--muted)'">
-          <span class="material-icons-round" style="font-size:1rem;vertical-align:middle">delete_outline</span>
-        </button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// ?? Load job postings from localStorage ??????????????????????????????????????
-// renderJobPostings called below after declarations
-
-
-// -- Employer skillsets --------------------------------------------------------
-const EMPLOYER_SKILLSETS = {
-  'Programming Languages':   ['Java','Python','JavaScript / TypeScript','C++','SQL','Kotlin','Scala','Go'],
-  'Cloud & Infrastructure':  ['AWS','Private / Hybrid Cloud','Kubernetes','Docker','Terraform'],
-  'Architecture & Systems':  ['Microservices','REST APIs / GraphQL','Event-driven architecture (Kafka)','Distributed systems','High-availability systems'],
-  'Data & Big Data':         ['Hadoop','Spark','Kafka','ETL pipelines','Data lakes / warehouses','Data governance'],
-  'AI / Machine Learning':   ['NumPy / Pandas / Scikit-learn','TensorFlow','PyTorch','Fraud detection','Risk modeling','NLP'],
-  'Cybersecurity':           ['IAM','Encryption','Secure coding','Threat detection','Compliance'],
-  'DevOps & Engineering':    ['CI/CD (Jenkins, GitHub Actions)','Automated testing','Monitoring & observability','Agile / Scrum'],
-  'Core Skills':             ['Data structures & algorithms','System design','API development','Performance optimization'],
-  'Data Skills':             ['SQL','Data modeling','Big data processing','Data pipelines'],
-  'Domain Knowledge':        ['Banking systems','Financial markets','Payments','Risk management'],
-  'Soft Skills':             ['Communication','Problem-solving','Teamwork','Working in regulated environments'],
+// Skillsets
+const EMPLOYER_SKILLSETS={
+  'Programming Languages':['Java','Python','JavaScript / TypeScript','C++','SQL','Kotlin','Scala','Go'],
+  'Cloud & Infrastructure':['AWS','Private / Hybrid Cloud','Kubernetes','Docker','Terraform'],
+  'Architecture & Systems':['Microservices','REST APIs / GraphQL','Event-driven architecture (Kafka)','Distributed systems','High-availability systems'],
+  'Data & Big Data':['Hadoop','Spark','Kafka','ETL pipelines','Data lakes / warehouses','Data governance'],
+  'AI / Machine Learning':['NumPy / Pandas / Scikit-learn','TensorFlow','PyTorch','Fraud detection','Risk modeling','NLP'],
+  'Cybersecurity':['IAM','Encryption','Secure coding','Threat detection','Compliance'],
+  'DevOps & Engineering':['CI/CD (Jenkins, GitHub Actions)','Automated testing','Monitoring & observability','Agile / Scrum'],
+  'Core Skills':['Data structures & algorithms','System design','API development','Performance optimization'],
+  'Data Skills':['SQL','Data modeling','Big data processing','Data pipelines'],
+  'Domain Knowledge':['Banking systems','Financial markets','Payments','Risk management'],
+  'Soft Skills':['Communication','Problem-solving','Teamwork','Working in regulated environments'],
 };
+const CANDIDATE_SKILL_POOL=Object.values(EMPLOYER_SKILLSETS).flat();
 
-// Assign skills to candidates deterministically
-const CANDIDATE_SKILL_POOL = Object.values(EMPLOYER_SKILLSETS).flat();
-
-function seedCandidateSkills(name) {
-  let rng = name.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*97+7;
+function seedCandidateSkills(name){
+  let rng=name.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*97+7;
   function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
-  const count = 6 + rand(10);
-  const pool = [...CANDIDATE_SKILL_POOL];
-  const skills = [];
-  for(let i=0;i<count&&pool.length;i++){
-    const idx = rand(pool.length);
-    skills.push(pool.splice(idx,1)[0]);
-  }
+  const count=6+rand(10);const pool=[...CANDIDATE_SKILL_POOL];const skills=[];
+  for(let i=0;i<count&&pool.length;i++){const idx=rand(pool.length);skills.push(pool.splice(idx,1)[0]);}
   return skills;
 }
 
-// State
-let activeSkillFilters = new Set();
-let pinnedCandidates = new Set();
-let allCandidates = [];
-let _csortCol = 'matched', _csortDir = -1; // default: most matches first
+let activeSkillFilters=new Set();
+let pinnedCandidates=new Set();
+let allCandidates=[];
+let _csortCol='matched',_csortDir=-1;
 
-const PINS_KEY = 'emphora_pinned_candidates_' + (user ? user.email : '');
-try { pinnedCandidates = new Set(JSON.parse(localStorage.getItem(PINS_KEY)||'[]')); } catch(_) {}
+const PINS_KEY='emphora_pinned_candidates_'+(user?user.email:'');
+try{pinnedCandidates=new Set(JSON.parse(localStorage.getItem(PINS_KEY)||'[]'));}catch(_){}
 
-
-// -- Build skillset filter panel ------------------------------------------------
-(function buildSkillsetPanel() {
-  const container = document.getElementById('skillset-cats');
-  if (!container) return;
-  container.innerHTML = Object.entries(EMPLOYER_SKILLSETS).map(([cat, skills]) =>
-    '<div style="min-width:180px;flex:1">'
-    + '<div class="skillset-cat-label">' + esc(cat) + '</div>'
-    + '<div class="skillset-chips">'
-    + skills.map(s =>
-        '<span class="skill-filter-chip" data-skill="' + esc(s) + '" onclick="toggleSkillFilter(this)">'
-        + esc(s) + '</span>'
-      ).join('')
-    + '</div></div>'
+(function buildSkillsetPanel(){
+  const c=document.getElementById('skillset-cats');if(!c)return;
+  c.innerHTML=Object.entries(EMPLOYER_SKILLSETS).map(([cat,skills])=>
+    '<div style="min-width:180px;flex:1"><div class="skillset-cat-label">'+esc(cat)+'</div><div class="skillset-chips">'
+    +skills.map(s=>'<span class="skill-filter-chip" data-skill="'+esc(s)+'" onclick="toggleSkillFilter(this)">'+esc(s)+'</span>').join('')
+    +'</div></div>'
   ).join('');
 })();
 
-function toggleSkillset() {
-  var panel = document.getElementById('skillset-panel');
-  var icon  = document.getElementById('skillset-icon');
-  if (!panel) return;
+function toggleSkillset(){
+  const panel=document.getElementById('skillset-panel');
+  const icon=document.getElementById('skillset-icon');
+  if(!panel)return;
   panel.classList.toggle('open');
-  if (icon) icon.style.transform = panel.classList.contains('open') ? 'rotate(180deg)' : '';
+  if(icon)icon.style.transform=panel.classList.contains('open')?'rotate(180deg)':'';
 }
 
-function toggleSkillFilter(chip) {
-  const skill = chip.dataset.skill;
-  if (activeSkillFilters.has(skill)) {
-    activeSkillFilters.delete(skill);
-    chip.classList.remove('active');
-  } else {
-    activeSkillFilters.add(skill);
-    chip.classList.add('active');
-  }
-  updateActiveFiltersBar();
-  renderCandidatesTable();
+function toggleSkillFilter(chip){
+  const skill=chip.dataset.skill;
+  if(activeSkillFilters.has(skill)){activeSkillFilters.delete(skill);chip.classList.remove('active');}
+  else{activeSkillFilters.add(skill);chip.classList.add('active');}
+  updateActiveFiltersBar();renderCandidatesTable();
 }
 
-function removeSkillFilter(skill) {
+function removeSkillFilter(skill){
   activeSkillFilters.delete(skill);
-  // Deactivate chip
-  document.querySelectorAll('.skill-filter-chip').forEach(c => {
-    if (c.dataset.skill === skill) c.classList.remove('active');
-  });
-  updateActiveFiltersBar();
-  renderCandidatesTable();
+  document.querySelectorAll('.skill-filter-chip').forEach(c=>{if(c.dataset.skill===skill)c.classList.remove('active');});
+  updateActiveFiltersBar();renderCandidatesTable();
 }
 
-function updateActiveFiltersBar() {
-  const bar = document.getElementById('active-filters');
-  const countEl = document.getElementById('active-count');
-  if (!activeSkillFilters.size) {
-    bar.style.display = 'none';
-    countEl.textContent = '';
-    return;
-  }
-  countEl.textContent = '(' + activeSkillFilters.size + ' filter' + (activeSkillFilters.size>1?'s':'') + ' active)';
-  bar.style.display = 'flex';
-  bar.innerHTML = '<span style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Filtering by:</span>'
-    + [...activeSkillFilters].map(s =>
-        '<span class="active-filter-tag">' + esc(s)
-        + '<button class="rm-skill-btn" data-skill="' + esc(s) + '" title="Remove"><span class="material-icons-round" style="font-size:.7rem">close</span></button>'
-        + '</span>'
-      ).join('')
-    + '<button onclick="clearAllFilters()" style="margin-left:auto;font-size:.68rem;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline">Clear all</button>';
-  bar.querySelectorAll('.rm-skill-btn').forEach(function(b){ b.addEventListener('click', function(){ removeSkillFilter(b.dataset.skill); }); });
+function updateActiveFiltersBar(){
+  const bar=document.getElementById('active-filters');
+  const countEl=document.getElementById('active-count');
+  if(!activeSkillFilters.size){bar.style.display='none';countEl.textContent='';return;}
+  countEl.textContent='('+activeSkillFilters.size+' filter'+(activeSkillFilters.size>1?'s':'')+' active)';
+  bar.style.display='flex';
+  bar.innerHTML='<span style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Filtering by:</span>'
+    +[...activeSkillFilters].map(s=>'<span class="active-filter-tag">'+esc(s)+'<button class="rm-skill-btn" data-skill="'+esc(s)+'" title="Remove"><span class="material-icons-round" style="font-size:.7rem">close</span></button></span>').join('')
+    +'<button onclick="clearAllFilters()" style="margin-left:auto;font-size:.68rem;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline">Clear all</button>';
+  bar.querySelectorAll('.rm-skill-btn').forEach(b=>b.addEventListener('click',()=>removeSkillFilter(b.dataset.skill)));
 }
 
-function clearAllFilters() {
+function clearAllFilters(){
   activeSkillFilters.clear();
-  document.querySelectorAll('.skill-filter-chip.active').forEach(c => c.classList.remove('active'));
-  updateActiveFiltersBar();
+  document.querySelectorAll('.skill-filter-chip.active').forEach(c=>c.classList.remove('active'));
+  updateActiveFiltersBar();renderCandidatesTable();
+}
+
+function togglePin(key){
+  pinnedCandidates.has(key)?pinnedCandidates.delete(key):pinnedCandidates.add(key);
+  try{localStorage.setItem(PINS_KEY,JSON.stringify([...pinnedCandidates]));}catch(_){}
   renderCandidatesTable();
 }
 
-function togglePin(name) {
-  if (pinnedCandidates.has(name)) {
-    pinnedCandidates.delete(name);
-  } else {
-    pinnedCandidates.add(name);
+function sortCandidates(col){
+  _csortCol===col?_csortDir*=-1:(_csortCol=col,_csortDir=col==='matched'||col==='score'||col==='match'?-1:1);
+  renderCandidatesTable();
+}
+
+function renderCandidatesTable(){
+  const tbody=document.getElementById('candidates-tbody');
+  const label=document.getElementById('candidates-filter-label');
+  const wrap=document.getElementById('skill-candidates-wrap');
+  if(!tbody)return;
+  if(activeSkillFilters.size===0){
+    if(wrap)wrap.style.display='none';
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Select skills above to find matching candidates</td></tr>';
+    renderPinnedTable();return;
   }
-  try { localStorage.setItem(PINS_KEY, JSON.stringify([...pinnedCandidates])); } catch(_) {}
-  renderCandidatesTable();
+  if(wrap)wrap.style.display='';
+  const filters=[...activeSkillFilters];
+  let list=allCandidates.map(c=>{
+    const matched=filters.filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase())));
+    return{...c,matchedFilters:matched};
+  }).filter(c=>c.matchedFilters.length>0);
+  // Deduplicate by name
+  const seen=new Map();
+  list.forEach(c=>{if(!seen.has(c.name)||c.matchedFilters.length>seen.get(c.name).matchedFilters.length)seen.set(c.name,c);});
+  list=[...seen.values()];
+  if(label)label.textContent=list.length+' candidate'+(list.length!==1?'s':'')+' matching';
+  // Sort indicators
+  ['name','matched','score','role','match','status'].forEach(c=>{const el=document.getElementById('csort-'+c);if(el)el.textContent=_csortCol===c?(_csortDir===-1?' v':' ^'):'';});
+  list.sort((a,b)=>{
+    if(_csortCol==='matched')return(b.matchedFilters.length-a.matchedFilters.length)*(_csortDir<0?1:-1);
+    if(_csortCol==='score')return(b.score-a.score)*(_csortDir<0?1:-1);
+    if(_csortCol==='match')return(b.match-a.match)*(_csortDir<0?1:-1);
+    const va=_csortCol==='status'?a.status.label.toLowerCase():(a[_csortCol]||'').toLowerCase();
+    const vb=_csortCol==='status'?b.status.label.toLowerCase():(b[_csortCol]||'').toLowerCase();
+    return va<vb?_csortDir:va>vb?-_csortDir:0;
+  });
+  const pinned=list.filter(c=>pinnedCandidates.has(c.name+'|'+c.role));
+  const rest=list.filter(c=>!pinnedCandidates.has(c.name+'|'+c.role));
+  const sorted=[...pinned,...rest].slice(0,12);
+  if(!sorted.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates match selected skills</td></tr>';renderPinnedTable();return;}
+  tbody.innerHTML=sorted.map(c=>{
+    const isPinned=pinnedCandidates.has(c.name+'|'+c.role);
+    const url='candidate-profile.html?name='+encodeURIComponent(c.name)+'&score='+c.score+'&match='+c.match+'&role='+encodeURIComponent(c.role)+'&status='+encodeURIComponent(c.status.label);
+    return '<tr class="'+(isPinned?'pinned-row':'')+'" style="cursor:pointer" onclick="window.location.href=this.dataset.url" data-url="'+url+'" title="View profile">'
+      +'<td onclick="event.stopPropagation()" style="padding:0 0 0 8px"><button class="pin-btn '+(isPinned?'pinned':'')+'" data-key="'+esc(c.name+'|'+c.role)+'" title="'+(isPinned?'Unpin':'Pin')+'"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
+      +'<td class="primary">'+(isPinned?'<span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:3px">push_pin</span>':'')+esc(c.name)+(c.matchedFilters.length?' <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:10px;background:#00897B;color:#fff;font-size:.65rem;font-weight:700;padding:0 5px;margin-left:5px;vertical-align:middle">'+c.matchedFilters.length+'</span>':'')+'</td>'
+      +'<td><strong style="color:var(--primary)">'+c.score+'</strong></td>'
+      +'<td>'+esc(c.role)+'</td>'
+      +'<td><span class="pill pill-blue">'+c.match+'%</span></td>'
+      +'<td><span class="pill '+c.status.pill+'">'+esc(c.status.label)+'</span></td>'
+      +'<td onclick="event.stopPropagation()"><a href="'+url+'" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
+      +'</tr>';
+  }).join('');
+  tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
+  renderPinnedTable();
 }
 
-// -- Build candidate pool --------------------------------------------------------
-function buildCandidates() {
-  const KEY = 'emphora_job_postings_' + user.email;
-  let postings = [];
-  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
-  const activePostings = postings.filter(p => p.status === 'active' || p.status === 'expiring');
-  if (!activePostings.length) return;
+function renderPinnedTable(){
+  const tbody=document.getElementById('pinned-tbody');if(!tbody)return;
+  const pinned=allCandidates.filter(c=>pinnedCandidates.has(c.name+'|'+c.role));
+  if(!pinned.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.2rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>';return;}
+  tbody.innerHTML=pinned.map(c=>{
+    const url='candidate-profile.html?name='+encodeURIComponent(c.name)+'&score='+c.score+'&match='+c.match+'&role='+encodeURIComponent(c.role)+'&status='+encodeURIComponent(c.status.label);
+    const filters=[...activeSkillFilters];
+    const matched=filters.length?filters.filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase()))):Object.values(EMPLOYER_SKILLSETS).flat().filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase())));
+    const skillsHtml=matched.length?matched.slice(0,6).map(s=>'<span class="pill pill-green" style="margin:1px 2px">'+esc(s)+'</span>').join(''):'<span style="color:var(--muted);font-size:.72rem">--</span>';
+    return '<tr class="pinned-row" style="cursor:pointer" onclick="window.location.href=this.dataset.url" data-url="'+url+'">'
+      +'<td class="primary"><span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:4px">push_pin</span>'+esc(c.name)+'</td>'
+      +'<td><strong style="color:var(--primary)">'+c.score+'</strong></td>'
+      +'<td>'+esc(c.role)+'</td>'
+      +'<td><span class="pill pill-blue">'+c.match+'%</span></td>'
+      +'<td><span class="pill '+c.status.pill+'">'+esc(c.status.label)+'</span></td>'
+      +'<td onclick="event.stopPropagation()"><button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
+      +'</tr>'
+      +(matched.length?'<tr style="background:rgba(0,137,123,.03);border-bottom:1px solid var(--border)">'
+      +(matched.length?'<tr style="background:rgba(0,137,123,.02)">'
+      +'<td colspan="6" style="padding:1px 12px 3px 28px;border-bottom:none">'
+      +'<span style="font-size:.52rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'
+      +matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0px 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+ esc(s) +'</span>').join('')
+  }).join('');
+  tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
+}
 
-  const STATUSES = [
-    { label:'Resume Received', pill:'pill-blue'  },
-    { label:'Interview Set',   pill:'pill-green' },
-    { label:'Pending Review',  pill:'pill-amber' },
-    { label:'Offer Extended',  pill:'pill-green' },
-    { label:'Screening',       pill:'pill-blue'  },
-  ];
-  const NAMES = [
-    'Sarah Chen','Marcus Webb','Priya Sharma','Devon Okafor','Lin Xiao',
-    'Jordan Reyes','Aisha Patel','Tom Nakamura','Kendall Davis','Lane Diaz',
-    'Morgan Evans','Parker Garcia','Riley Green','Rowan Harris','Demi Morris',
-  ];
+function renderPostingsTable(){
+  const tbody=document.getElementById('job-postings-tbody');if(!tbody)return;
+  const KEY='emphora_job_postings_'+user.email;
+  let postings=[];try{postings=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
+  ['title','department','type','location','status','urgency'].forEach(c=>{const el=document.getElementById('sort-'+c);if(el)el.textContent=_sortCol===c?(_sortDir===1?' ^':' v'):'';});
+  if(!postings.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet -- click Post Job to create one</td></tr>';return;}
+  const URGENCY_ORDER=['Ready to hire now','Within 2 weeks','Within a month','1-3 months','Future opening','Exploratory / Just looking',''];
+  const URGENCY_COLOR={'Ready to hire now':'#D32F2F','Within 2 weeks':'#E65100','Within a month':'#F57C00','1-3 months':'#1A6BCC','Future opening':'#7A8FA6','Exploratory / Just looking':'#7A8FA6'};
+  const STATUS_PILL={active:'pill-blue',draft:'pill-amber',closed:'pill-grey',expiring:'pill-amber'};
+  const sorted=[...postings].sort((a,b)=>{
+    if(_sortCol==='urgency'){let va=URGENCY_ORDER.indexOf(a.urgency||''),vb=URGENCY_ORDER.indexOf(b.urgency||'');if(va===-1)va=999;if(vb===-1)vb=999;return(va-vb)*_sortDir;}
+    const va=(a[_sortCol]||'').toLowerCase(),vb=(b[_sortCol]||'').toLowerCase();
+    return va<vb?-_sortDir:va>vb?_sortDir:0;
+  });
+  tbody.innerHTML=sorted.map(p=>{
+    const skillCount=Object.keys(p.skills||{}).length;
+    const status=p.status||'active';
+    const pillClass=STATUS_PILL[status]||'pill-blue';
+    const statusLabel=status.charAt(0).toUpperCase()+status.slice(1);
+    const urgColor=URGENCY_COLOR[p.urgency]||'var(--muted)';
+    return '<tr style="cursor:pointer" onclick="editPosting(this.dataset.id)" data-id="'+esc(p.id)+'" title="Click to edit">'
+      +'<td class="primary">'+esc(p.title||'--')+'</td>'
+      +'<td>'+esc(p.department||'--')+'</td>'
+      +'<td>'+esc(p.type||'--')+'</td>'
+      +'<td>'+esc([p.workplace,p.location].filter(Boolean).join(' | ')||'--')+'</td>'
+      +'<td>'+(skillCount>0?'<span class="pill pill-blue">'+skillCount+'</span>':'--')+'</td>'
+      +'<td><span class="pill '+pillClass+'">'+statusLabel+'</span></td>'
+      +'<td style="font-size:.78rem;color:'+urgColor+';font-weight:600;white-space:nowrap">'+esc(p.urgency||'--')+'</td>'
+      +'<td style="text-align:right" onclick="event.stopPropagation()"><button class="del-btn" data-id="'+esc(p.id)+'" title="Delete" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px" onmouseover="this.style.color=&quot;#EF5350&quot;" onmouseout="this.style.color=&quot;var(--muted)&quot;"><span class="material-icons-round" style="font-size:1rem;vertical-align:middle">delete_outline</span></button></td>'
+      +'</tr>';
+  }).join('');
+  tbody.querySelectorAll('.del-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();deletePosting(b.dataset.id);}));
+}
 
-  const seen = new Set();
-  activePostings.forEach(p => {
-    let rng = p.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*31;
-    function rand(max){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%max;}
-    const count = 2 + rand(2);
-    for (let i = 0; i < count; i++) {
-      const name = NAMES[(rand(NAMES.length) + i) % NAMES.length];
-      if (seen.has(name + p.title)) continue;
-      seen.add(name + p.title);
-      const score  = parseFloat((75 + rand(20) + (rand(10)/10)).toFixed(1));
-      const match  = 80 + rand(18);
-      const status = STATUSES[rand(STATUSES.length)];
-      const skills = seedCandidateSkills(name);
-      allCandidates.push({ name, score, match, status, role: p.title, skills });
+(function init(){
+  const KEY='emphora_job_postings_'+user.email;
+  let postings=[];try{postings=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
+  if(!postings.length){
+    postings=[
+      {id:'job_melify_1',status:'active', postedBy:user.email,title:'Lead UX Designer',     department:'Product Design',type:'Full-Time',workplace:'Hybrid', location:'New York, NY',urgency:'Ready to hire now',skills:{Figma:{minScore:8},React:{minScore:6},'UX/UI Design':{minScore:8}},createdAt:'2026-03-15T10:00:00Z'},
+      {id:'job_melify_2',status:'active', postedBy:user.email,title:'Senior UX Engineer',   department:'Engineering',   type:'Full-Time',workplace:'Remote', location:'',           urgency:'Within 2 weeks',   skills:{JavaScript:{minScore:7},HTML5:{minScore:8},'Interaction Design':{minScore:7}},createdAt:'2026-03-20T10:00:00Z'},
+      {id:'job_melify_3',status:'active', postedBy:user.email,title:'Design Systems Lead',  department:'Design Ops',    type:'Full-Time',workplace:'Hybrid', location:'New York, NY',urgency:'Within a month',   skills:{Figma:{minScore:9},'Design Systems Development':{minScore:8}},createdAt:'2026-03-25T10:00:00Z'},
+      {id:'job_melify_4',status:'expiring',postedBy:user.email,title:'UX Researcher',        department:'Product',       type:'Contract', workplace:'Remote', location:'',           urgency:'Exploratory',      skills:{'UX Strategy & Research':{minScore:7},'Usability Testing':{minScore:7}},createdAt:'2026-02-01T10:00:00Z'},
+      {id:'job_melify_5',status:'draft',  postedBy:user.email,title:'Front-End Developer',  department:'Engineering',   type:'Full-Time',workplace:'On-site',location:'New York, NY',urgency:'Future opening',   skills:{React:{minScore:7},JavaScript:{minScore:8},CSS3:{minScore:7}},createdAt:'2026-04-01T10:00:00Z'},
+    ];
+    try{localStorage.setItem(KEY,JSON.stringify(postings));}catch(_){}
+  }
+  renderPostingsTable();
+  // Build candidate pool
+  const NAMES=['Sarah Chen','Marcus Webb','Priya Sharma','Devon Okafor','Lin Xiao','Jordan Reyes','Aisha Patel','Tom Nakamura','Kendall Davis','Lane Diaz','Morgan Evans','Parker Garcia','Riley Green','Rowan Harris','Demi Morris'];
+  const STATUSES=[{label:'Resume Received',pill:'pill-blue'},{label:'Interview Set',pill:'pill-green'},{label:'Pending Review',pill:'pill-amber'},{label:'Offer Extended',pill:'pill-green'},{label:'Screening',pill:'pill-blue'}];
+  const active=postings.filter(p=>p.status==='active'||p.status==='expiring');
+  const seen=new Set();
+  active.forEach(p=>{
+    let rng=p.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*31;
+    function rand(m){rng=(rng*1664525+1013904223)&0xffffffff;return Math.abs(rng)%m;}
+    for(let i=0;i<2+rand(2);i++){
+      const name=NAMES[(rand(NAMES.length)+i)%NAMES.length];
+      if(seen.has(name+p.title))continue;seen.add(name+p.title);
+      allCandidates.push({name,score:parseFloat((75+rand(20)+(rand(10)/10)).toFixed(1)),match:80+rand(18),status:STATUSES[rand(STATUSES.length)],role:p.title,skills:seedCandidateSkills(name)});
     }
   });
-
-  allCandidates.sort((a,b) => b.score - a.score);
-  renderCandidatesTable();
-}
-
-function sortCandidates(col) {
-  if (_csortCol === col) { _csortDir *= -1; } else { _csortCol = col; _csortDir = col === 'matched' || col === 'score' || col === 'match' ? -1 : 1; }
-  renderCandidatesTable();
-}
-
-function renderCandidatesTable() {
-  const tbody = document.getElementById('candidates-tbody');
-  const label = document.getElementById('candidates-filter-label');
-  const wrap  = document.getElementById('skill-candidates-wrap');
-  if (!tbody) return;
-
-  // Hide entirely when no filters active
-  if (activeSkillFilters.size === 0) {
-    if (wrap) wrap.style.display = 'none';
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Select skills above to find matching candidates</td></tr>';
-    renderPinnedTable(allCandidates);
-    return;
-  }
-  if (wrap) wrap.style.display = '';
-
-  let list = [...allCandidates];
-  const filters = [...activeSkillFilters];
-  list = list.map(c => {
-    const matched = filters.filter(f => c.skills.some(s => s.toLowerCase().includes(f.toLowerCase()) || f.toLowerCase().includes(s.toLowerCase())));
-    return { ...c, matchedFilters: matched };
-  }).filter(c => c.matchedFilters.length > 0);
-  list.sort((a,b) => b.matchedFilters.length - a.matchedFilters.length || b.score - a.score);
-  if (label) label.textContent = list.length + ' candidate' + (list.length!==1?'s':'') + ' matching';
-
-  // Pinned always on top
-  // Deduplicate by name - keep highest matchedFilters count
-  const seen = new Map();
-  list.forEach(c => {
-    const key = c.name;
-    if (!seen.has(key) || c.matchedFilters.length > seen.get(key).matchedFilters.length) seen.set(key, c);
-  });
-  list = [...seen.values()];
-
-  // Update sort indicators
-  ['name','matched','score','role','match','status'].forEach(function(c) {
-    var el = document.getElementById('csort-' + c);
-    if (el) el.textContent = _csortCol === c ? (_csortDir === -1 ? ' ↓' : ' ↑') : '';
-  });
-
-  list.sort(function(a, b) {
-    var va, vb;
-    if (_csortCol === 'matched') { return (b.matchedFilters.length - a.matchedFilters.length) * Math.abs(_csortDir) * _csortDir / Math.abs(_csortDir); }
-    if (_csortCol === 'score')   { va = b.score;  vb = a.score;  return (va - vb) * (_csortDir < 0 ? 1 : -1); }
-    if (_csortCol === 'match')   { va = b.match;  vb = a.match;  return (va - vb) * (_csortDir < 0 ? 1 : -1); }
-    if (_csortCol === 'name')    { va = a.name.toLowerCase();   vb = b.name.toLowerCase();   return va < vb ? _csortDir : va > vb ? -_csortDir : 0; }
-    if (_csortCol === 'role')    { va = a.role.toLowerCase();   vb = b.role.toLowerCase();   return va < vb ? _csortDir : va > vb ? -_csortDir : 0; }
-    if (_csortCol === 'status')  { va = a.status.label.toLowerCase(); vb = b.status.label.toLowerCase(); return va < vb ? _csortDir : va > vb ? -_csortDir : 0; }
-    return b.matchedFilters.length - a.matchedFilters.length || b.score - a.score;
-  });
-  const pinned = list.filter(c => pinnedCandidates.has(c.name + '|' + c.role));
-  const rest   = list.filter(c => !pinnedCandidates.has(c.name + '|' + c.role));
-  const sorted = [...pinned, ...rest].slice(0, 12);
-
-  if (!sorted.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates match selected skills</td></tr>';
-    renderPinnedTable(allCandidates);
-    return;
-  }
-
-  tbody.innerHTML = sorted.map(c => {
-    const isPinned = pinnedCandidates.has(c.name + '|' + c.role);
-    const url = 'candidate-profile.html?name=' + encodeURIComponent(c.name) + '&score=' + c.score + '&match=' + c.match + '&role=' + encodeURIComponent(c.role) + '&status=' + encodeURIComponent(c.status.label);
-    const matchedHtml = c.matchedFilters && c.matchedFilters.length
-      ? c.matchedFilters.map(s => '<span class="pill pill-green" style="margin:1px">' + esc(s) + '</span>').join('')
-      : '<span style="color:var(--muted);font-size:.72rem">--</span>';
-    return '<tr class="' + (isPinned ? 'pinned-row' : '') + '" style="cursor:pointer" onclick="window.location.href=this.dataset.url" data-url="' + url + '" title="View profile">'
-      + '<td onclick="event.stopPropagation()" style="padding:0 0 0 8px">'
-      +   '<button class="pin-btn ' + (isPinned?'pinned':'') + '" data-pinkey="' + esc(c.name+'|'+c.role) + '" title="' + (isPinned?'Unpin':'Pin to top') + '">'
-      +   '<span class="material-icons-round" style="font-size:1rem">' + (isPinned?'push_pin':'push_pin') + '</span></button>'
-      + '</td>'
-      + '<td class="primary">'
-      + (isPinned ? '<span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:3px">push_pin</span>' : '')
-      + esc(c.name)
-      + (c.matchedFilters && c.matchedFilters.length ? ' <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:10px;background:#00897B;color:#fff;font-size:.65rem;font-weight:700;padding:0 5px;margin-left:5px;vertical-align:middle">' + c.matchedFilters.length + '</span>' : '')
-      + '</td>'
-      + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
-      + '<td>' + esc(c.role) + '</td>'
-      + '<td class="match-score"><span class="pill pill-blue">' + c.match + '%</span></td>'
-      + '<td><span class="pill ' + c.status.pill + '">' + esc(c.status.label) + '</span></td>'
-      + '<td onclick="event.stopPropagation()"><a href="' + url + '" class="btn" style="padding:4px 10px;font-size:.72rem;text-decoration:none">Review</a></td>'
-      + '</tr>';
-  }).join('');
-  // Pin button delegation
-  tbody.querySelectorAll('.pin-btn').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); togglePin(b.dataset.pinkey); }); });
-
-  // Render pinned tbody
-  renderPinnedTable(allCandidates);
-}
-
-function renderPinnedTable(pool) {
-  var ptbody = document.getElementById('pinned-tbody');
-  if (!ptbody) return;
-  var pinned = pool.filter(function(c){ return pinnedCandidates.has(c.name+'|'+c.role); });
-  if (!pinned.length) {
-    ptbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.2rem 0">Pin candidates above to show them here</td></tr>';
-    return;
-  }
-  ptbody.innerHTML = pinned.map(function(c){
-    var url = 'candidate-profile.html?name=' + encodeURIComponent(c.name) + '&score=' + c.score + '&match=' + c.match + '&role=' + encodeURIComponent(c.role) + '&status=' + encodeURIComponent(c.status.label);
-    return '<tr style="cursor:pointer;background:rgba(230,81,0,.04)" onclick="window.location.href=this.dataset.url" data-url="' + url + '">'  
-      + '<td class="primary"><span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:4px">push_pin</span>' + esc(c.name) + '</td>'
-      + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
-      + '<td>' + esc(c.role) + '</td>'
-      + '<td><span class="pill pill-blue">' + c.match + '%</span></td>'
-      + '<td><span class="pill ' + c.status.pill + '">' + esc(c.status.label) + '</span></td>'
-      + '<td onclick="event.stopPropagation()">'
-      +   '<button class="pin-btn pinned" data-pinkey="' + esc(c.name+'|'+c.role) + '" title="Unpin">'
-      +   '<span class="material-icons-round" style="font-size:1rem">push_pin</span></button>'
-      + '</td>'
-      + '</tr>';
-  }).join('');
-  ptbody.querySelectorAll('.pin-btn').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); togglePin(b.dataset.pinkey); }); });
-}
-
-(function renderJobPostings() {
-  try {
-    const KEY = 'emphora_job_postings_' + user.email;
-    let postings = [];
-    try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
-
-    if (!postings.length) {
-      // Seed fake postings for any employer with empty postings
-      postings = [
-        { id:'job_melify_1', status:'active',  postedBy:user.email, title:'Lead UX Designer',        department:'Product Design', type:'Full-Time', workplace:'Hybrid',  location:'New York, NY',    urgency:'Ready to hire now',  skills:{Figma:{minScore:8},React:{minScore:6},'UX/UI Design':{minScore:8}}, createdAt:'2026-03-15T10:00:00Z' },
-        { id:'job_melify_2', status:'active',  postedBy:user.email, title:'Senior UX Engineer',       department:'Engineering',    type:'Full-Time', workplace:'Remote',  location:'',                urgency:'Within 2 weeks',     skills:{JavaScript:{minScore:7},HTML5:{minScore:8},'Interaction Design':{minScore:7}}, createdAt:'2026-03-20T10:00:00Z' },
-        { id:'job_melify_3', status:'active',  postedBy:user.email, title:'Design Systems Lead',      department:'Design Ops',     type:'Full-Time', workplace:'Hybrid',  location:'New York, NY',    urgency:'Within a month',     skills:{Figma:{minScore:9},'Design Systems Development':{minScore:8}}, createdAt:'2026-03-25T10:00:00Z' },
-        { id:'job_melify_4', status:'expiring',postedBy:user.email, title:'UX Researcher',            department:'Product',        type:'Contract',  workplace:'Remote',  location:'',                urgency:'Exploratory',        skills:{'UX Strategy & Research':{minScore:7},'Usability Testing':{minScore:7}}, createdAt:'2026-02-01T10:00:00Z' },
-        { id:'job_melify_5', status:'draft',   postedBy:user.email, title:'Front-End Developer',      department:'Engineering',    type:'Full-Time', workplace:'On-site', location:'New York, NY',    urgency:'Future opening',     skills:{React:{minScore:7},JavaScript:{minScore:8},CSS3:{minScore:7}}, createdAt:'2026-04-01T10:00:00Z' },
-      ];
-      try { localStorage.setItem(KEY, JSON.stringify(postings)); } catch(_) {}
-    }
-
-    renderPostingsTable();
-    buildCandidates();
-  } catch(e) { console.error('[Emphora] renderJobPostings error:', e); }
+  allCandidates.sort((a,b)=>b.score-a.score);
+  renderPinnedTable();
 })();
 
-function editPosting(id) {
-  window.location.href = 'job-post.html?edit=' + encodeURIComponent(id);
-}
-
-function deletePosting(id) {
-  if (!confirm('Delete this job posting?')) return;
-  const KEY = 'emphora_job_postings_' + user.email;
-  let postings = [];
-  try { postings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(_) {}
-  postings = postings.filter(p => p.id !== id);
-  try { localStorage.setItem(KEY, JSON.stringify(postings)); } catch(_) {}
+function editPosting(id){window.location.href='job-post.html?edit='+encodeURIComponent(id);}
+function deletePosting(id){
+  if(!confirm('Delete this job posting?'))return;
+  const KEY='emphora_job_postings_'+user.email;
+  let postings=[];try{postings=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
+  postings=postings.filter(p=>p.id!==id);
+  try{localStorage.setItem(KEY,JSON.stringify(postings));}catch(_){}
   location.reload();
 }
-
 </script>
 </body>
 </html>
