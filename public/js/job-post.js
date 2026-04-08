@@ -1,8 +1,10 @@
 /**
  * job-post.js
  * Emphora — Job Posting page logic
- * Depends on: job-post.html structure, emphora.css, localStorage
+ * Depends on: job-post.html structure, localStorage
  */
+
+'use strict';
 
 'use strict';
 const user=(()=>{try{return JSON.parse(sessionStorage.getItem('emphora_user')||'null');}catch{return null;}})();
