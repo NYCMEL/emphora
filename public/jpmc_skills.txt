@@ -1,0 +1,13 @@
+Programming Languages: - Java - Python - JavaScript / TypeScript - C++ - SQL - Kotlin - Scala - Go
+Cloud & Infrastructure: - AWS - Private / Hybrid Cloud - Kubernetes - Docker - Terraform
+Architecture & Systems: - Microservices - REST APIs / GraphQL - Event-driven architecture (Kafka) - Distributed systems - High-availability systems
+Data & Big Data: - Hadoop - Spark - Kafka - ETL pipelines - Data lakes / warehouses - Data governance
+AI / Machine Learning: - NumPy, Pandas, Scikit-learn - TensorFlow - PyTorch - Fraud detection - Risk modeling - NLP
+Cybersecurity: - IAM - Encryption - Secure coding - Threat detection - Compliance
+DevOps & Engineering: - CI/CD (Jenkins, GitHub Actions) - Automated testing - Monitoring & observability - Agile / Scrum
+Core Skills: - Data structures & algorithms - System design - API development - Performance optimization
+Cloud & DevOps Skills: - Docker - Kubernetes - Infrastructure as Code - CI/CD
+Data Skills: - SQL - Data modeling - Big data processing - Data pipelines
+Security Skills: - Authentication & authorization - Secure design - Risk awareness
+Domain Knowledge: - Banking systems - Financial markets - Payments - Risk management
+Soft Skills: - Communication - Problem-solving - Teamwork - Working in regulated environments
