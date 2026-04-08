@@ -155,30 +155,6 @@
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">work</span>Top Job Postings</div>
-      <a href="job-post.html" class="btn btn-primary" style="text-decoration:none"><span class="material-icons-round">add</span>Post Job</a>
-    </div>
-    <div class="section-body" id="job-postings-body">
-      <table>
-        <thead><tr>
-  <th data-col="title"      style="cursor:pointer;user-select:none" onclick="sortPostings('title')">Role <span id="sort-title"></span></th>
-  <th data-col="department" style="cursor:pointer;user-select:none" onclick="sortPostings('department')">Department <span id="sort-department"></span></th>
-  <th data-col="type"       style="cursor:pointer;user-select:none" onclick="sortPostings('type')">Type <span id="sort-type"></span></th>
-  <th data-col="location"   style="cursor:pointer;user-select:none" onclick="sortPostings('location')">Location <span id="sort-location"></span></th>
-  <th>Skills</th>
-  <th data-col="status"     style="cursor:pointer;user-select:none" onclick="sortPostings('status')">Status <span id="sort-status"></span></th>
-  <th data-col="urgency"    style="cursor:pointer;user-select:none" onclick="sortPostings('urgency')">Required By <span id="sort-urgency"></span></th>
-  <th></th>
-</tr></thead>
-        <tbody id="job-postings-tbody">
-          <tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet — click Post Job to create one</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- Skillset Filter -->
   <div class="section" id="skillset-section">
     <div class="section-header" style="cursor:pointer" onclick="toggleSkillset()">
@@ -189,17 +165,59 @@
       <div class="skillset-body"><div class="skillset-cats" id="skillset-cats"></div></div>
     </div>
     <div class="active-filters" id="active-filters" style="display:none"></div>
+    <!-- Matching candidates (shown when skills selected) -->
+    <div id="skill-candidates-wrap" style="display:none;border-top:2px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.1rem;border-bottom:1px solid var(--border)">
+        <span style="font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px"><span class="material-icons-round" style="font-size:.9rem;color:var(--primary)">people</span>Matching Candidates</span>
+        <span id="candidates-filter-label" style="font-size:.72rem;color:var(--muted)"></span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+        <thead><tr>
+          <th style="width:32px;padding:8px 4px 8px 12px"></th>
+          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Skills Matched</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="candidates-tbody">
+          <tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Select skills above to find matching candidates</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
+    
+
+  <!-- Pinned Candidates + Job Postings -->
   <div class="section">
     <div class="section-header">
-      <div class="section-title"><span class="material-icons-round">people</span>Top Candidates</div>
+      <div class="section-title"><span class="material-icons-round">push_pin</span>Pinned Candidates</div>
+      <a href="job-post.html" class="btn btn-primary" style="text-decoration:none"><span class="material-icons-round">add</span>Post Job</a>
     </div>
-    <div class="section-body">
+    <div style="padding:0">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+        <thead><tr>
+          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="pinned-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Pin candidates above to show them here</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section-header" style="border-top:2px solid var(--border);margin-top:0">
+      <div class="section-title"><span class="material-icons-round">work</span>Job Postings</div>
+    </div>
+    <div class="section-body" id="job-postings-body">
       <table>
-        <thead><tr><th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th></tr></thead>
-        <tbody id="candidates-tbody">
-          <tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates yet — post a job to start matching</td></tr>
+        <thead><tr>
+          <th data-col="title" style="cursor:pointer;user-select:none" onclick="sortPostings('title')">Role <span id="sort-title"></span></th>
+          <th data-col="department" style="cursor:pointer;user-select:none" onclick="sortPostings('department')">Department <span id="sort-department"></span></th>
+          <th data-col="type" style="cursor:pointer;user-select:none" onclick="sortPostings('type')">Type <span id="sort-type"></span></th>
+          <th data-col="location" style="cursor:pointer;user-select:none" onclick="sortPostings('location')">Location <span id="sort-location"></span></th>
+          <th>Skills</th>
+          <th data-col="status" style="cursor:pointer;user-select:none" onclick="sortPostings('status')">Status <span id="sort-status"></span></th>
+          <th data-col="urgency" style="cursor:pointer;user-select:none" onclick="sortPostings('urgency')">Required By <span id="sort-urgency"></span></th>
+          <th></th>
+        </tr></thead>
+        <tbody id="job-postings-tbody">
+          <tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No job postings yet</td></tr>
         </tbody>
       </table>
     </div>
@@ -274,6 +292,7 @@ if (user) {
   <!-- Avatar upload -->
   <script src="js/avatar-upload.js"></script>
   <script>
+    console.log('[Emphora] user from sessionStorage:', sessionStorage.getItem('emphora_user'));
     document.addEventListener('DOMContentLoaded', () => {
       if (!user) return;
       const heroEl    = document.getElementById('hero-avatar');
@@ -425,10 +444,12 @@ try { pinnedCandidates = new Set(JSON.parse(localStorage.getItem(PINS_KEY)||'[]'
 })();
 
 function toggleSkillset() {
-  const panel = document.getElementById('skillset-panel');
-  const icon  = document.getElementById('skillset-icon');
+  var panel = document.getElementById('skillset-panel');
+  var icon  = document.getElementById('skillset-icon');
+  console.log('[Emphora] toggleSkillset called, panel:', panel, 'current class:', panel ? panel.className : 'null');
+  if (!panel) return;
   panel.classList.toggle('open');
-  icon.style.transform = panel.classList.contains('open') ? 'rotate(180deg)' : '';
+  if (icon) icon.style.transform = panel.classList.contains('open') ? 'rotate(180deg)' : '';
 }
 
 function toggleSkillFilter(chip) {
@@ -536,23 +557,26 @@ function buildCandidates() {
 function renderCandidatesTable() {
   const tbody = document.getElementById('candidates-tbody');
   const label = document.getElementById('candidates-filter-label');
+  const wrap  = document.getElementById('skill-candidates-wrap');
   if (!tbody) return;
 
-  let list = [...allCandidates];
-
-  // Filter by active skills
-  if (activeSkillFilters.size > 0) {
-    const filters = [...activeSkillFilters];
-    list = list.map(c => {
-      const matched = filters.filter(f => c.skills.some(s => s.toLowerCase().includes(f.toLowerCase()) || f.toLowerCase().includes(s.toLowerCase())));
-      return { ...c, matchedFilters: matched };
-    }).filter(c => c.matchedFilters.length > 0);
-    list.sort((a,b) => b.matchedFilters.length - a.matchedFilters.length || b.score - a.score);
-    if (label) label.textContent = list.length + ' candidate' + (list.length!==1?'s':'') + ' match ' + activeSkillFilters.size + ' skill filter' + (activeSkillFilters.size!==1?'s':'');
-  } else {
-    list = list.map(c => ({ ...c, matchedFilters: [] }));
-    if (label) label.textContent = '';
+  // Hide entirely when no filters active
+  if (activeSkillFilters.size === 0) {
+    if (wrap) wrap.style.display = 'none';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Select skills above to find matching candidates</td></tr>';
+    renderPinnedTable(allCandidates);
+    return;
   }
+  if (wrap) wrap.style.display = '';
+
+  let list = [...allCandidates];
+  const filters = [...activeSkillFilters];
+  list = list.map(c => {
+    const matched = filters.filter(f => c.skills.some(s => s.toLowerCase().includes(f.toLowerCase()) || f.toLowerCase().includes(s.toLowerCase())));
+    return { ...c, matchedFilters: matched };
+  }).filter(c => c.matchedFilters.length > 0);
+  list.sort((a,b) => b.matchedFilters.length - a.matchedFilters.length || b.score - a.score);
+  if (label) label.textContent = list.length + ' candidate' + (list.length!==1?'s':'') + ' matching';
 
   // Pinned always on top
   const pinned = list.filter(c => pinnedCandidates.has(c.name + '|' + c.role));
@@ -561,6 +585,7 @@ function renderCandidatesTable() {
 
   if (!sorted.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">No candidates match selected skills</td></tr>';
+    renderPinnedTable(allCandidates);
     return;
   }
 
@@ -586,6 +611,34 @@ function renderCandidatesTable() {
   }).join('');
   // Pin button delegation
   tbody.querySelectorAll('.pin-btn').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); togglePin(b.dataset.pinkey); }); });
+
+  // Render pinned tbody
+  renderPinnedTable(allCandidates);
+}
+
+function renderPinnedTable(pool) {
+  var ptbody = document.getElementById('pinned-tbody');
+  if (!ptbody) return;
+  var pinned = pool.filter(function(c){ return pinnedCandidates.has(c.name+'|'+c.role); });
+  if (!pinned.length) {
+    ptbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.2rem 0">Pin candidates above to show them here</td></tr>';
+    return;
+  }
+  ptbody.innerHTML = pinned.map(function(c){
+    var url = 'candidate-profile.html?name=' + encodeURIComponent(c.name) + '&score=' + c.score + '&match=' + c.match + '&role=' + encodeURIComponent(c.role) + '&status=' + encodeURIComponent(c.status.label);
+    return '<tr style="cursor:pointer;background:rgba(230,81,0,.04)" onclick="window.location.href='' + url + ''">'
+      + '<td class="primary"><span class="material-icons-round" style="font-size:.7rem;color:#E65100;vertical-align:middle;margin-right:4px">push_pin</span>' + esc(c.name) + '</td>'
+      + '<td><strong style="color:var(--primary)">' + c.score + '</strong></td>'
+      + '<td>' + esc(c.role) + '</td>'
+      + '<td><span class="pill pill-blue">' + c.match + '%</span></td>'
+      + '<td><span class="pill ' + c.status.pill + '">' + esc(c.status.label) + '</span></td>'
+      + '<td onclick="event.stopPropagation()">'
+      +   '<button class="pin-btn pinned" data-pinkey="' + esc(c.name+'|'+c.role) + '" title="Unpin">'
+      +   '<span class="material-icons-round" style="font-size:1rem">push_pin</span></button>'
+      + '</td>'
+      + '</tr>';
+  }).join('');
+  ptbody.querySelectorAll('.pin-btn').forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); togglePin(b.dataset.pinkey); }); });
 }
 
 (function renderJobPostings() {
