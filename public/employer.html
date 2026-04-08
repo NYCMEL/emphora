@@ -81,7 +81,7 @@
     .pin-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;transition:color .15s;}
     .pin-btn:hover{color:#E65100;}
     .pin-btn.pinned{color:#E65100;}
-    #pinned-tbody tr td{background:rgba(230,81,0,.04);border-bottom:none;}
+    #pinned-tbody tr td{background:rgba(230,81,0,.04);border-bottom:none;padding-bottom:3px;}
     #pinned-tbody tr.skills-row td{background:rgba(230,81,0,.04);border-bottom:2px solid var(--border) !important;}
     td.match-score{font-weight:700;}
     .send-wrap{position:relative;display:inline-block;margin-right:4px;}
@@ -482,7 +482,7 @@ function renderPinnedTable(){
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+(candStatuses[c.name+'|'+c.role]?'<span style="font-size:.78rem;font-weight:600;color:var(--primary)">'+esc(candStatuses[c.name+'|'+c.role])+'</span>':'<span style="color:var(--muted);font-size:.72rem">--</span>')+'</td>'
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+sendMenuHtml(esc(c.name+'|'+c.role))+'<button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
       +'</tr>'
-      +(skillsHtml!='<span style="color:var(--muted);font-size:.72rem">--</span>'?'<tr class="skills-row"><td colspan="6" style="padding:2px 12px 6px 28px;border-bottom:2px solid var(--border)"><span style="font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+skillsHtml+'</td></tr>':'<tr class="skills-row"><td colspan="6" style="border-bottom:2px solid var(--border);padding:0"></td></tr>');
+      +(skillsHtml!='<span style="color:var(--muted);font-size:.72rem">--</span>'?'<tr class="skills-row"><td colspan="6" style="padding:0 12px 4px 28px;border-bottom:2px solid var(--border)"><span style="font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+skillsHtml+'</td></tr>':'<tr class="skills-row"><td colspan="6" style="border-bottom:2px solid var(--border);padding:0"></td></tr>');
   }).join('');
   tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
 }
