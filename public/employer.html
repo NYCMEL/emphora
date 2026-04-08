@@ -81,7 +81,7 @@
     .pin-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;transition:color .15s;}
     .pin-btn:hover{color:#E65100;}
     .pin-btn.pinned{color:#E65100;}
-    .pinned-row td{background:rgba(230,81,0,.04) !important;border-bottom:none !important;}
+    .pinned-row td{background:rgba(230,81,0,.04) !important;border-bottom:none !important;padding-bottom:4px;}
     td.match-score{font-weight:700;}
     .send-wrap{position:relative;display:inline-block;margin-right:4px;}
     .send-btn{display:inline-flex;align-items:center;gap:2px;padding:3px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font:600 .7rem inherit;cursor:pointer;transition:all .15s;}
@@ -132,7 +132,15 @@
   <div class="section" id="skillset-section">
     <div class="section-header" style="cursor:pointer" onclick="toggleSkillset()">
       <div class="section-title"><span class="material-icons-round">layers</span>Company Skill Requirements&nbsp;<span id="active-count" style="font-size:.7rem;color:var(--primary)"></span></div>
-      <span class="material-icons-round" id="skillset-icon" style="transition:transform .3s;color:var(--muted)">expand_more</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto" onclick="event.stopPropagation()">
+        <label style="font-size:.72rem;font-weight:700;color:var(--muted);white-space:nowrap">Scores &gt;</label>
+        <input type="number" id="score-threshold" value="70" min="0" max="100"
+          style="width:54px;border:1px solid var(--border);border-radius:7px;padding:4px 8px;background:var(--surface2);color:var(--text);font:600 .82rem inherit;outline:none;text-align:center"
+          oninput="renderCandidatesTable()"
+          onfocus="this.style.borderColor='var(--primary)'"
+          onblur="this.style.borderColor='var(--border)'"/>
+      </div>
+      <span class="material-icons-round" id="skillset-icon" style="transition:transform .3s;color:var(--muted);margin-left:8px" onclick="toggleSkillset()">expand_more</span>
     </div>
     <div class="skillset-panel" id="skillset-panel">
       <div class="skillset-body"><div class="skillset-cats" id="skillset-cats"></div></div>
@@ -378,7 +386,8 @@ function renderCandidatesTable(){
   }
   if(wrap)wrap.style.display='';
   const filters=[...activeSkillFilters];
-  let list=allCandidates.map(c=>{
+  const scoreThreshold = parseFloat((document.getElementById('score-threshold')||{value:'0'}).value)||0;
+  let list=allCandidates.filter(c=>c.score>=scoreThreshold).map(c=>{
     const matched=filters.filter(f=>c.skills.some(s=>s.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(s.toLowerCase())));
     return{...c,matchedFilters:matched};
   }).filter(c=>c.matchedFilters.length>0);
@@ -469,7 +478,7 @@ function renderPinnedTable(){
       +'<td class="cand-status" data-key="'+esc(c.name+'|'+c.role)+'">'+getCandStatus(c.name+'|'+c.role)+'</td>'
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+sendMenuHtml(esc(c.name+'|'+c.role))+'<button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
       +'</tr>'
-      +(matched.length?'<tr class="pinned-row" style="border-top:none;border-bottom:none"><td colspan="6" style="padding:2px 12px 6px 28px;border-bottom:2px solid var(--border) !important"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
+      +(matched.length?'<tr class="pinned-row" style="border-top:none;border-bottom:none"><td colspan="6" style="padding:0 12px 5px 28px;border-bottom:2px solid var(--border) !important"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
   }).join('');
   tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
 }
