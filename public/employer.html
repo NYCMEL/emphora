@@ -82,6 +82,15 @@
     .pin-btn.pinned{color:#E65100;}
     .pinned-row td{background:rgba(230,81,0,.04) !important;}
     td.match-score{font-weight:700;}
+    .send-wrap{position:relative;display:inline-block;margin-right:4px;}
+    .send-btn{display:inline-flex;align-items:center;gap:2px;padding:3px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font:600 .7rem inherit;cursor:pointer;transition:all .15s;}
+    .send-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .send-btn .material-icons-round{font-size:.75rem;}
+    .send-menu{display:none;position:absolute;right:0;top:calc(100% + 4px);min-width:150px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:300;overflow:hidden;}
+    .send-menu.open{display:block;}
+    .send-menu-hdr{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:6px 12px 4px;border-bottom:1px solid var(--border);}
+    .send-menu-item{display:block;padding:6px 12px;font-size:.78rem;color:var(--text);cursor:pointer;transition:background .1s;}
+    .send-menu-item:hover{background:rgba(0,137,123,.08);color:var(--primary);}
   </style>
 </head>
 <body>
@@ -390,6 +399,20 @@ function renderCandidatesTable(){
   renderPinnedTable();
 }
 
+
+var MANAGERS = ['Alex Thornton','Maria Santos','David Kim','Rachel Osei','James Whitfield','Priya Nair','Carlos Vega'];
+function sendMenuHtml(key) {
+  var id = 'sm-' + key.replace(/[^a-z0-9]/gi,'');
+  return '<div class="send-wrap">'
+    + '<button class="send-btn" onclick="event.stopPropagation();document.getElementById(\''+id+'\').classList.toggle(\'open\')">'
+    + '<span class="material-icons-round">person_add</span>Send to<span class="material-icons-round">arrow_drop_down</span></button>'
+    + '<div class="send-menu" id="'+id+'">'
+    + '<div class="send-menu-hdr">Send to</div>'
+    + MANAGERS.map(function(m){ return '<div class="send-menu-item" onclick="event.stopPropagation();document.getElementById(\''+id+'\').classList.remove(\'open\');showToast(\'Forwarded to '+m+'\',\'success\')">'+esc(m)+'</div>'; }).join('')
+    + '</div></div>';
+}
+document.addEventListener('click', function(){ document.querySelectorAll('.send-menu.open').forEach(function(m){ m.classList.remove('open'); }); });
+
 function renderPinnedTable(){
   const tbody=document.getElementById('pinned-tbody');if(!tbody)return;
   const pinned=allCandidates.filter(c=>pinnedCandidates.has(c.name+'|'+c.role));
@@ -405,13 +428,9 @@ function renderPinnedTable(){
       +'<td>'+esc(c.role)+'</td>'
       +'<td><span class="pill pill-blue">'+c.match+'%</span></td>'
       +'<td><span class="pill '+c.status.pill+'">'+esc(c.status.label)+'</span></td>'
-      +'<td onclick="event.stopPropagation()"><button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
+      +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+sendMenuHtml(esc(c.name+'|'+c.role))+'<button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
       +'</tr>'
-      +(matched.length?'<tr style="background:rgba(0,137,123,.03);border-bottom:1px solid var(--border)">'
-      +(matched.length?'<tr style="background:rgba(0,137,123,.02)">'
-      +'<td colspan="6" style="padding:1px 12px 3px 28px;border-bottom:none">'
-      +'<span style="font-size:.52rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'
-      +matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0px 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+ esc(s) +'</span>').join('')
+      +(matched.length?'<tr style="background:rgba(0,137,123,.02)"><td colspan="6" style="padding:1px 12px 3px 28px;border-bottom:none"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
   }).join('');
   tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
 }
@@ -482,6 +501,11 @@ function renderPostingsTable(){
   renderPinnedTable();
 })();
 
+function showToast(msg, type) {
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);background:#fff;color:#0D1B2A;border-radius:10px;padding:.6rem 1rem;font-size:.82rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:9999;border-left:3px solid #00897B';
+  t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.remove();},2500);
+}
 function editPosting(id){window.location.href='job-post.html?edit='+encodeURIComponent(id);}
 function deletePosting(id){
   if(!confirm('Delete this job posting?'))return;
