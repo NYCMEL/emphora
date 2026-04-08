@@ -160,7 +160,7 @@
           <th style="cursor:pointer;user-select:none" onclick="sortCandidates('score')">Score <span id="csort-score"></span></th>
           <th style="cursor:pointer;user-select:none" onclick="sortCandidates('role')">Role <span id="csort-role"></span></th>
           <th style="cursor:pointer;user-select:none" onclick="sortCandidates('match')">Match% <span id="csort-match"></span></th>
-          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('status')">Managed By <span id="csort-status"></span></th>
+          <th></th>
           <th></th>
         </tr></thead>
         <tbody id="candidates-tbody">
@@ -464,7 +464,7 @@ document.addEventListener('click', function(){ document.querySelectorAll('.send-
 function renderPinnedTable(){
   const tbody=document.getElementById('pinned-tbody');if(!tbody)return;
   const pinned=allCandidates.filter(c=>pinnedCandidates.has(c.name+'|'+c.role));
-  if(!pinned.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);font-style:italic;padding:1.2rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>';return;}
+  if(!pinned.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);font-style:italic;padding:1.2rem 0">Pin candidates from Company Skill Requirements to show them here</td></tr>';return;}
   tbody.innerHTML=pinned.map(c=>{
     const url='candidate-profile.html?name='+encodeURIComponent(c.name)+'&score='+c.score+'&match='+c.match+'&role='+encodeURIComponent(c.role)+'&status='+encodeURIComponent(c.status.label);
     const filters=[...activeSkillFilters];
@@ -475,10 +475,9 @@ function renderPinnedTable(){
       +'<td><strong style="color:var(--primary)">'+c.score+'</strong></td>'
       +'<td>'+esc(c.role)+'</td>'
       +'<td><span class="pill pill-blue">'+c.match+'%</span></td>'
-      +'<td class="cand-status" data-key="'+esc(c.name+'|'+c.role)+'">'+getCandStatus(c.name+'|'+c.role)+'</td>'
       +'<td onclick="event.stopPropagation()" style="white-space:nowrap">'+sendMenuHtml(esc(c.name+'|'+c.role))+'<button class="pin-btn pinned" data-key="'+esc(c.name+'|'+c.role)+'" title="Unpin"><span class="material-icons-round" style="font-size:1rem">push_pin</span></button></td>'
       +'</tr>'
-      +(matched.length?'<tr class="pinned-row" style="border-top:none;border-bottom:none"><td colspan="6" style="padding:0 12px 5px 28px;border-bottom:2px solid var(--border) !important"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
+      +(matched.length?'<tr class="pinned-row" style="border-top:none;border-bottom:none"><td style="padding:0 12px 5px 28px;border-bottom:2px solid var(--border) !important" colspan="5"><span style="font-size:.52rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:5px">Skills:</span>'+matched.map(s=>'<span style="display:inline-flex;align-items:center;padding:0 5px;border-radius:8px;font-size:.6rem;font-weight:600;background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);margin:1px 2px">'+esc(s)+'</span>').join('')+'</td></tr>':'')
   }).join('');
   tbody.querySelectorAll('.pin-btn').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();togglePin(b.dataset.key);}));
 }
