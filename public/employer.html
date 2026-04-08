@@ -174,7 +174,13 @@
       <table style="width:100%;border-collapse:collapse;font-size:.82rem">
         <thead><tr>
           <th style="width:32px;padding:8px 4px 8px 12px"></th>
-          <th>Candidate</th><th>Score</th><th>Role</th><th>Match</th><th>Status</th><th></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('name')">Candidate <span id="csort-name"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('matched')">Matches <span id="csort-matched"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('score')">Score <span id="csort-score"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('role')">Role <span id="csort-role"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('match')">Match% <span id="csort-match"></span></th>
+          <th style="cursor:pointer;user-select:none" onclick="sortCandidates('status')">Status <span id="csort-status"></span></th>
+          <th></th>
         </tr></thead>
         <tbody id="candidates-tbody">
           <tr><td colspan="8" style="text-align:center;color:var(--muted);font-style:italic;padding:1.5rem 0">Select skills above to find matching candidates</td></tr>
@@ -634,6 +640,7 @@ function seedCandidateSkills(name) {
 let activeSkillFilters = new Set();
 let pinnedCandidates = new Set();
 let allCandidates = [];
+let _csortCol = 'matched', _csortDir = -1; // default: most matches first
 
 const PINS_KEY = 'emphora_pinned_candidates_' + (user ? user.email : '');
 try { pinnedCandidates = new Set(JSON.parse(localStorage.getItem(PINS_KEY)||'[]')); } catch(_) {}
@@ -765,6 +772,11 @@ function buildCandidates() {
   renderCandidatesTable();
 }
 
+function sortCandidates(col) {
+  if (_csortCol === col) { _csortDir *= -1; } else { _csortCol = col; _csortDir = col === 'matched' || col === 'score' || col === 'match' ? -1 : 1; }
+  renderCandidatesTable();
+}
+
 function renderCandidatesTable() {
   const tbody = document.getElementById('candidates-tbody');
   const label = document.getElementById('candidates-filter-label');
@@ -797,7 +809,23 @@ function renderCandidatesTable() {
     if (!seen.has(key) || c.matchedFilters.length > seen.get(key).matchedFilters.length) seen.set(key, c);
   });
   list = [...seen.values()];
-  list.sort((a,b) => b.matchedFilters.length - a.matchedFilters.length || b.score - a.score);
+
+  // Update sort indicators
+  ['name','matched','score','role','match','status'].forEach(function(c) {
+    var el = document.getElementById('csort-' + c);
+    if (el) el.textContent = _csortCol === c ? (_csortDir === -1 ? ' ↓' : ' ↑') : '';
+  });
+
+  list.sort(function(a, b) {
+    var va, vb;
+    if (_csortCol === 'matched') { return (b.matchedFilters.length - a.matchedFilters.length) * Math.abs(_csortDir) * _csortDir / Math.abs(_csortDir); }
+    if (_csortCol === 'score')   { va = b.score;  vb = a.score;  return (va - vb) * (_csortDir < 0 ? 1 : -1); }
+    if (_csortCol === 'match')   { va = b.match;  vb = a.match;  return (va - vb) * (_csortDir < 0 ? 1 : -1); }
+    if (_csortCol === 'name')    { va = a.name.toLowerCase();   vb = b.name.toLowerCase();   return va < vb ? _csortDir : va > vb ? -_csortDir : 0; }
+    if (_csortCol === 'role')    { va = a.role.toLowerCase();   vb = b.role.toLowerCase();   return va < vb ? _csortDir : va > vb ? -_csortDir : 0; }
+    if (_csortCol === 'status')  { va = a.status.label.toLowerCase(); vb = b.status.label.toLowerCase(); return va < vb ? _csortDir : va > vb ? -_csortDir : 0; }
+    return b.matchedFilters.length - a.matchedFilters.length || b.score - a.score;
+  });
   const pinned = list.filter(c => pinnedCandidates.has(c.name + '|' + c.role));
   const rest   = list.filter(c => !pinnedCandidates.has(c.name + '|' + c.role));
   const sorted = [...pinned, ...rest].slice(0, 12);
