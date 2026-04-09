@@ -1,3 +1,0 @@
-#!/bin/zsh
-
-/usr/local/bin/node /Melify/tools/emphora/server.js
