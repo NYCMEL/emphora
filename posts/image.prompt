@@ -1,0 +1,32 @@
+I would like you to create the following image:
+
+Employee:
+ - shows it can rate himself
+ - shows it can rate the company he/she works for
+ - see his overall ratings
+ - see which company is looking for people like him
+ - No need to apply, the company already have him on their radar
+ - employee's peers can also rate this employee
+ 
+Employer:
+ - can have a range of skillset at their company
+ - they can quickly filter skillset and view list of potential candidates
+   already at their doorstep
+ - review the potential employee's rating
+ - select one or more candidates
+ - send them to corresponding manager and wait for their response
+ - if a match is found, start communicating with employee(s)
+ - hire them
+
+ - after some time with the comapany, company rates each employee, based
+   on their skillset to affect employee's rating
+
+Research:
+ - can ask questions about overall employee/employer hiring
+ - find which companies are highly rated by employees
+ etc.
+
+- Ratings carry different weight
+  - self (low)
+  - peers (higher)
+  - employers highest
